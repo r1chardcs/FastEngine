@@ -34,6 +34,8 @@ public:
 
     void Put(const Color &color);
     Color At(INT index) const;
+    static Brush Solid(BYTE r, BYTE g, BYTE b, BYTE a = 255);
+    static Brush Solid(const Color &color);
 };
 
 #endif //FASTENGINE_COLOR_H

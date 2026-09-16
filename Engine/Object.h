@@ -7,6 +7,7 @@
 
 #include "Component.h"
 #include "Platform.h"
+#include "RenderSystem.h"
 
 class GameObject {
     LIST<STRING> tags;
@@ -26,6 +27,8 @@ public:
 
     VIRTUAL VOID DrawWorld() {}
     VIRTUAL VOID DrawUI() {}
+
+    VIEW_PTR<RenderSystem> GetRenderSystem();
 
     template <typename TemplateComponent>
     VIEW_PTR<TemplateComponent> AddComponent() {

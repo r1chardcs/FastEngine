@@ -3,6 +3,9 @@
 //
 
 #include "RenderSystem.h"
+
+#include <future>
+
 #include "App.h"
 
 #include "../Toolkit/Debug/Logger.h"
@@ -63,10 +66,16 @@ void RenderSystem::SetRenderWorldCallback(const FUNC<void(VIEW_PTR<RenderSystem>
 }
 
 void RenderSystem::OnResize(INT width, INT height) {
+    if (height <= 0) height = 1;
+
     glViewport(0, 0, width, height);
-    const FLOAT factor = static_cast<float>(width) / height;
+
+    glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
+    const FLOAT factor = static_cast<FLOAT>(width) / static_cast<FLOAT>(height);
     glOrtho(-factor, factor, -1, 1, -1, 1);
+
+    glMatrixMode(GL_MODELVIEW);
 }
 
 void RenderSystem::OnUpdate() {
@@ -83,6 +92,26 @@ void RenderSystem::OnUpdate() {
         if (ui_render_callback) ui_render_callback(this);
     }
     EndUI();
+}
+
+void RenderSystem::Rotate(FLOAT angle, FLOAT x, FLOAT y, FLOAT z) {
+    glRotatef(angle, x, y, z);
+}
+
+void RenderSystem::Rotate(const Quat& quat) {
+    FLOAT matrix[16];
+    quat.ToMatrix4x4(matrix);
+    glMultMatrixf(matrix);
+}
+
+void RenderSystem::NewContext() {
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadIdentity();
+}
+
+void RenderSystem::StopContext() {
+    glPopMatrix();
 }
 
 void RenderSystem::StartWorld() {
@@ -114,6 +143,51 @@ void RenderSystem::EndUI() {
 
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
+}
+
+void RenderSystem::LoadTexture(LITERAL path) {
+    STRING key(path);
+    app->ExecuteInRenderThread([this, key](auto self) {
+        auto [res, err] = Render2D::GetTexture(key.c_str());
+        if (err) {
+            LOGWRN.Output("%s", err);
+        }
+
+        MUTEX_LOCK lock(mutex_textures);
+        this->textures[key] = res;
+    });
+}
+
+Texture RenderSystem::LoadTextureSync(LITERAL path) {
+    STRING key(path);
+    auto promise = std::make_shared<std::promise<Texture>>();
+    std::future<Texture> future = promise->get_future();
+
+    app->ExecuteInRenderThread([this, key, promise](auto self) {
+        auto [res, err] = Render2D::GetTexture(key.c_str());
+        if (err) {
+            LOGWRN.Output("%s", err);
+        }
+
+        {
+            MUTEX_LOCK lock(mutex_textures);
+            this->textures[key] = res;
+        }
+
+        promise->set_value(res);
+    });
+
+    return future.get();
+}
+
+Texture RenderSystem::GetTexture(LITERAL path) const {
+    MUTEX_LOCK lock(mutex_textures);
+    const auto it = textures.find(path);
+    if (it == textures.end()) {
+        LOGWRN.Output("Texture not loaded: %s", path);
+        return Texture{};
+    }
+    return it->second;
 }
 
 VIEW_PTR<Camera> RenderSystem::GetCamera() const {

@@ -19,6 +19,9 @@ public:
     static Quat Identity();
     static Quat FromAxisAngle(const Vec3f& axis, FLOAT angleRadians);
     static Quat FromEuler(FLOAT pitch, FLOAT yaw, FLOAT roll);
+
+    void ToMatrix4x4(FLOAT *out) const;
+
     static Quat FromEuler(const Vec3f& eulerRadians);
     static Quat Slerp(const Quat& a, const Quat& b, FLOAT t);
     static Quat Lerp(const Quat& a, const Quat& b, FLOAT t);
@@ -68,7 +71,7 @@ INLINE Quat Quat::FromAxisAngle(const Vec3f& axis, FLOAT angleRadians) {
     if (axisLen < 1e-8f)
         return Identity();
     const Vec3f n = axis / axisLen;
-    return Quat(n.X() * s, n.Y() * s, n.Z() * s, std::cos(halfAngle));
+    return Quat(n.x * s, n.y * s, n.z * s, std::cos(halfAngle));
 }
 
 INLINE Quat Quat::FromEuler(FLOAT pitch, FLOAT yaw, FLOAT roll) {
@@ -87,8 +90,40 @@ INLINE Quat Quat::FromEuler(FLOAT pitch, FLOAT yaw, FLOAT roll) {
     );
 }
 
+INLINE void Quat::ToMatrix4x4(FLOAT* out) const {
+    const FLOAT xx = x * x;
+    const FLOAT yy = y * y;
+    const FLOAT zz = z * z;
+    const FLOAT xy = x * y;
+    const FLOAT xz = x * z;
+    const FLOAT yz = y * z;
+    const FLOAT wx = w * x;
+    const FLOAT wy = w * y;
+    const FLOAT wz = w * z;
+
+    out[0] = 1.0f - 2.0f * (yy + zz);
+    out[1] = 2.0f * (xy + wz);
+    out[2] = 2.0f * (xz - wy);
+    out[3] = 0.0f;
+
+    out[4] = 2.0f * (xy - wz);
+    out[5] = 1.0f - 2.0f * (xx + zz);
+    out[6] = 2.0f * (yz + wx);
+    out[7] = 0.0f;
+
+    out[8] = 2.0f * (xz + wy);
+    out[9] = 2.0f * (yz - wx);
+    out[10] = 1.0f - 2.0f * (xx + yy);
+    out[11] = 0.0f;
+
+    out[12] = 0.0f;
+    out[13] = 0.0f;
+    out[14] = 0.0f;
+    out[15] = 1.0f;
+}
+
 INLINE Quat Quat::FromEuler(const Vec3f& eulerRadians) {
-    return FromEuler(eulerRadians.X(), eulerRadians.Y(), eulerRadians.Z());
+    return FromEuler(eulerRadians.x, eulerRadians.y, eulerRadians.z);
 }
 
 INLINE FLOAT Quat::X() const { return x; }

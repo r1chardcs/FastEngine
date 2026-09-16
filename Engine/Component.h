@@ -11,6 +11,9 @@ class Component {
 public:
     VIRTUAL ~Component() = default;
     VIRTUAL ClassID GetClassID() const = 0;
+
+    void Update();
+    void Render();
 };
 
 #endif //FASTENGINE_COMPONENT_H

@@ -9,11 +9,14 @@
 
 #include "../../Toolkit/Vector.h"
 #include "../Component.h"
+#include "../../Toolkit/Quat.h"
 
 class Transform : public Component {
     Vec3f position;
     Vec3f size;
+    Quat rotation;
 public:
+    Quat& Rotation();
     Vec3f& Position();
     Vec3f& Size();
 

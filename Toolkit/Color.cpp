@@ -46,4 +46,12 @@ Color Brush::At(const INT index) const {
     return colors[0];
 }
 
+Brush Brush::Solid(BYTE r, BYTE g, BYTE b, BYTE a) {
+    return Brush(Color(r, g, b, a));
+}
+
+Brush Brush::Solid(const Color &color) {
+    return Brush(color);
+}
+
 

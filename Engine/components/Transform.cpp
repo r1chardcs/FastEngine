@@ -4,6 +4,10 @@
 
 #include "Transform.h"
 
+Quat & Transform::Rotation() {
+    return rotation;
+}
+
 Vec3f & Transform::Position() {
     return position;
 }

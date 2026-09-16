@@ -7,6 +7,8 @@
 
 #include <Platform.h>
 
+#include "Render2D.h"
+#include "../Toolkit/Quat.h"
 #include "../Toolkit/Vector.h"
 
 class App; /*include "Engine/app.h";*/
@@ -36,6 +38,9 @@ class RenderSystem {
 
     CALLBACK<VOID(VIEW_PTR<RenderSystem>)> ui_render_callback;
     CALLBACK<VOID(VIEW_PTR<RenderSystem>)> world_render_callback;
+
+    HASH_MAP<STRING, Texture> textures;
+    mutable MUTEX mutex_textures;
 public:
     RenderSystem(VIEW_PTR<App> app);
 
@@ -45,11 +50,25 @@ public:
     void OnResize(INT width, INT height);
     void OnUpdate();
 
+    void Rotate(FLOAT angle, FLOAT x, FLOAT y, FLOAT z);
+    void Rotate(const Quat& quat);
+
+    void NewContext();
+    void StopContext();
+
     void StartWorld();
     void EndWorld();
 
     void StartUI();
     void EndUI();
+
+    void LoadTexture(LITERAL path);
+
+    Texture LoadTextureSync(LITERAL path);
+
+    Texture GetTexture(LITERAL path) const;
+
+    Texture GetTexture(LITERAL path);
 
     VIEW_PTR<Camera> GetCamera() const;
     VIEW_PTR<App> GetApp() const;

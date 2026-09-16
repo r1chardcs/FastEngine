@@ -4,6 +4,7 @@
 
 #include "Object.h"
 
+#include "App.h"
 #include "../Toolkit/Debug/Logger.h"
 
 void GameObject::AddTag(STRING tag) {
@@ -20,6 +21,10 @@ void GameObject::DeleteTag(const STRING &tag) {
 
 LIST<STRING> GameObject::GetTags() {
     return tags;
+}
+
+VIEW_PTR<RenderSystem> GameObject::GetRenderSystem() {
+    return App::GetInstance().GetRenderSystem();
 }
 
 void GameObject::SetActive(const BOOL value) {

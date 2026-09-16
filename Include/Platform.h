@@ -12,6 +12,7 @@
 #include <optional>
 #include <thread>
 #include <exception>
+#include <unordered_map>
 #include <queue>
 #include <mutex>
 #include <list>
@@ -98,6 +99,9 @@ using CALLBACK = std::function<SIGNATURE>;
 
 template <typename T>
 using LIST = std::list<T>;
+
+template <typename TKey, typename TValue>
+using HASH_MAP = std::unordered_map<TKey, TValue>;
 
 template <typename T>
 using NIL = std::optional<T>;

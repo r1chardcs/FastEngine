@@ -8,6 +8,8 @@
 #include "../Toolkit/Debug/Logger.h"
 #include "../Toolkit/Debug/Test.h"
 
+VIEW_PTR<App> App::instance = nullptr;
+
 void App::Render() {
     window = MakeSelfPtr<Window>(this->app_name.c_str(), 800, 800);
     window->SetResizeCallback([this](auto sender, auto w, auto h) {
@@ -53,7 +55,12 @@ void App::ProcessLogicQueue() {
 }
 
 App::App(STRING app_name) : app_name(MOVE(app_name)) {
+    instance = this;
     is_run = false;
+}
+
+App & App::GetInstance() {
+    return *instance;
 }
 
 void App::AddGameObject(const GLOBAL_PTR<GameObject> &game_object) {

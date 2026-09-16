@@ -16,6 +16,8 @@
 Err<Texture> Render2D::GetTexture(LITERAL path)
 {
     Texture texture = {};
+
+    stbi_set_flip_vertically_on_load(true);
     auto bytes = stbi_load(path, &texture.width, &texture.height, &texture.channels, STBI_rgb_alpha);
     if (!bytes) {
         return {.res = texture, .err = "Error load texture"};
@@ -23,6 +25,7 @@ Err<Texture> Render2D::GetTexture(LITERAL path)
 
     glGenTextures(1, &texture.id);
     if (texture.id == 0) {
+        stbi_image_free(bytes);
         return {
             .res = texture, .err = "Error generate texture"
         };
@@ -35,6 +38,8 @@ Err<Texture> Render2D::GetTexture(LITERAL path)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture.width, texture.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
 
+    stbi_image_free(bytes);
+
     return {
         .res = texture,
         .err = nullptr
@@ -42,14 +47,63 @@ Err<Texture> Render2D::GetTexture(LITERAL path)
 }
 
 void Render2D::DrawTexture(const Texture &texture, const Vec2f &pos, const Vec2f &size, const Brush &color) {
+    DrawTexture(texture, Recti{0, 0, texture.width, texture.height}, pos, size, color);
+}
+
+void Render2D::DrawTexture(const Texture &texture, const Recti &srcRect, const Vec2f &pos, const Vec2f &size, const Brush &color) {
     if (texture.id == 0) {
         LOGERR.Output("Invalid Draw texture in pos %f %f\n", pos.x, pos.y);
         return;
     }
 
+    if (texture.width <= 0 || texture.height <= 0) {
+        LOGERR.Output("Invalid texture dimensions for atlas region draw\n");
+        return;
+    }
 
+    const FLOAT texW = static_cast<FLOAT>(texture.width);
+    const FLOAT texH = static_cast<FLOAT>(texture.height);
+
+    const FLOAT u0 = static_cast<FLOAT>(srcRect.x) / texW;
+    const FLOAT v0 = static_cast<FLOAT>(srcRect.y) / texH;
+    const FLOAT u1 = static_cast<FLOAT>(srcRect.x + srcRect.width) / texW;
+    const FLOAT v1 = static_cast<FLOAT>(srcRect.y + srcRect.height) / texH;
+
+    const Color topLeft = color.At(0);
+    const Color topRight = color.At(1);
+    const Color bottomRight = color.At(2);
+    const Color bottomLeft = color.At(3);
+
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glBindTexture(GL_TEXTURE_2D, texture.id);
+
+    glBegin(GL_QUADS);
+
+    glColor4ub(topLeft.GetRed(), topLeft.GetGreen(), topLeft.GetBlue(), topLeft.GetAlpha());
+    glTexCoord2f(u0, v0);
+    glVertex3f(pos.x, pos.y, 0.0f);
+
+    glColor4ub(topRight.GetRed(), topRight.GetGreen(), topRight.GetBlue(), topRight.GetAlpha());
+    glTexCoord2f(u1, v0);
+    glVertex3f(pos.x + size.x, pos.y, 0.0f);
+
+    glColor4ub(bottomRight.GetRed(), bottomRight.GetGreen(), bottomRight.GetBlue(), bottomRight.GetAlpha());
+    glTexCoord2f(u1, v1);
+    glVertex3f(pos.x + size.x, pos.y + size.y, 0.0f);
+
+    glColor4ub(bottomLeft.GetRed(), bottomLeft.GetGreen(), bottomLeft.GetBlue(), bottomLeft.GetAlpha());
+    glTexCoord2f(u0, v1);
+    glVertex3f(pos.x, pos.y + size.y, 0.0f);
+
+    glEnd();
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_BLEND);
+    glDisable(GL_TEXTURE_2D);
 }
-
 void Render2D::DrawCircle(const Vec2f &pos, const Vec2f &size, const Brush &color, bool fill) {
     constexpr INT SEGMENTS = 32;
 

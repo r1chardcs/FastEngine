@@ -14,13 +14,16 @@ struct Texture {
     INT channels;
 };
 
+struct Recti {
+    INT x, y, width, height;
+};
+
 namespace Render2D {
     Err<Texture> GetTexture(LITERAL path);
-    void DrawTexture(const Texture& texture, const Vec2f& pos, const Vec2f& size, const Brush& color);
-    void DrawTexture();
     void DrawCircle(const Vec2f &pos, const Vec2f &size, const Brush& color,
         bool fill = true);
-
+    void DrawTexture(const Texture &texture, const Vec2f &pos, const Vec2f &size, const Brush &color);
+    void DrawTexture(const Texture &texture, const Recti &srcRect, const Vec2f &pos, const Vec2f &size, const Brush &color);
     void DrawBorder(const Vec2f &pos, const Vec2f &size, const Brush& color);
     void DrawRect(const Vec2f &pos, const Vec2f &size, const Brush& color);
     void DrawLine(FLOAT y, FLOAT minX, FLOAT maxX, const Brush &color);

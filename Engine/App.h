@@ -29,11 +29,13 @@ class App {
     MUTEX mutex_render, mutex_logic;
 
     LIST<GLOBAL_PTR<GameObject>> game_objects;
+    static VIEW_PTR<App> instance;
 protected:
     VIRTUAL void ProcessRenderQueue();
     VIRTUAL void ProcessLogicQueue();
 public:
     App(MOVE_PLEASE STRING app_name);
+    static App& GetInstance();
 
     void AddGameObject(const GLOBAL_PTR<GameObject> &game_object);
     void DeleteGameObject(VIEW_PTR<GameObject> game_object);
