@@ -21,3 +21,11 @@ void GameObject::DeleteTag(const STRING &tag) {
 LIST<STRING> GameObject::GetTags() {
     return tags;
 }
+
+void GameObject::SetActive(const BOOL value) {
+    isActive = value;
+}
+
+BOOL GameObject::IsActive() const {
+    return isActive;
+}

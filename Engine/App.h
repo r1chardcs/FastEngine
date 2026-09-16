@@ -8,6 +8,8 @@
 #include "Window.h"
 #include "RenderSystem.h"
 
+class GameObject; /*include "Object.h"*/
+
 class App {
     SELF_PTR<Window> window;
     SELF_PTR<RenderSystem> render_system;
@@ -17,6 +19,7 @@ class App {
     BOOL is_run;
     BOOL first_call;
     STATUS exit_code = 0;
+
     void Render();
 
     std::chrono::milliseconds logic_tick{16};
@@ -24,11 +27,17 @@ class App {
     QUEUE<FUNC<VOID(VIEW_PTR<App>)>> queue_render;
     QUEUE<FUNC<VOID(VIEW_PTR<App>)>> queue_logic;
     MUTEX mutex_render, mutex_logic;
+
+    LIST<GLOBAL_PTR<GameObject>> game_objects;
 protected:
     VIRTUAL void ProcessRenderQueue();
     VIRTUAL void ProcessLogicQueue();
 public:
     App(MOVE_PLEASE STRING app_name);
+
+    void AddGameObject(const GLOBAL_PTR<GameObject> &game_object);
+    void DeleteGameObject(VIEW_PTR<GameObject> game_object);
+    LIST<VIEW_PTR<GameObject>> GetGameObjectByTags(const STRING& tag) const;
 
     VIRTUAL void Start();
     VIRTUAL void Update();

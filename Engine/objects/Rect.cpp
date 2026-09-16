@@ -3,3 +3,27 @@
 //
 
 #include "Rect.h"
+
+#include "../Render2D.h"
+
+Rect::Rect() {
+    AddComponent<Transform>();
+}
+
+void Rect::SetColor(const Brush &color_) {
+    this->color = color_;
+}
+
+Brush Rect::GetColor() {
+    return color;
+}
+
+void Rect::DrawWorld() {
+    GameObject::DrawWorld();
+
+    const auto transform = GetComponent<Transform>();
+    Render2D::DrawRect(
+        transform->Position().ToVec2(),
+        transform->Size().ToVec2(),
+        color);
+}

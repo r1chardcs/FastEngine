@@ -4,6 +4,8 @@
 
 #include "App.h"
 
+#include "Object.h"
+#include "../Toolkit/Debug/Logger.h"
 #include "../Toolkit/Debug/Test.h"
 
 void App::Render() {
@@ -54,11 +56,43 @@ App::App(STRING app_name) : app_name(MOVE(app_name)) {
     is_run = false;
 }
 
+void App::AddGameObject(const GLOBAL_PTR<GameObject> &game_object) {
+    if (!game_object || !game_object->IsActive()) {
+        LOGWRN.Output("Add Invalid game object at 0x%p", game_object.get());
+        return;
+    }
+    game_object->Start();
+    this->game_objects.push_back(game_object);
+}
+
+void App::DeleteGameObject(VIEW_PTR<GameObject> game_object) {
+    if (!game_object || !game_object->IsActive()) {
+        LOGWRN.Output("Delete Invalid game object at 0x%p", game_object.operator->());
+        return;
+    }
+
+    game_object->Shutdown();
+    this->game_objects.remove_if([game_object](const GLOBAL_PTR<GameObject>& obj) {
+       return obj.get() == static_cast<GameObject*>(game_object);
+   });
+}
+
+LIST<VIEW_PTR<GameObject>> App::GetGameObjectByTags(const STRING &tag) const {
+    LIST<VIEW_PTR<GameObject>> tags;
+    for (const auto &game_object : game_objects) {
+        if (game_object)
+            for (const auto &obj_tag : game_object->GetTags()) {
+                if (obj_tag == tag) { tags.push_back(game_object.get()); }
+            }
+    }
+    return tags;
+}
+
 void App::Start() {
+
 }
 
 void App::Update() {
-
 }
 
 void App::Finish() {
@@ -84,8 +118,16 @@ STATUS App::Run() {
 
     auto next_tick = std::chrono::steady_clock::now();
 
+    render_system->SetRenderWorldCallback([this](auto) {
+        for (const auto &game_object : game_objects) {
+            if (game_object->IsActive()) game_object->DrawWorld();
+        }
+    });
+
     while (is_run) {
         Update();
+        for (const auto &game_object : game_objects) { game_object->Update(); }
+
         ProcessLogicQueue();
 
         next_tick += logic_tick;

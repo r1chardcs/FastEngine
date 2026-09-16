@@ -5,8 +5,21 @@
 #ifndef FASTENGINE_RECT_H
 #define FASTENGINE_RECT_H
 
+#include "../Object.h"
+#include "../../Toolkit/Color.h"
+#include  "../components/Transform.h"
 
-class Rect {
+class Rect : public GameObject {
+    Brush color = {
+        {1,1,1,1}
+    };
+public:
+    Rect();
+
+    void SetColor(const Brush& color_);
+    Brush GetColor();
+
+    void DrawWorld() override;
 };
 
 

@@ -11,11 +11,21 @@
 class GameObject {
     LIST<STRING> tags;
     VECTOR<SELF_PTR<Component>> components;
+    BOOL isActive = true;
 public:
+    virtual ~GameObject() = default;
+
     void AddTag(MOVE_PLEASE STRING tag);
     void DeleteTag(const STRING& tag);
 
     LIST<STRING> GetTags();
+
+    VIRTUAL VOID Start() {}
+    VIRTUAL VOID Shutdown() {}
+    VIRTUAL VOID Update() {}
+
+    VIRTUAL VOID DrawWorld() {}
+    VIRTUAL VOID DrawUI() {}
 
     template <typename TemplateComponent>
     VIEW_PTR<TemplateComponent> AddComponent() {
@@ -39,6 +49,9 @@ public:
         }
         return nullptr;
     }
+
+    void SetActive(BOOL value);
+    BOOL IsActive() const;
 };
 
 

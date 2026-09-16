@@ -162,6 +162,10 @@ struct Vec3 {
     Vec3<Other> Cast() const {
         return Vec3<Other>(static_cast<Other>(x), static_cast<Other>(y), static_cast<Other>(z));
     }
+
+    Vec2<NumberType> ToVec2() {
+        return {x, y};
+    }
 };
 
 template <typename NumberType>
