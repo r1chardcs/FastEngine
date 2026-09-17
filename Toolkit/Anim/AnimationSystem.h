@@ -1,0 +1,8 @@
+//
+// Created by dlllibstdntc on 17.09.2026.
+//
+
+#ifndef FASTENGINE_ANIMATIONSYSTEM_H
+#define FASTENGINE_ANIMATIONSYSTEM_H
+
+#endif //FASTENGINE_ANIMATIONSYSTEM_H
