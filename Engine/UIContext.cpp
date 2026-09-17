@@ -6,83 +6,206 @@
 
 #include <GL/gl.h>
 
+#include "App.h"
 #include "BufferBuilder.h"
 
-UIContext::UIContext(VIEW_PTR<RenderSystem> render_system) : render_system(render_system) {
+Vec2i UIContext::GetWindowSize() const {
+    const auto window = render_system->GetApp()->GetWindow();
 
+    return {
+        window->GetWidth(),
+        window->GetHeight()
+    };
 }
 
-void UIContext::DrawCircle(const Vec2f &pos, const Vec2f &size, const Brush &color, bool fill) {
-        constexpr INT SEGMENTS = 32;
+Vec2i UIContext::GetLayoutPosition(
+    Layout layout,
+    Vec2i pos,
+    Vec2i size
+) const {
+    const Vec2i window = GetWindowSize();
 
-        BufferBuilder bb(fill ? GL_TRIANGLE_FAN : GL_LINE_LOOP);
+    switch (layout) {
+        case Layout::UP_LEFT:
+            return {
+                pos.x,
+                pos.y
+            };
 
-        if (fill) {
-                const Color center = color.At(0);
-                bb.Vertex(pos.x, pos.y, 0.0f,
-                          center.GetRed(), center.GetGreen(), center.GetBlue(), center.GetAlpha());
-        }
+        case Layout::UP_CENTER:
+            return {
+                window.x / 2 - size.x / 2 + pos.x,
+                pos.y
+            };
 
-        for (INT i = 0; i <= SEGMENTS; ++i) {
-                const FLOAT angle = (2.0f * 3.14159265f * static_cast<FLOAT>(i)) / static_cast<FLOAT>(SEGMENTS);
-                const FLOAT x = pos.x + std::cos(angle) * size.x;
-                const FLOAT y = pos.y + std::sin(angle) * size.y;
+        case Layout::UP_RIGHT:
+            return {
+                window.x - size.x - pos.x,
+                pos.y
+            };
 
-                const Color c = color.At(i % SEGMENTS);
+        case Layout::CENTER_LEFT:
+            return {
+                pos.x,
+                window.y / 2 - size.y / 2 + pos.y
+            };
 
-                bb.Vertex(x, y, 0.0f, c.GetRed(), c.GetGreen(), c.GetBlue(), c.GetAlpha());
-        }
+        case Layout::CENTER:
+            return {
+                window.x / 2 - size.x / 2 + pos.x,
+                window.y / 2 - size.y / 2 + pos.y
+            };
 
-        bb.Flush();
+        case Layout::CENTER_RIGHT:
+            return {
+                window.x - size.x - pos.x,
+                window.y / 2 - size.y / 2 + pos.y
+            };
+
+        case Layout::DOWN_LEFT:
+            return {
+                pos.x,
+                window.y - size.y - pos.y
+            };
+
+        case Layout::DOWN_CENTER:
+            return {
+                window.x / 2 - size.x / 2 + pos.x,
+                window.y - size.y - pos.y
+            };
+
+        case Layout::DOWN_RIGHT:
+            return {
+                window.x - size.x - pos.x,
+                window.y - size.y - pos.y
+            };
+    }
+
+    return pos;
 }
 
+void UIContext::Text(
+    Layout layout,
+    const Font& font,
+    const char* text,
+    Vec2i pos,
+    RGBA color,
+    FLOAT scale
+) {
+    if (!render_system || !text) {
+        return;
+    }
 
-void UIContext::DrawBorder(const Vec2f &pos, const Vec2f &size, const Brush &color) {
+    const auto metrics = Render2D::MeasureText(font, text, scale);
+    const Vec2i size = {
+        static_cast<INT>(metrics.size.x),
+        static_cast<INT>(metrics.size.y)
+    };
 
-        BufferBuilder bb(GL_QUADS);
+    Vec2i finalPos = GetLayoutPosition(layout, pos, size);
+    finalPos.y += static_cast<INT>(metrics.baselineOffset);
 
-        const Color topLeft = color.At(0);
-        const Color topRight = color.At(1);
-        const Color bottomRight = color.At(2);
-        const Color bottomLeft = color.At(3);
-
-        bb.Vertex(pos.x, pos.y, 0.0f,
-                  topLeft.GetRed(), topLeft.GetGreen(), topLeft.GetBlue(), topLeft.GetAlpha())
-          .Vertex(pos.x + size.x, pos.y, 0.0f,
-                  topRight.GetRed(), topRight.GetGreen(), topRight.GetBlue(), topRight.GetAlpha())
-          .Vertex(pos.x + size.x, pos.y + size.y, 0.0f,
-                  bottomRight.GetRed(), bottomRight.GetGreen(), bottomRight.GetBlue(), bottomRight.GetAlpha())
-          .Vertex(pos.x, pos.y + size.y, 0.0f,
-                  bottomLeft.GetRed(), bottomLeft.GetGreen(), bottomLeft.GetBlue(), bottomLeft.GetAlpha())
-          .Flush();
+    Render2D::RenderText(
+        font,
+        text,
+        static_cast<FLOAT>(finalPos.x),
+        static_cast<FLOAT>(finalPos.y),
+        color.r,
+        color.g,
+        color.b,
+        scale
+    );
 }
 
-void UIContext::DrawRect(const Vec2f &pos, const Vec2f &size, const Brush &color) {
-    BufferBuilder bb(GL_LINE_LOOP);
+void UIContext::Rect(
+    Layout layout,
+    Vec2i pos,
+    Vec2i size,
+    RGBA color
+) {
+    const Vec2i finalPos = GetLayoutPosition(layout, pos, size);
 
-    const Color topLeft = color.At(0);
-    const Color topRight = color.At(1);
-    const Color bottomRight = color.At(2);
-    const Color bottomLeft = color.At(3);
-
-    bb.Vertex(pos.x, pos.y, 0.0f,
-              topLeft.GetRed(), topLeft.GetGreen(), topLeft.GetBlue(), topLeft.GetAlpha())
-      .Vertex(pos.x + size.x, pos.y, 0.0f,
-              topRight.GetRed(), topRight.GetGreen(), topRight.GetBlue(), topRight.GetAlpha())
-      .Vertex(pos.x + size.x, pos.y + size.y, 0.0f,
-              bottomRight.GetRed(), bottomRight.GetGreen(), bottomRight.GetBlue(), bottomRight.GetAlpha())
-      .Vertex(pos.x, pos.y + size.y, 0.0f,
-              bottomLeft.GetRed(), bottomLeft.GetGreen(), bottomLeft.GetBlue(), bottomLeft.GetAlpha())
-      .Flush();
+    Render2D::DrawRect(
+        {
+            static_cast<FLOAT>(finalPos.x),
+            static_cast<FLOAT>(finalPos.y)
+        },
+        {
+            static_cast<FLOAT>(size.x),
+            static_cast<FLOAT>(size.y)
+        },
+        Brush(color)
+    );
 }
 
-void UIContext::DrawLine(FLOAT y, FLOAT minX, FLOAT maxX, const Brush &color) {
+void UIContext::Border(
+    Layout layout,
+    Vec2i pos,
+    Vec2i size,
+    RGBA color
+) {
+    const Vec2i finalPos = GetLayoutPosition(layout, pos, size);
+
+    Render2D::DrawBorder(
+        {
+            static_cast<FLOAT>(finalPos.x),
+            static_cast<FLOAT>(finalPos.y)
+        },
+        {
+            static_cast<FLOAT>(size.x),
+            static_cast<FLOAT>(size.y)
+        },
+        Brush(color)
+    );
+}
+
+void UIContext::Rect(
+    Vec2i pos,
+    Vec2i size,
+    RGBA color
+) {
+    Rect(
+        Layout::UP_LEFT,
+        pos,
+        size,
+        color
+    );
+}
+
+void UIContext::Border(
+    Vec2i pos,
+    Vec2i size,
+    RGBA color
+) {
+    Border(
+        Layout::UP_LEFT,
+        pos,
+        size,
+        color
+    );
+}
+
+void UIContext::Line(
+    Vec2i start,
+    Vec2i end,
+    RGBA color
+) {
     BufferBuilder bb(GL_LINES);
 
-    const Color start = color.At(0);
-    const Color end = color.At(1);
 
-    bb.Vertex(minX, y, 0.0f, start.GetRed(), start.GetGreen(), start.GetBlue(), start.GetAlpha())
-      .Vertex(maxX, y, 0.0f, end.GetRed(), end.GetGreen(), end.GetBlue(), end.GetAlpha())
-      .Flush();
+    bb.Vertex(
+        static_cast<FLOAT>(start.x),
+        static_cast<FLOAT>(start.y),
+        0.0f,
+        color.r, color.g, color.b, color.a
+    );
+
+    bb.Vertex(
+        static_cast<FLOAT>(end.x),
+        static_cast<FLOAT>(end.y),
+        0.0f,
+        color.r, color.g, color.b, color.a
+    );
+
+    bb.Flush();
 }

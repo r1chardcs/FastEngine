@@ -119,6 +119,12 @@ void App::Update() {
 void App::Finish() {
 }
 
+void App::World(TypeEvent type) {
+}
+
+void App::UI(TypeEvent type) {
+}
+
 void App::ExecuteInRenderThread(const FUNC<VOID(VIEW_PTR<App>)> callback) {
     MUTEX_LOCK lock(mutex_render);
     queue_render.push(callback);
@@ -189,6 +195,7 @@ STATUS App::Run() {
     auto next_tick = std::chrono::steady_clock::now();
 
     render_system->SetRenderWorldCallback([this](auto) {
+        World(TypeEvent::PRE);
         for (const auto &game_object : game_objects) {
             if (game_object->IsActive()) {
                 game_object->DrawWorld();
@@ -196,6 +203,11 @@ STATUS App::Run() {
                     auto component : components) if (component) component->Render();
             }
         }
+        World(TypeEvent::POST);
+    });
+
+    render_system->SetRenderUICallback([this](auto) {
+       UI(TypeEvent::POST);
     });
 
     while (is_run) {

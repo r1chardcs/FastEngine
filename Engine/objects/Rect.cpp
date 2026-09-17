@@ -23,11 +23,10 @@ void Rect::DrawWorld() {
 
     GetRenderSystem()->NewContext();
     const auto transform = GetComponent<Transform>();
-    printf("Transform %f %f %f %f\n", transform->Position().x, transform->Position().y, transform->Size().x, transform->Size().y);
 
     GetRenderSystem()->Rotate(transform->Rotation());
     Render2D::DrawRect(
-        transform->Position().ToVec2(),
+        transform->HalfPos().ToVec2(),
         transform->Size().ToVec2(),
         color);
 

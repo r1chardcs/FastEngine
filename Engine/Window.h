@@ -10,7 +10,7 @@
 
 class Window final {
     HANDLE handle = nullptr;
-    CALLBACK<VOID(VIEW_PTR<Window>, INT, INT)> resize_callback = nullptr;
+    FUNC<VOID(VIEW_PTR<Window>, INT, INT)> resize_callback = nullptr;
     STRING title;
     INT width, height;
     void SetWindowSize(INT _width, INT _height);
@@ -26,7 +26,7 @@ public:
     BOOL IsRun() const;
     void SwapBuffer() const;
 
-    void SetResizeCallback(const CALLBACK<VOID(VIEW_PTR<Window>, INT, INT)> &callback);
+    void SetResizeCallback(const FUNC<VOID(VIEW_PTR<Window>, INT, INT)> &callback);
 
     HANDLE GetHandle() const;
     ~Window();

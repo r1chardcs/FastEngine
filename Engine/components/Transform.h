@@ -22,6 +22,7 @@ public:
 
     Quat& Rotation();
     Vec3f& Position();
+    Vec3f HalfPos() const;
     Vec3f& Size();
 
     CREATE_CLASS_ID(Transform)

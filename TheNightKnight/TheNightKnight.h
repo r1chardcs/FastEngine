@@ -11,30 +11,52 @@
 #include <Engine/components/HitboxBox2D.h>
 
 #include "glfw3.h"
+#include "Engine/UIContext.h"
 
 class TheNightKnight : public App {
     GLOBAL_PTR<Rect> player;
+    GLOBAL_PTR<Rect> victim;
 public:
     TheNightKnight()
         : App("The Night Knight") {
     }
 
+    void UI(TypeEvent type) override {
+        UIContext ctx(GetRenderSystem());
+        const auto font = Render2D::GetFont("C:/Windows/Fonts/Arial.ttf", 32).res;
+        ctx.Text(Layout::CENTER, font, "Center", {0 ,0}, {1, 1, 1, 1}, 0.5);
+        ctx.Text(Layout::CENTER_LEFT, font, "Center left", {0 ,0}, {1, 1, 1, 1}, 0.5);
+        ctx.Text(Layout::CENTER_RIGHT, font, "Center right", {0 ,0}, {1, 1, 1, 1}, 0.5);
+        ctx.Text(Layout::DOWN_CENTER, font, "Down Center", {0 ,0}, {1, 1, 1, 1}, 0.5);
+        ctx.Text(Layout::DOWN_LEFT, font, "Down left", {0 ,0}, {1, 1, 1, 1}, 0.5);
+        ctx.Text(Layout::DOWN_RIGHT, font, "Down right", {0 ,0}, {1, 1, 1, 1}, 0.5);
+        ctx.Text(Layout::UP_CENTER, font, "Up Center", {0 ,0}, {1, 1, 1, 1}, 0.5);
+        ctx.Text(Layout::UP_LEFT, font, "Up left", {0 ,0}, {1, 1, 1, 1}, 0.5);
+        ctx.Text(Layout::UP_RIGHT, font, "Up right", {0 ,0}, {1, 1, 1, 1}, 0.5);
+    }
+
     void Start() override {
         player = MakeGlobalPtr<Rect>();
+        victim = MakeGlobalPtr<Rect>();
+
         const auto transform = player->GetComponent<Transform>();
         player->AddComponent<HitboxBox2D>();
+        victim->AddComponent<HitboxBox2D>();
+
+        victim->GetComponent<Transform>()->Size().x = 0.1;
+        victim->GetComponent<Transform>()->Size().y = 0.1;
+        victim->SetColor({{1,0,0,1}});
 
         transform->Size().x = 0.1;
         transform->Size().y = 0.1;
+        transform->Position().y = 0.3;
+        transform->Position().y = 0.3;
         player->SetColor({1,0,0,1});
         AddGameObject(player);
+        AddGameObject(victim);
     }
 
     void Update() override {
-        ExecuteInRenderThread([](auto s) {
-           Render2D::DrawBorder({0, 0, 0.5, 0.5}, {{1, 0, 0, 1}});
-        });
-
         const auto transform = player->GetComponent<Transform>();
         if (GetKey(GLFW_KEY_W)) {
             transform->Position().y += 0.5 * GetDeltaTime();

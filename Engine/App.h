@@ -10,6 +10,10 @@
 #include "RenderSystem.h"
 #include "../Toolkit/Debug/SelfCrashDumper.h"
 
+enum class TypeEvent {
+    POST, PRE
+};
+
 class App {
     SELF_PTR<Window> window;
     SELF_PTR<RenderSystem> render_system;
@@ -49,6 +53,8 @@ public:
     VIRTUAL void Start();
     VIRTUAL void Update();
     VIRTUAL void Finish();
+    VIRTUAL void World(TypeEvent type);
+    VIRTUAL void UI(TypeEvent type);
 
     VIRTUAL void ExecuteInRenderThread(FUNC<VOID(VIEW_PTR<App>)> callback);
     VIRTUAL void ExecuteInLogicThread(FUNC<VOID(VIEW_PTR<App>)> callback);

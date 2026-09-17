@@ -48,6 +48,8 @@ add_library(FastEngine SHARED main.cpp
         Engine/components/HitboxBox2D.h
         Toolkit/Box2D.cpp
         Toolkit/Box2D.h
+        Engine/UILayer.cpp
+        Engine/UILayer.h
 )
 
 target_link_libraries(FastEngine PUBLIC gdi32 opengl32 dbghelp ${CMAKE_SOURCE_DIR}/Libraries/libglfw3.lib)

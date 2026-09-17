@@ -18,7 +18,7 @@ class HitboxBox2D : public Component {
     Vec2f size;
 public:
     explicit HitboxBox2D(const VIEW_PTR<GameObject> &self)
-        : Component(self), size(0.1, 0.1) {
+        : Component(self), size(0, 0) {
     }
 
     Vec2f& Size();

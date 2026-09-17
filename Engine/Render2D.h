@@ -7,6 +7,7 @@
 
 #include "../Toolkit/Vector.h"
 #include "../Toolkit/Color.h"
+#include <stb_truetype.h>
 
 struct Box2D;
 
@@ -16,12 +17,30 @@ struct Texture {
     INT channels;
 };
 
+struct Font {
+    stbtt_bakedchar cdata[96];
+    UIHANDLE fontTexture;
+    const int atlasW = 512;
+    const int atlasH = 512;
+};
+
 struct Recti {
     INT x, y, width, height;
 };
 
+struct TextMetrics {
+    Vec2f size;
+    float baselineOffset;
+};
+
 namespace Render2D {
+
     Err<Texture> GetTexture(LITERAL path);
+    Err<Font> GetFont(LITERAL path, INT size);
+    void RenderText(const Font &font, const char *text, float px, float py, float r, float g, float b,
+        float scale);
+    TextMetrics MeasureText(const Font &font, const char *text, float scale);
+
     void DrawCircle(const Vec2f &pos, const Vec2f &size, const Brush& color,
         bool fill = true);
     void DrawTexture(const Texture &texture, const Vec2f &pos, const Vec2f &size, const Brush &color);

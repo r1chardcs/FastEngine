@@ -14,6 +14,9 @@
 #include "../Toolkit/Debug/Logger.h"
 #include "../Toolkit/Box2D.h"
 
+#define STB_TRUETYPE_IMPLEMENTATION
+#include <stb_truetype.h>
+
 Err<Texture> Render2D::GetTexture(LITERAL path)
 {
     Texture texture = {};
@@ -45,6 +48,93 @@ Err<Texture> Render2D::GetTexture(LITERAL path)
         .res = texture,
         .err = nullptr
     };
+}
+
+Err<Font> Render2D::GetFont(LITERAL path, INT _size) {
+    auto font = Font();
+
+    FILE* f = fopen(path, "rb");
+    fseek(f, 0, SEEK_END);
+    long size = ftell(f);
+    fseek(f, 0, SEEK_SET);
+
+    std::vector<unsigned char> ttfBuffer(size);
+    fread(ttfBuffer.data(), 1, size, f);
+    fclose(f);
+
+    std::vector<unsigned char> alphaOnly(font.atlasW * font.atlasH);
+
+    stbtt_BakeFontBitmap(ttfBuffer.data(), 0, _size,
+                          alphaOnly.data(), font.atlasW, font.atlasH,
+                          32, 96, font.cdata);
+
+    std::vector<unsigned char> la(font.atlasW * font.atlasH * 2);
+    for (int i = 0; i < font.atlasW * font.atlasH; i++) {
+        la[i * 2 + 0] = 255;
+        la[i * 2 + 1] = alphaOnly[i];
+    }
+
+    glGenTextures(1, &font.fontTexture);
+    glBindTexture(GL_TEXTURE_2D, font.fontTexture);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE_ALPHA, font.atlasW, font.atlasH, 0,
+                 GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, la.data());
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    return {font, nullptr};
+}
+TextMetrics Render2D::MeasureText(const Font &font, const char *text, float scale) {
+    float x = 0, y = 0;
+    float minY = 0.0f, maxY = 0.0f;
+
+    while (*text) {
+        if (*text >= 32 && *text < 128) {
+            stbtt_aligned_quad q;
+            stbtt_GetBakedQuad(font.cdata, font.atlasW, font.atlasH, *text - 32, &x, &y, &q, 1);
+            minY = std::min(minY, q.y0);
+            maxY = std::max(maxY, q.y1);
+        }
+        text++;
+    }
+
+    return {
+        .size = { x * scale, (maxY - minY) * scale },
+        .baselineOffset = -minY * scale
+    };
+}
+void Render2D::RenderText(const Font &font, const char *text, float px, float py, float r, float g, float b, float scale) {
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBindTexture(GL_TEXTURE_2D, font.fontTexture);
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
+    glColor4f(r, g, b, 1.0f);
+
+    glPushMatrix();
+    glTranslatef(px, py, 0);
+    glScalef(scale, scale, 1.0f);
+
+    float x = 0, y = 0;
+    glBegin(GL_QUADS);
+    while (*text) {
+        if (*text >= 32 && *text < 128) {
+            stbtt_aligned_quad q;
+            stbtt_GetBakedQuad(font.cdata, font.atlasW, font.atlasH, *text - 32, &x, &y, &q, 1);
+
+            glTexCoord2f(q.s0, q.t0); glVertex2f(q.x0, q.y0);
+            glTexCoord2f(q.s1, q.t0); glVertex2f(q.x1, q.y0);
+            glTexCoord2f(q.s1, q.t1); glVertex2f(q.x1, q.y1);
+            glTexCoord2f(q.s0, q.t1); glVertex2f(q.x0, q.y1);
+        }
+        text++;
+    }
+    glEnd();
+    glPopMatrix();
+
+    glDisable(GL_BLEND);
+    glDisable(GL_TEXTURE_2D);
 }
 
 void Render2D::DrawTexture(const Texture &texture, const Vec2f &pos, const Vec2f &size, const Brush &color) {
@@ -165,6 +255,7 @@ void Render2D::DrawBorder(const Box2D &box, const Brush &color) {
             .Vertex(box.minX, box.maxY, 0.0f,
                     bottomLeft.GetRed(), bottomLeft.GetGreen(), bottomLeft.GetBlue(), bottomLeft.GetAlpha())
             .Flush();
+
 }
 
 void Render2D::DrawRect(const Vec2f &pos, const Vec2f &size, const Brush &color) {

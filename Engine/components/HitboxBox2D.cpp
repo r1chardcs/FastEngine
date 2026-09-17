@@ -25,11 +25,11 @@ BOOL & HitboxBox2D::IsSolid() {
 
 void HitboxBox2D::Start() {
     Component::Start();
-    transform = self->GetComponent<Transform>();
 }
 
 void HitboxBox2D::Update() {
     Component::Update();
+    transform = self->GetComponent<Transform>();
 
     if (!transform) {
         LOGWRN.Output("HitboxBox2D has no Transform component");
@@ -40,12 +40,16 @@ void HitboxBox2D::Update() {
     auto transform_size = transform->Size();
     auto custom_size = size;
 
-    const float halfW = transform_size.x + custom_size.x;
-    const float halfH = transform_size.y + custom_size.y;
+
+
+    const float halfW = transform_size.x * 0.5f + size.x;
+    const float halfH = transform_size.y * 0.5f + size.y;
 
     box = {
-        transform_pos.x - transform_size.x, transform_pos.y - transform_size.y,
-        transform_pos.x + transform_size.x, transform_pos.y + transform_size.y
+        transform_pos.x - halfW,
+        transform_pos.y - halfH,
+        transform_pos.x + halfW,
+        transform_pos.y + halfH
     };
 
     if (!solid) {
@@ -78,7 +82,6 @@ void HitboxBox2D::Render() {
     Component::Render();
 
     self->GetRenderSystem()->NewContext();
-
     Render2D::DrawBorder(box, {{1, 0, 0, 1}});
     self->GetRenderSystem()->StopContext();
 }
