@@ -3,6 +3,14 @@
 //
 
 #include "Transform.h"
+#include "../Object.h"
+
+void Transform::Render() {
+    Component::Render();
+    const auto transform = self->GetComponent<Transform>();
+    self->GetRenderSystem()->Rotate(transform->Rotation());
+
+}
 
 Quat & Transform::Rotation() {
     return rotation;

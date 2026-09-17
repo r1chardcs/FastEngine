@@ -20,6 +20,8 @@ public:
         : Component(self) {
     }
 
+    void Render() override;
+
     Quat& Rotation();
     Vec3f& Position();
     Vec3f HalfPos() const;

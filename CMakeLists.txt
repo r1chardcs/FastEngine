@@ -50,6 +50,23 @@ add_library(FastEngine SHARED main.cpp
         Toolkit/Box2D.h
         Engine/UILayer.cpp
         Engine/UILayer.h
+        Engine/Scene.cpp
+        Engine/Scene.h
+        Toolkit/Anim/Easy.cpp
+        Toolkit/Anim/Easy.h
+        Toolkit/Anim/Lerp.h
+        "Toolkit/Anim/ITween.h"
+        Toolkit/Anim/Tween.h
+        Toolkit/Anim/AnimationSystem.h
+        Toolkit/Anim/AnimationSystem.cpp
+        Toolkit/Anim/Animation.h
+        Toolkit/data/LocalStorage.cpp
+        Toolkit/data/LocalStorage.h
+        Toolkit/data/ICipher.h
+        Toolkit/data/NoCipher.h
+        Toolkit/data/XorCipher.h
+        Toolkit/data/Rc4Cipher.h
+        "Toolkit/data/StorageSerializer.h"
 )
 
 target_link_libraries(FastEngine PUBLIC gdi32 opengl32 dbghelp ${CMAKE_SOURCE_DIR}/Libraries/libglfw3.lib)

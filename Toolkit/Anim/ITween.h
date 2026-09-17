@@ -1,5 +1,6 @@
 #ifndef FASTENGINE_ITWEEN_H
 #define FASTENGINE_ITWEEN_H
+#include <Platform.h>
 
 class ITween {
 public:

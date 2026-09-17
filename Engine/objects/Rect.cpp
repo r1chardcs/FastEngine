@@ -21,14 +21,10 @@ Brush Rect::GetColor() {
 void Rect::DrawWorld() {
     GameObject::DrawWorld();
 
-    GetRenderSystem()->NewContext();
     const auto transform = GetComponent<Transform>();
 
-    GetRenderSystem()->Rotate(transform->Rotation());
     Render2D::DrawRect(
-        transform->HalfPos().ToVec2(),
-        transform->Size().ToVec2(),
-        color);
-
-    GetRenderSystem()->StopContext();
+      transform->HalfPos().ToVec2(),
+      transform->Size().ToVec2(),
+      color);
 }

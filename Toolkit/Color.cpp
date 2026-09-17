@@ -46,6 +46,10 @@ Color Brush::At(const INT index) const {
     return colors[0];
 }
 
+RGBA Brush::GetRGBA() {
+    return colors[0].GetRGBA();
+}
+
 Brush Brush::Solid(BYTE r, BYTE g, BYTE b, BYTE a) {
     return Brush(Color(r, g, b, a));
 }

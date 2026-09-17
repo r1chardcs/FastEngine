@@ -64,49 +64,56 @@ App::App(STRING app_name) : app_name(MOVE(app_name)) {
 
     CrashDumper::SetCallback([this](auto ctx) { this->GrabSelfCrash(ctx); });
     CrashDumper::AttachHandler();
+
+    assets = MakeSelfPtr<Assets>("Assets");
+    local_storage = MakeSelfPtr<LocalStorage>("data", "global.dat");
+    if (const auto [res, err] = IO::File::ExistDirectory("data"); !res || err) {
+        if (err) {
+            LOGERR.Output("Filesystem error: %s\n", err);
+        }
+        else {
+            IO::File::CreateDirectory("data");
+        }
+    }
+
+    if (!local_storage->Load()) {
+        LOGWRN.Output("Error load localstorage: %s\n", local_storage->GetFullPath().c_str());
+    }
 }
 
 App & App::GetInstance() {
     return *instance;
 }
 
-void App::AddGameObject(const GLOBAL_PTR<GameObject> &game_object) {
-    if (!game_object || !game_object->IsActive()) {
-        LOGWRN.Output("Add Invalid game object at 0x%p", game_object.get());
+void App::SetScene(const GLOBAL_PTR<Scene>& scene) {
+    if (current_scene) {
+        current_scene->Finish();
+    }
+    current_scene = scene;
+    if (current_scene) {
+        current_scene->Start();
+    }
+}
+
+VIEW_PTR<Scene> App::GetScene() const {
+    return current_scene.get();
+}
+void App::AddGameObject(const GLOBAL_PTR<GameObject>& game_object) {
+    if (!current_scene) {
+        LOGWRN.Output("AddGameObject called with no active scene");
         return;
     }
-    game_object->Start();
-
-    MUTEX_LOCK lock(mutex_game_objects);
-    this->game_objects.push_back(game_object);
+    current_scene->AddGameObject(game_object);
 }
 
 void App::DeleteGameObject(VIEW_PTR<GameObject> game_object) {
-    if (!game_object || !game_object->IsActive()) {
-        LOGWRN.Output("Delete Invalid game object at 0x%p", game_object.operator->());
-        return;
-    }
-
-    for (const auto components = game_object->GetComponents();
-            auto component : components) if (component) component->Shutdown();
-
-    game_object->Shutdown();
-
-    MUTEX_LOCK lock(mutex_game_objects);
-    this->game_objects.remove_if([game_object](const GLOBAL_PTR<GameObject>& obj) {
-       return obj.get() == static_cast<GameObject*>(game_object);
-   });
+    if (!current_scene) return;
+    current_scene->DeleteGameObject(game_object);
 }
 
 LIST<VIEW_PTR<GameObject>> App::GetGameObjectByTags(const STRING &tag) const {
-    LIST<VIEW_PTR<GameObject>> tags;
-    for (const auto &game_object : game_objects) {
-        if (game_object)
-            for (const auto &obj_tag : game_object->GetTags()) {
-                if (obj_tag == tag) { tags.push_back(game_object.get()); }
-            }
-    }
-    return tags;
+    if (!current_scene) return {};
+    return current_scene->GetGameObjectByTags(tag);
 }
 
 void App::Start() {
@@ -205,6 +212,11 @@ STATUS App::Run() {
 
     render_system->SetRenderWorldCallback([this](auto) {
         World(TypeEvent::PRE);
+
+        if (current_scene) current_scene->Render();
+
+        DEPRECTED_API
+        /*
         for (const auto &game_object : game_objects) {
             if (game_object->IsActive()) {
                 game_object->DrawWorld();
@@ -212,6 +224,7 @@ STATUS App::Run() {
                     auto component : components) if (component) component->Render();
             }
         }
+        */
         World(TypeEvent::POST);
     });
 
@@ -229,12 +242,17 @@ STATUS App::Run() {
         if (window) {
             Update();
         }
+
+        if (current_scene) current_scene->Update();
+
+        DEPRECTED_API
+        /*
         for (const auto &game_object : game_objects) {
             game_object->Update();
             for (const auto components = game_object->GetComponents();
                 auto component : components) if (component) component->Update();
         }
-
+        */
         ProcessLogicQueue();
 
         next_tick += logic_tick;

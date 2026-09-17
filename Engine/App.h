@@ -10,6 +10,10 @@
 #include "RenderSystem.h"
 #include "../Toolkit/Debug/SelfCrashDumper.h"
 
+#include "Scene.h"
+#include "Toolkit/Assets/Assets.h"
+#include "Toolkit/data/LocalStorage.h"
+
 enum class TypeEvent {
     POST, PRE
 };
@@ -32,16 +36,25 @@ class App {
     QUEUE<FUNC<VOID(VIEW_PTR<App>)>> queue_logic;
     MUTEX mutex_render, mutex_logic;
 
+    COMMENT("Usage: Scene")
+    DEPRECTED_API
     LIST<GLOBAL_PTR<GameObject>> game_objects;
     MUTEX mutex_game_objects;
 
     static VIEW_PTR<App> instance;
+    GLOBAL_PTR<Scene> current_scene;
 protected:
     VIRTUAL void ProcessRenderQueue();
     VIRTUAL void ProcessLogicQueue();
+
+    SELF_PTR<Assets> assets;
+    SELF_PTR<LocalStorage> local_storage;
 public:
     App(MOVE_PLEASE STRING app_name);
     static App& GetInstance();
+
+    void SetScene(const GLOBAL_PTR<Scene>& scene);
+    VIEW_PTR<Scene> GetScene() const;
 
     void AddGameObject(const GLOBAL_PTR<GameObject> &game_object);
     void DeleteGameObject(VIEW_PTR<GameObject> game_object);
@@ -82,15 +95,8 @@ public:
 
 template<typename TemplateComponent>
 LIST<VIEW_PTR<TemplateComponent>> App::GetComponents() {
-    LIST<VIEW_PTR<TemplateComponent>> result;
-
-    for (const auto& game_object : game_objects) {
-        if (auto component = game_object->GetComponent<TemplateComponent>()) {
-            result.push_back(component);
-        }
-    }
-
-    return result;
+    if (!current_scene) return {};
+    return current_scene->GetComponents<TemplateComponent>();
 }
 
 #endif //FASTENGINE_APP_H

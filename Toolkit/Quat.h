@@ -11,8 +11,8 @@
 #include "Vector.h"
 
 class Quat {
-    FLOAT x, y, z, w;
 public:
+    FLOAT x, y, z, w;
     Quat();
     Quat(FLOAT x, FLOAT y, FLOAT z, FLOAT w);
 
@@ -30,6 +30,11 @@ public:
     FLOAT Y() const;
     FLOAT Z() const;
     FLOAT W() const;
+
+    FLOAT GetAngle() const {
+        const FLOAT clampedW = std::max(-1.0f, std::min(1.0f, w));
+        return 2.0f * std::acos(clampedW);
+    }
 
     FLOAT LengthSquared() const;
     FLOAT Length() const;

@@ -164,4 +164,7 @@ public: \
     static ClassID StaticClassID() { return StaticClassIDOf<ClassName>(); } \
     ClassID GetClassID() const override { return StaticClassID(); }
 
+#define DEPRECTED_API
+#define COMMENT(x)
+
 #endif //FASTENGINE_PLATFORM_H

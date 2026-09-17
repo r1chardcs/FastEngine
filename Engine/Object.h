@@ -8,6 +8,7 @@
 #include "Component.h"
 #include "Platform.h"
 #include "RenderSystem.h"
+#include "Toolkit/Debug/Logger.h"
 
 class GameObject {
     LIST<STRING> tags;
@@ -34,6 +35,11 @@ public:
     VIEW_PTR<TemplateComponent> AddComponent() {
         static_assert(std::is_base_of_v<Component, TemplateComponent>,
                       "TemplateComponent must derive from Component");
+
+        if (auto existing = GetComponent<TemplateComponent>()) {
+            LOGWRN.Output("Component of this type already exists on GameObject at 0x%p", this);
+            return existing;
+        }
 
         auto component = MakeSelfPtr<TemplateComponent>(TemplateComponent(this));
         component->Start();
