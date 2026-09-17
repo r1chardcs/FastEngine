@@ -35,10 +35,19 @@ public:
         static_assert(std::is_base_of_v<Component, TemplateComponent>,
                       "TemplateComponent must derive from Component");
 
-        auto component = MakeSelfPtr<TemplateComponent>();
+        auto component = MakeSelfPtr<TemplateComponent>(TemplateComponent(this));
         const auto raw_ptr = component.get();
         components.push_back(MOVE(component));
         return raw_ptr;
+    }
+
+    VECTOR<VIEW_PTR<Component>> GetComponents() const {
+        VECTOR<VIEW_PTR<Component>> array;
+        for (const auto &component : components) {
+            if (component) array.push_back(component.get());
+        }
+
+        return array;
     }
 
     template <typename TemplateComponent>

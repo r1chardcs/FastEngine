@@ -39,8 +39,8 @@ add_executable(FastEngine main.cpp
         Toolkit/Quat.h
         Engine/objects/Rect.cpp
         Engine/objects/Rect.h
-        Engine/objects/Sprite.cpp
-        Engine/objects/Sprite.h
+        Engine/components/Sprite.cpp
+        Engine/components/Sprite.h
 )
 
 target_link_libraries(FastEngine PUBLIC gdi32 opengl32 dbghelp ${CMAKE_SOURCE_DIR}/Libraries/libglfw3.lib)

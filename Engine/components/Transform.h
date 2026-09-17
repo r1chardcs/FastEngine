@@ -16,6 +16,10 @@ class Transform : public Component {
     Vec3f size;
     Quat rotation;
 public:
+    Transform(const VIEW_PTR<GameObject> &self)
+        : Component(self) {
+    }
+
     Quat& Rotation();
     Vec3f& Position();
     Vec3f& Size();

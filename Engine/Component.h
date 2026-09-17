@@ -7,13 +7,22 @@
 
 #include <Platform.h>
 
+class GameObject;
+
 class Component {
+protected:
+    VIEW_PTR<GameObject> self;
 public:
+    Component(VIEW_PTR<GameObject> self);
+
     VIRTUAL ~Component() = default;
     VIRTUAL ClassID GetClassID() const = 0;
 
-    void Update();
-    void Render();
+    VIRTUAL void Start();
+    VIRTUAL void Update();
+    VIRTUAL void Render();
+
+    VIRTUAL void Shutdown();
 };
 
 #endif //FASTENGINE_COMPONENT_H

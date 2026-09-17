@@ -69,6 +69,9 @@ void App::AddGameObject(const GLOBAL_PTR<GameObject> &game_object) {
         return;
     }
     game_object->Start();
+    for (const auto components = game_object->GetComponents();
+            auto component : components) if (component) component->Start();
+
     this->game_objects.push_back(game_object);
 }
 
@@ -77,6 +80,9 @@ void App::DeleteGameObject(VIEW_PTR<GameObject> game_object) {
         LOGWRN.Output("Delete Invalid game object at 0x%p", game_object.operator->());
         return;
     }
+
+    for (const auto components = game_object->GetComponents();
+            auto component : components) if (component) component->Shutdown();
 
     game_object->Shutdown();
     this->game_objects.remove_if([game_object](const GLOBAL_PTR<GameObject>& obj) {
@@ -127,13 +133,21 @@ STATUS App::Run() {
 
     render_system->SetRenderWorldCallback([this](auto) {
         for (const auto &game_object : game_objects) {
-            if (game_object->IsActive()) game_object->DrawWorld();
+            if (game_object->IsActive()) {
+                game_object->DrawWorld();
+                for (const auto components = game_object->GetComponents();
+                    auto component : components) if (component) component->Render();
+            }
         }
     });
 
     while (is_run) {
         Update();
-        for (const auto &game_object : game_objects) { game_object->Update(); }
+        for (const auto &game_object : game_objects) {
+            game_object->Update();
+            for (const auto components = game_object->GetComponents();
+                auto component : components) if (component) component->Update();
+        }
 
         ProcessLogicQueue();
 

@@ -5,10 +5,10 @@
 #include "Toolkit/Debug/Logger.h"
 
 #include "Engine/objects/Rect.h"
-#include "Engine/objects/Sprite.h"
+#include "Engine/components/Sprite.h"
 
 class MyGame : public App {
-    GLOBAL_PTR<Sprite> rect;
+    GLOBAL_PTR<Rect> rect;
 public:
     MyGame()
         : App("My Game") {
@@ -17,12 +17,15 @@ public:
     void Start() override {
         auto tex = GetRenderSystem()->LoadTextureSync("player.png");
 
-        rect = MakeGlobalPtr<Sprite>(tex);
+        rect = MakeGlobalPtr<Rect>();
+        auto sprite = rect->AddComponent<Sprite>();
+        rect->SetColor({{0,0,0,0}});
 
         auto transformHandle = rect->GetComponent<Transform>();
         transformHandle->Size().x = 0.3;
         transformHandle->Size().y = 0.3;
-        rect->SetSourceRect({32, 0, 16, 16});
+        sprite->SetTexture(tex);
+        sprite->SetSourceRect({32, 0, 16, 16});
         AddGameObject(rect);
     }
 

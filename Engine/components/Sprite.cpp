@@ -1,44 +1,49 @@
 //
-// Created by dlllibstdntc on 16.09.2026.
+// Created by dlllibstdntc on 17.09.2026.
 //
 
 #include "Sprite.h"
 
+#include "Transform.h"
 #include "../../Toolkit/Debug/Logger.h"
-#include "../components/Transform.h"
 
-Sprite::Sprite(Texture texture) : texture(MOVE(texture)) {
-    AddComponent<Transform>();
+void Sprite::SetTexture(const NIL<Texture> &texture_) {
+    this->texture = texture_;
 }
 
-void Sprite::DrawWorld() {
-    GameObject::DrawWorld();
-
-    const auto transform = GetComponent<Transform>();
+void Sprite::Render() {
+    const auto transform = self->GetComponent<Transform>();
     if (!transform) {
         LOGWRN.Output("Sprite has no Transform component");
         return;
     }
 
-    GetRenderSystem()->NewContext();
-    GetRenderSystem()->Rotate(transform->Rotation());
+    if (not texture.has_value()) {
+        LOGWRN.Output("Texture is null");
+        return;
+    }
+
+    self->GetRenderSystem()->NewContext();
+    self->GetRenderSystem()->Rotate(transform->Rotation());
+
 
     if (useSrcRect) {
         Render2D::DrawTexture(
-            texture,
+            texture.value(),
             srcRect,
             transform->Position().ToVec2(),
             transform->Size().ToVec2(),
             Brush::Solid(255, 255, 255, 255));
     } else {
         Render2D::DrawTexture(
-            texture,
+            texture.value(),
             transform->Position().ToVec2(),
             transform->Size().ToVec2(),
             Brush::Solid(255, 255, 255, 255));
     }
 
-    GetRenderSystem()->StopContext();
+
+    self->GetRenderSystem()->StopContext();
 }
 
 void Sprite::SetSourceRect(const Recti& rect) {
@@ -49,8 +54,3 @@ void Sprite::SetSourceRect(const Recti& rect) {
 void Sprite::ClearSourceRect() {
     useSrcRect = false;
 }
-
-Texture& Sprite::GetTexture() {
-    return texture;
-}
-
