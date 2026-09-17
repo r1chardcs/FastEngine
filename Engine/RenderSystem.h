@@ -41,6 +41,10 @@ class RenderSystem {
 
     HASH_MAP<STRING, Texture> textures;
     mutable MUTEX mutex_textures;
+
+    DOUBLE fps = 0.0;
+    DOUBLE fps_accum_time = 0.0;
+    INT fps_frame_count = 0;
 public:
     RenderSystem(VIEW_PTR<App> app);
 
@@ -77,6 +81,8 @@ public:
 
     Vec2f GetScreenSize() const;
     Vec2f CenterPositionScreen() const;
+
+    DOUBLE GetFPS() const;
 };
 
 #endif //FASTENGINE_RENDERENGINE_H

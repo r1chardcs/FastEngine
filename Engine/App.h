@@ -67,6 +67,9 @@ public:
 
     DOUBLE GetDeltaTime();
 
+    DOUBLE GetRawFPS();
+    DOUBLE GetFPS();
+
     STATUS Run();
     STRING GetName();
 

@@ -53,6 +53,15 @@ void RenderSystem::UpdateDeltaTime() {
     const auto now = app->GetWindow()->GetTime();
     deltaTime = now - lastTime;
     lastTime = now;
+
+    fps_accum_time += GetDeltaTime();
+    fps_frame_count++;
+
+    if (fps_accum_time >= 1.0) {
+        fps = fps_frame_count / fps_accum_time;
+        fps_accum_time = 0.0;
+        fps_frame_count = 0;
+    }
 }
 
 RenderSystem::RenderSystem(VIEW_PTR<App> app): app(app) {}
@@ -216,4 +225,8 @@ Vec2f RenderSystem::CenterPositionScreen() const {
     return {
         size.x / 2, size.y / 2
     };
+}
+
+DOUBLE RenderSystem::GetFPS() const {
+    return fps;
 }

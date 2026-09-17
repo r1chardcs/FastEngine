@@ -24,15 +24,10 @@ public:
     void UI(TypeEvent type) override {
         UIContext ctx(GetRenderSystem());
         const auto font = Render2D::GetFont("C:/Windows/Fonts/Arial.ttf", 32).res;
-        ctx.Text(Layout::CENTER, font, "Center", {0 ,0}, {1, 1, 1, 1}, 0.5);
-        ctx.Text(Layout::CENTER_LEFT, font, "Center left", {0 ,0}, {1, 1, 1, 1}, 0.5);
-        ctx.Text(Layout::CENTER_RIGHT, font, "Center right", {0 ,0}, {1, 1, 1, 1}, 0.5);
-        ctx.Text(Layout::DOWN_CENTER, font, "Down Center", {0 ,0}, {1, 1, 1, 1}, 0.5);
-        ctx.Text(Layout::DOWN_LEFT, font, "Down left", {0 ,0}, {1, 1, 1, 1}, 0.5);
-        ctx.Text(Layout::DOWN_RIGHT, font, "Down right", {0 ,0}, {1, 1, 1, 1}, 0.5);
-        ctx.Text(Layout::UP_CENTER, font, "Up Center", {0 ,0}, {1, 1, 1, 1}, 0.5);
-        ctx.Text(Layout::UP_LEFT, font, "Up left", {0 ,0}, {1, 1, 1, 1}, 0.5);
-        ctx.Text(Layout::UP_RIGHT, font, "Up right", {0 ,0}, {1, 1, 1, 1}, 0.5);
+        char buf[32];
+        snprintf(buf, sizeof(buf), "R-FPS: %.0f | S-FPS: %.0f", GetRawFPS(), GetFPS());
+
+        ctx.Text(Layout::UP_LEFT, font, buf, {5 ,5}, {1, 1, 1, 1}, 0.5);
     }
 
     void Start() override {

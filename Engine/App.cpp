@@ -184,6 +184,15 @@ DOUBLE App::GetDeltaTime() {
     return render_system->GetDeltaTime();
 }
 
+DOUBLE App::GetRawFPS() {
+    const DOUBLE dt = GetDeltaTime();
+    return dt > 0.0 ? 1.0 / dt : 0.0;
+}
+
+DOUBLE App::GetFPS() {
+    return render_system->GetFPS();
+}
+
 STATUS App::Run() {
     is_run = true;
     first_call = false;
