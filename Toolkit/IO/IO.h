@@ -17,7 +17,7 @@ namespace IO {
         Err<BOOL> ExistFile(const STRING& path);
         Err<BOOL> ExistDirectory(const STRING& path);
 
-        Err<NOT> WriteFile(const STRING& path);
+        Err<NOT> WriteFile(const STRING& path, const STRING& content);
         Err<NOT> CreateDirectory(const STRING& path);
     }
 };

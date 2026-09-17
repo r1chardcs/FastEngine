@@ -12,6 +12,7 @@
 #include <stb_image.h>
 
 #include "../Toolkit/Debug/Logger.h"
+#include "../Toolkit/Box2D.h"
 
 Err<Texture> Render2D::GetTexture(LITERAL path)
 {
@@ -143,6 +144,25 @@ void Render2D::DrawBorder(const Vec2f &pos, const Vec2f &size, const Brush &colo
             .Vertex(pos.x + size.x, pos.y + size.y, 0.0f,
                     bottomRight.GetRed(), bottomRight.GetGreen(), bottomRight.GetBlue(), bottomRight.GetAlpha())
             .Vertex(pos.x, pos.y + size.y, 0.0f,
+                    bottomLeft.GetRed(), bottomLeft.GetGreen(), bottomLeft.GetBlue(), bottomLeft.GetAlpha())
+            .Flush();
+}
+
+void Render2D::DrawBorder(const Box2D &box, const Brush &color) {
+    BufferBuilder bb(GL_LINE_LOOP);
+
+    const Color topLeft = color.At(0);
+    const Color topRight = color.At(1);
+    const Color bottomRight = color.At(2);
+    const Color bottomLeft = color.At(3);
+
+    bb.Vertex(box.minX, box.minY, 0.0f,
+              topLeft.GetRed(), topLeft.GetGreen(), topLeft.GetBlue(), topLeft.GetAlpha())
+            .Vertex(box.maxX, box.minY, 0.0f,
+                    topRight.GetRed(), topRight.GetGreen(), topRight.GetBlue(), topRight.GetAlpha())
+            .Vertex(box.maxX, box.maxY, 0.0f,
+                    bottomRight.GetRed(), bottomRight.GetGreen(), bottomRight.GetBlue(), bottomRight.GetAlpha())
+            .Vertex(box.minX, box.maxY, 0.0f,
                     bottomLeft.GetRed(), bottomLeft.GetGreen(), bottomLeft.GetBlue(), bottomLeft.GetAlpha())
             .Flush();
 }

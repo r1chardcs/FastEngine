@@ -4,9 +4,13 @@
 
 #include "App.h"
 
+#include <sstream>
+
+#include "glfw3.h"
 #include "Object.h"
 #include "../Toolkit/Debug/Logger.h"
 #include "../Toolkit/Debug/Test.h"
+#include "../Toolkit/IO/IO.h"
 
 VIEW_PTR<App> App::instance = nullptr;
 
@@ -57,6 +61,9 @@ void App::ProcessLogicQueue() {
 App::App(STRING app_name) : app_name(MOVE(app_name)) {
     instance = this;
     is_run = false;
+
+    CrashDumper::SetCallback([this](auto ctx) { this->GrabSelfCrash(ctx); });
+    CrashDumper::AttachHandler();
 }
 
 App & App::GetInstance() {
@@ -69,9 +76,8 @@ void App::AddGameObject(const GLOBAL_PTR<GameObject> &game_object) {
         return;
     }
     game_object->Start();
-    for (const auto components = game_object->GetComponents();
-            auto component : components) if (component) component->Start();
 
+    MUTEX_LOCK lock(mutex_game_objects);
     this->game_objects.push_back(game_object);
 }
 
@@ -85,6 +91,8 @@ void App::DeleteGameObject(VIEW_PTR<GameObject> game_object) {
             auto component : components) if (component) component->Shutdown();
 
     game_object->Shutdown();
+
+    MUTEX_LOCK lock(mutex_game_objects);
     this->game_objects.remove_if([game_object](const GLOBAL_PTR<GameObject>& obj) {
        return obj.get() == static_cast<GameObject*>(game_object);
    });
@@ -121,6 +129,55 @@ void App::ExecuteInLogicThread(FUNC<void(VIEW_PTR<App>)> callback) {
     queue_logic.push(callback);
 }
 
+void App::GrabSelfCrash(const CrashContext &ctx) {
+    std::ostringstream ss;
+    ss << std::hex << std::uppercase << reinterpret_cast<uintptr_t>(ctx.exception_address);
+    const STRING addressHex = ss.str();
+
+    STRING content;
+    content += "Exception: " + ctx.exception_description + "\n";
+    content += "Address: 0x" + addressHex + "\n";
+    content += "Stack trace:\n";
+
+    for (const auto &frame : ctx.stack_trace) {
+        std::ostringstream frameStream;
+        frameStream << "  at " << frame.function_name;
+
+        if (!frame.module_name.empty()) {
+            frameStream << " [" << frame.module_name << "]";
+        }
+
+        if (!frame.file_name.empty()) {
+            frameStream << " (" << frame.file_name << ":" << frame.line_number << ")";
+        }
+
+        content += frameStream.str() + "\n";
+    }
+
+    const STRING filename = "dump_at_" + addressHex + ".log";
+    IO::File::WriteFile(filename, content);
+}
+
+INT App::GetKey(INT key) {
+    return window->GetKey(key);
+}
+
+INT App::GetPressKey(INT key) {
+    return window->GetPressKey(key);
+}
+
+INT App::GetMouseKey(INT key) {
+    return window->GetMouseKey(key);
+}
+
+Vec2f App::GetMousePos() {
+    return window->GetMousePosition();
+}
+
+DOUBLE App::GetDeltaTime() {
+    return render_system->GetDeltaTime();
+}
+
 STATUS App::Run() {
     is_run = true;
     first_call = false;
@@ -142,7 +199,15 @@ STATUS App::Run() {
     });
 
     while (is_run) {
-        Update();
+        if (first_call == false) {
+            if (window) {
+                Start();
+                first_call = true;
+            }
+        }
+        if (window) {
+            Update();
+        }
         for (const auto &game_object : game_objects) {
             game_object->Update();
             for (const auto components = game_object->GetComponents();
@@ -153,11 +218,6 @@ STATUS App::Run() {
 
         next_tick += logic_tick;
         std::this_thread::sleep_until(next_tick);
-
-        if (first_call == false) {
-            Start();
-            first_call = true;
-        }
     }
     Finish();
     render_thread.release();

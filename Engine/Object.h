@@ -36,6 +36,7 @@ public:
                       "TemplateComponent must derive from Component");
 
         auto component = MakeSelfPtr<TemplateComponent>(TemplateComponent(this));
+        component->Start();
         const auto raw_ptr = component.get();
         components.push_back(MOVE(component));
         return raw_ptr;
@@ -64,6 +65,8 @@ public:
 
     void SetActive(BOOL value);
     BOOL IsActive() const;
+
+    App& GetApp();
 };
 
 

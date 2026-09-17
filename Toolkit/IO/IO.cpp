@@ -82,10 +82,23 @@ Err<BOOL> IO::File::ExistDirectory(const STRING &path) {
     }
 }
 
-Err<NOT> IO::File::WriteFile(const STRING &path) {
-    if (std::ofstream file(path, std::ios::binary | std::ios::trunc); !file.is_open())
-        return {.res = {}, .err = "failed to open file for writing" };
-    return {.res = {}, .err = nullptr };
+Err<NOT> IO::File::WriteFile(const STRING &path, const STRING &content) {
+    std::ofstream file(path, std::ios::binary);
+    if (!file.is_open()) {
+        return {.res = NOT{}, .err = "Failed to open file for writing"};
+    }
+
+    file.write(content.data(), static_cast<std::streamsize>(content.size()));
+    if (!file.good()) {
+        return {.res = NOT{}, .err = "Failed to write file contents"};
+    }
+
+    file.close();
+    if (file.fail()) {
+        return {.res = NOT{}, .err = "Failed to flush/close file"};
+    }
+
+    return {.res = NOT{}, .err = nullptr};
 }
 
 Err<NOT> IO::File::CreateDirectory(const STRING &path) {

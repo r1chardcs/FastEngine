@@ -3,7 +3,7 @@ project(FastEngine)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(FastEngine main.cpp
+add_library(FastEngine SHARED main.cpp
         Engine/App.cpp
         Engine/App.h
         Engine/Window.cpp
@@ -41,7 +41,17 @@ add_executable(FastEngine main.cpp
         Engine/objects/Rect.h
         Engine/components/Sprite.cpp
         Engine/components/Sprite.h
+        Toolkit/Debug/SelfCrashDumper.cpp
+        Toolkit/Debug/SelfCrashDumper.h
+        TheNightKnight/App.cpp
+        Engine/components/HitboxBox2D.cpp
+        Engine/components/HitboxBox2D.h
+        Toolkit/Box2D.cpp
+        Toolkit/Box2D.h
 )
 
 target_link_libraries(FastEngine PUBLIC gdi32 opengl32 dbghelp ${CMAKE_SOURCE_DIR}/Libraries/libglfw3.lib)
-include_directories(Include)
+target_include_directories(FastEngine PUBLIC Include)
+target_include_directories(FastEngine PUBLIC ${CMAKE_SOURCE_DIR})
+
+add_subdirectory(TheNightKnight)

@@ -2,7 +2,7 @@
 // Created by dlllibstdntc on 17.09.2026.
 //
 
-#include "CrashDumper.h"
+#include "SelfCrashDumper.h"
 
 #include <Windows.h>
 #include <DbgHelp.h>

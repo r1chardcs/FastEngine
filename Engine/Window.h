@@ -6,6 +6,7 @@
 #define FASTENGINE_WINDOW_H
 
 #include "../Include/Platform.h"
+#include "Toolkit/Vector.h"
 
 class Window final {
     HANDLE handle = nullptr;
@@ -15,6 +16,11 @@ class Window final {
     void SetWindowSize(INT _width, INT _height);
 public:
     Window(MOVE_PLEASE STRING title, INT width, INT height);
+
+    INT GetKey(INT key);
+    INT GetPressKey(INT key) const;
+    INT GetMouseKey(INT key) const;
+    Vec2f GetMousePosition() const;
 
     void MakeContext();
     BOOL IsRun() const;

@@ -23,6 +23,32 @@ Window::Window(MOVE_PLEASE STRING title, const INT width, const INT height) : ti
     }
 }
 
+INT Window::GetKey(INT key) {
+    return glfwGetKey(static_cast<GLFWwindow *>(handle), key) != GLFW_RELEASE;
+}
+
+INT Window::GetPressKey(INT key) const {
+    static std::unordered_map<void*, std::unordered_map<INT, INT>> prev_states;
+
+    auto& states = prev_states[handle];
+    const INT current = glfwGetKey(static_cast<GLFWwindow *>(handle), key);
+    const INT was_pressed = states[key];
+
+    states[key] = current;
+
+    return current == GLFW_PRESS && was_pressed != GLFW_PRESS;
+}
+
+INT Window::GetMouseKey(INT key) const {
+    return glfwGetMouseButton(static_cast<GLFWwindow *>(handle), key) != GLFW_RELEASE;
+}
+
+Vec2f Window::GetMousePosition() const {
+    double x, y;
+    glfwGetCursorPos(static_cast<GLFWwindow *>(handle), &x, &y);
+    return { static_cast<float>(x), static_cast<float>(y) };
+}
+
 void Window::MakeContext()  {
     glfwMakeContextCurrent(static_cast<GLFWwindow *>(handle));
     glfwSetWindowUserPointer(static_cast<GLFWwindow *>(handle), this);

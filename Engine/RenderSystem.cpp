@@ -81,6 +81,9 @@ void RenderSystem::OnResize(INT width, INT height) {
 void RenderSystem::OnUpdate() {
     UpdateDeltaTime();
 
+    glClear(GL_COLOR_BUFFER_BIT);
+    glClearColor(0, 0, 0, 1);
+
     StartWorld();
     {
         if (world_render_callback) world_render_callback(this);

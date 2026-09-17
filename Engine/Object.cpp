@@ -34,3 +34,7 @@ void GameObject::SetActive(const BOOL value) {
 BOOL GameObject::IsActive() const {
     return isActive;
 }
+
+App& GameObject::GetApp() {
+    return App::GetInstance();
+}
