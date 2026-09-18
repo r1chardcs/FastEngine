@@ -78,14 +78,14 @@ public:
     VIRTUAL void ExecuteInLogicThread(FUNC<VOID(VIEW_PTR<App>)> callback);
     VIRTUAL void GrabSelfCrash(const CrashContext& ctx);
 
-    INT GetKey(INT key);
-    INT GetMouseKey(INT key);
-    Vec2f GetMousePos();
+    INT GetKey(INT key) const;
+    INT GetMouseKey(INT key) const;
+    Vec2f GetMousePos() const;
 
-    DOUBLE GetDeltaTime();
+    DOUBLE GetDeltaTime() const;
 
-    DOUBLE GetRawFPS();
-    DOUBLE GetFPS();
+    DOUBLE GetRawFPS() const;
+    DOUBLE GetFPS() const;
 
     STATUS Run();
     STRING GetName();

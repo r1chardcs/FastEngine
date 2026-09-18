@@ -26,6 +26,12 @@ LIST<STRING> GameObject::GetTags() {
     return tags;
 }
 
+void GameObject::Start() {
+}
+
+void GameObject::Shutdown() {
+}
+
 void GameObject::Update() {
     for (const auto snapshot = children; const auto &child : snapshot) {
         if (child && child->IsActive()) {

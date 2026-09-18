@@ -6,33 +6,35 @@
 
 #include <sstream>
 
-#include "glfw3.h"
 #include "GameObject.h"
 #include "../Toolkit/Debug/Logger.h"
 #include "../Toolkit/Debug/Test.h"
 #include "../Toolkit/IO/IO.h"
-
-VIEW_PTR<App> App::instance = nullptr;
+#include "../Toolkit/Debug/LagProfiler.h"
 
 void App::Render() {
     window = MakeSelfPtr<Window>(this->app_name.c_str(), 800, 800);
-    window->SetResizeCallback([this](auto sender, auto w, auto h) {
+    window->SetResizeCallback([this](auto, auto w, auto h) {
         if (render_system) render_system->OnResize(w, h);
     });
     window->MakeContext();
 
     while (window->IsRun() && is_run) {
+        LagProfiler::Push("Engine::App::Render");
         ProcessRenderQueue();
         if (render_system) {
             render_system->OnUpdate();
         }
         window->SwapBuffer();
+        LagProfiler::Pop();
     }
 
     if (is_run) {
         is_run = false;
     }
 }
+
+VIEW_PTR<App> App::instance = nullptr;
 
 void App::ProcessRenderQueue() {
     QUEUE<FUNC<VOID(VIEW_PTR<App>)>> tasks;
@@ -122,7 +124,7 @@ void App::SetScene(const GLOBAL_PTR<Scene>& scene) {
     scene_expectations->Start();
     scene_expectations->Setup();
 
-    ExecuteInLogicThread([this, scene](VIEW_PTR<App> self) {
+    ExecuteInLogicThread([this, scene](VIEW_PTR<App>) {
         scene->Start();
         scene->Setup();
 
@@ -146,14 +148,20 @@ void App::AddGameObject(const GLOBAL_PTR<GameObject>& game_object) {
     current_scene->AddGameObject(game_object);
 }
 
-void App::DeleteGameObject(VIEW_PTR<GameObject> game_object) {
+void App::DeleteGameObject(const VIEW_PTR<GameObject> game_object) {
     MUTEX_LOCK lock(mutex_scene);
-    if (!current_scene) return;
+    if (!current_scene) {
+        LOGERR.Output("The scene is not set.");
+        return;
+    }
     current_scene->DeleteGameObject(game_object);
 }
 
 LIST<VIEW_PTR<GameObject>> App::GetGameObjectByTags(const STRING &tag) const {
-    if (!current_scene) return {};
+    if (!current_scene) {
+        LOGERR.Output("The scene is not set.");
+        return {};
+    }
     return current_scene->GetGameObjectByTags(tag);
 }
 
@@ -178,7 +186,7 @@ void App::ExecuteInRenderThread(const FUNC<VOID(VIEW_PTR<App>)> callback) {
     queue_render.push(callback);
 }
 
-void App::ExecuteInLogicThread(FUNC<void(VIEW_PTR<App>)> callback) {
+void App::ExecuteInLogicThread(const FUNC<void(VIEW_PTR<App>)> callback) {
     MUTEX_LOCK lock(mutex_logic);
     queue_logic.push(callback);
 }
@@ -212,28 +220,28 @@ void App::GrabSelfCrash(const CrashContext &ctx) {
     IO::File::WriteFile(filename, content);
 }
 
-INT App::GetKey(INT key) {
+INT App::GetKey(const INT key) const {
     return window->GetKey(key);
 }
 
-INT App::GetMouseKey(INT key) {
+INT App::GetMouseKey(const INT key) const {
     return window->GetMouseKey(key);
 }
 
-Vec2f App::GetMousePos() {
+Vec2f App::GetMousePos() const {
     return window->GetMousePosition();
 }
 
-DOUBLE App::GetDeltaTime() {
+DOUBLE App::GetDeltaTime() const {
     return render_system->GetDeltaTime();
 }
 
-DOUBLE App::GetRawFPS() {
+DOUBLE App::GetRawFPS() const {
     const DOUBLE dt = GetDeltaTime();
     return dt > 0.0 ? 1.0 / dt : 0.0;
 }
 
-DOUBLE App::GetFPS() {
+DOUBLE App::GetFPS() const {
     return render_system->GetFPS();
 }
 
@@ -248,6 +256,7 @@ STATUS App::Run() {
     auto next_tick = std::chrono::steady_clock::now();
 
     render_system->SetRenderWorldCallback([this](auto) {
+        LagProfiler::Push("RenderSystem::World::Render");
         World(TypeEvent::PRE);
 
         if (current_scene) current_scene->Render();
@@ -263,16 +272,21 @@ STATUS App::Run() {
         }
         */
         World(TypeEvent::POST);
+        LagProfiler::Pop();
     });
 
     render_system->SetRenderUICallback([this](auto) {
-       UI(TypeEvent::PRE);
-       if (current_scene)
-           current_scene->UI();
-       UI(TypeEvent::POST);
+        LagProfiler::Push("RenderSystem::UI::Render");
+        UI(TypeEvent::PRE);
+        if (current_scene)
+            current_scene->UI();
+        UI(TypeEvent::POST);
+        LagProfiler::Pop();
     });
 
     while (is_run) {
+        LagProfiler::Push("Engine::App::Logic");
+
         if (first_call == false) {
             if (window) {
                 Start();
@@ -297,6 +311,7 @@ STATUS App::Run() {
 
         next_tick += logic_tick;
         std::this_thread::sleep_until(next_tick);
+        LagProfiler::Pop();
     }
     Finish();
     render_thread.release();

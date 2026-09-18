@@ -66,6 +66,8 @@ add_library(FastEngine SHARED main.cpp
         Toolkit/data/XorCipher.h
         Toolkit/data/Rc4Cipher.h
         "Toolkit/data/StorageSerializer.h"
+        Toolkit/Debug/LagProfiler.cpp
+        Toolkit/Debug/LagProfiler.h
 )
 
 target_link_libraries(FastEngine PUBLIC gdi32 opengl32 dbghelp ${CMAKE_SOURCE_DIR}/Libraries/libglfw3.lib)
