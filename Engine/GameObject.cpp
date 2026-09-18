@@ -2,10 +2,11 @@
 // Created by dlllibstdntc on 16.09.2026.
 //
 
-#include "Object.h"
+#include "GameObject.h"
 
 #include "App.h"
 #include "../Toolkit/Debug/Logger.h"
+#include "Components/Transform.h"
 
 void GameObject::AddTag(STRING tag) {
     if (tag.empty()) {
@@ -21,6 +22,18 @@ void GameObject::DeleteTag(const STRING &tag) {
 
 LIST<STRING> GameObject::GetTags() {
     return tags;
+}
+
+void GameObject::DrawWorld() {
+
+}
+
+void GameObject::Destroy() {
+    GetApp().GetScene()->DeleteGameObject(this);
+}
+
+DOUBLE GameObject::GetDeltaTime() {
+    return GetRenderSystem()->GetDeltaTime();
 }
 
 VIEW_PTR<RenderSystem> GameObject::GetRenderSystem() {

@@ -7,7 +7,7 @@
 #include <sstream>
 
 #include "glfw3.h"
-#include "Object.h"
+#include "GameObject.h"
 #include "../Toolkit/Debug/Logger.h"
 #include "../Toolkit/Debug/Test.h"
 #include "../Toolkit/IO/IO.h"
@@ -67,17 +67,19 @@ App::App(STRING app_name) : app_name(MOVE(app_name)) {
 
     assets = MakeSelfPtr<Assets>("Assets");
     local_storage = MakeSelfPtr<LocalStorage>("data", "global.dat");
-    if (const auto [res, err] = IO::File::ExistDirectory("data"); !res || err) {
-        if (err) {
-            LOGERR.Output("Filesystem error: %s\n", err);
-        }
-        else {
-            IO::File::CreateDirectory("data");
-        }
-    }
 
     if (!local_storage->Load()) {
-        LOGWRN.Output("Error load localstorage: %s\n", local_storage->GetFullPath().c_str());
+        if (const auto [res, err] = IO::File::ExistDirectory("data"); !res || err) {
+            if (err) {
+                LOGERR.Output("Filesystem error: %s\n", err);
+            }
+            else {
+                IO::File::CreateDirectory("data");
+            }
+        }
+        else {
+            LOGWRN.Output("Error load localstorage: %s\n", local_storage->GetFullPath().c_str());
+        }
     }
 }
 
@@ -229,6 +231,9 @@ STATUS App::Run() {
     });
 
     render_system->SetRenderUICallback([this](auto) {
+       UI(TypeEvent::PRE);
+       if (current_scene)
+           current_scene->UI();
        UI(TypeEvent::POST);
     });
 

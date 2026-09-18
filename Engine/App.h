@@ -5,14 +5,14 @@
 #ifndef FASTENGINE_APP_H
 #define FASTENGINE_APP_H
 
-#include "Object.h"
+#include "GameObject.h"
 #include "Window.h"
 #include "RenderSystem.h"
 #include "../Toolkit/Debug/SelfCrashDumper.h"
 
 #include "Scene.h"
 #include "Toolkit/Assets/Assets.h"
-#include "Toolkit/data/LocalStorage.h"
+#include "Toolkit/Data/LocalStorage.h"
 
 enum class TypeEvent {
     POST, PRE

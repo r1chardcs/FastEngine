@@ -3,7 +3,7 @@
 //
 
 #include "Transform.h"
-#include "../Object.h"
+#include "../GameObject.h"
 
 void Transform::Render() {
     Component::Render();

@@ -25,10 +25,12 @@ public:
     VIRTUAL VOID Start() {}
     VIRTUAL VOID Shutdown() {}
     VIRTUAL VOID Update() {}
-
-    VIRTUAL VOID DrawWorld() {}
+    VIRTUAL VOID DrawWorld();
     VIRTUAL VOID DrawUI() {}
 
+    void Destroy();
+
+    DOUBLE GetDeltaTime();
     VIEW_PTR<RenderSystem> GetRenderSystem();
 
     template <typename TemplateComponent>
@@ -37,7 +39,7 @@ public:
                       "TemplateComponent must derive from Component");
 
         if (auto existing = GetComponent<TemplateComponent>()) {
-            LOGWRN.Output("Component of this type already exists on GameObject at 0x%p", this);
+            LOGWRN.Output("Component of this type already exists on GameObject at 0x%p, ID=%d\n", this, TemplateComponent::StaticClassID());
             return existing;
         }
 
@@ -70,8 +72,8 @@ public:
     }
 
     void SetActive(BOOL value);
-    BOOL IsActive() const;
 
+    BOOL IsActive() const;
     App& GetApp();
 };
 

@@ -27,7 +27,13 @@ public:
     Vec3f HalfPos() const;
     Vec3f& Size();
 
-    CREATE_CLASS_ID(Transform)
+    public: static ClassID StaticClassID() {
+        return 0x10;
+    }
+
+    ClassID GetClassID() const override {
+        return 0x10;
+    }
 };
 
 #endif //FASTENGINE_TRANSFORM_H

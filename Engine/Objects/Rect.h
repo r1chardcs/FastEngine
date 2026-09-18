@@ -5,9 +5,9 @@
 #ifndef FASTENGINE_RECT_H
 #define FASTENGINE_RECT_H
 
-#include "../Object.h"
+#include "../GameObject.h"
 #include "../../Toolkit/Color.h"
-#include  "../components/Transform.h"
+#include  "../Components/Transform.h"
 
 class Rect : public GameObject {
     Brush color = {

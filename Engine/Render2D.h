@@ -26,6 +26,8 @@ struct Font {
 
 struct Recti {
     INT x, y, width, height;
+
+    static Recti CalculateStepRect(INT atlasWidth, INT atlasHeight, INT frameSize, UINT step);
 };
 
 struct TextMetrics {
@@ -36,15 +38,15 @@ struct TextMetrics {
 namespace Render2D {
 
     Err<Texture> GetTexture(LITERAL path);
-    Err<Font> GetFont(LITERAL path, INT size);
-    void RenderText(const Font &font, const char *text, float px, float py, float r, float g, float b,
+    Err<GLOBAL_PTR<Font>> GetFont(LITERAL path, INT size);
+    void RenderText(VIEW_PTR<Font> font, const char *text, float px, float py, float r, float g, float b,
         float scale);
-    TextMetrics MeasureText(const Font &font, const char *text, float scale);
+    TextMetrics MeasureText(VIEW_PTR<Font> font, const char *text, float scale);
 
     void DrawCircle(const Vec2f &pos, const Vec2f &size, const Brush& color,
         bool fill = true);
-    void DrawTexture(const Texture &texture, const Vec2f &pos, const Vec2f &size, const Brush &color);
-    void DrawTexture(const Texture &texture, const Recti &srcRect, const Vec2f &pos, const Vec2f &size, const Brush &color);
+    void DrawTexture(const Texture &texture, const Vec2f &pos, const Vec2f &size, const Brush &color, bool flipX = false);
+    void DrawTexture(const Texture &texture, const Recti &srcRect, const Vec2f &pos, const Vec2f &size, const Brush &color, bool flipX = false);
     void DrawBorder(const Vec2f &pos, const Vec2f &size, const Brush& color);
     void DrawBorder(const Box2D &box, const Brush& color);
     void DrawRect(const Vec2f &pos, const Vec2f &size, const Brush& color);

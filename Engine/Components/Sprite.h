@@ -7,16 +7,19 @@
 
 #include "../Component.h"
 #include "../Render2D.h"
-#include "../Object.h"
+#include "../GameObject.h"
 
 class Sprite : public Component {
     NIL<Texture> texture;
     Recti srcRect;
     bool useSrcRect = false;
+    BOOL flipX = false;
 public:
     Sprite(const VIEW_PTR<GameObject> &self)
         : Component(self) {
     }
+    void SetFlipX(BOOL flip);
+    BOOL GetFlipX() const;
 
     void SetSourceRect(const Recti& rect);
     void ClearSourceRect();
@@ -24,7 +27,13 @@ public:
     void SetTexture(const NIL<Texture> &texture_);
     void Render() override;
 
-    CREATE_CLASS_ID(Sprite)
+    public: static ClassID StaticClassID() {
+        return 0x12;
+    }
+
+    ClassID GetClassID() const override {
+        return 0x12;
+    }
 };
 
 

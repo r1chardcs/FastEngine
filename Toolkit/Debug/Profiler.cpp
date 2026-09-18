@@ -6,6 +6,8 @@
 
 #include <cstring>
 #include <stdarg.h>
+#include <Windows.h>
+#include <psapi.h>
 
 static char buf[256];
 
@@ -30,4 +32,17 @@ LITERAL Profiler::GetProfiler() {
     if (IsEmpty()) return nullptr;
 
     return buf;
+}
+
+Err<RAM_MemoryInfo> Profiler::GetRAMMemoyInfo() {
+    PROCESS_MEMORY_COUNTERS pmc;
+    if (GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc))) {
+        RAM_MemoryInfo ram = {};
+        ram.pageFileUsage = pmc.PagefileUsage;
+        ram.peakFileUsage = pmc.PeakPagefileUsage;
+        ram.workingSetSize = pmc.WorkingSetSize;
+        ram.peakWorkingSize = pmc.PeakWorkingSetSize;
+        return {.res = ram, .err = nullptr};
+    }
+    return {.res = {}, .err = "Access denied"};
 }

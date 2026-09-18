@@ -5,7 +5,7 @@
 #ifndef FASTENGINE_SCENE_H
 #define FASTENGINE_SCENE_H
 
-#include <Engine/Object.h>
+#include <Engine/GameObject.h>
 
 class Scene {
     LIST<GLOBAL_PTR<GameObject>> game_objects;
@@ -23,6 +23,8 @@ public:
     VIRTUAL void Render();
     VIRTUAL void Finish();
 
+    VIRTUAL void UI();
+
     void AddGameObject(const GLOBAL_PTR<GameObject>& game_object);
     void DeleteGameObject(VIEW_PTR<GameObject> game_object);
 
@@ -37,6 +39,8 @@ public:
     BOOL IsStarted() const;
 
     DOUBLE GetDeltaTime();
+
+    INT GetGameObjectSize() const;
 };
 
 template<typename TemplateComponent>

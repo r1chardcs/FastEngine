@@ -41,7 +41,8 @@ class RenderSystem {
 
     HASH_MAP<STRING, Texture> textures;
     mutable MUTEX mutex_textures;
-
+    INT lastWidth = 1;
+    INT lastHeight = 1;
     DOUBLE fps = 0.0;
     DOUBLE fps_accum_time = 0.0;
     INT fps_frame_count = 0;

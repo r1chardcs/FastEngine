@@ -13,6 +13,8 @@ class Component {
 protected:
     VIEW_PTR<GameObject> self;
 public:
+    enum class Type { Post, Pre };
+
     Component(VIEW_PTR<GameObject> self);
 
     VIRTUAL ~Component() = default;
@@ -21,7 +23,7 @@ public:
     VIRTUAL void Start();
     VIRTUAL void Update();
     VIRTUAL void Render();
-
+    VIRTUAL void Render(Type type);
     VIRTUAL void Shutdown();
 };
 

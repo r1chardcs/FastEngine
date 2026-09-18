@@ -13,28 +13,44 @@ class Transform;
 
 class HitboxBox2D : public Component {
     Box2D box;
+
     VIEW_PTR<Transform> transform = nullptr;
+
     BOOL solid = true;
+
     Vec2f size;
+    Vec2f position;
+
 public:
     explicit HitboxBox2D(const VIEW_PTR<GameObject> &self)
-        : Component(self), size(0, 0) {
+        : Component(self),
+          size(0, 0),
+          position(0, 0) {
     }
 
     Vec2f& Size();
+    Vec2f& Position();
+
     Box2D& Box();
+
     BOOL& IsSolid();
 
     void Start() override;
     void Update() override;
-    void Render() override;
+    void Render(Type type) override;
 
     BOOL IsCollision(VIEW_PTR<GameObject> game_object) const;
     BOOL IsCollision(VIEW_PTR<HitboxBox2D> box2d) const;
     BOOL IsCollision(VIEW_PTR<Box2D> box2d) const;
 
-    CREATE_CLASS_ID(HitboxBox2D);
-};
+public:
+    static ClassID StaticClassID() {
+        return 0x11;
+    }
 
+    ClassID GetClassID() const override {
+        return 0x11;
+    }
+};
 
 #endif //FASTENGINE_HITBOXBOX2D_H

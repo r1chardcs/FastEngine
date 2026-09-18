@@ -8,6 +8,7 @@
 #include <fstream>
 #include <filesystem>
 #include <ostream>
+#include <windows.h>
 
 STRING IO::InputString(const STRING &msg) {
     if (!msg.empty())
@@ -25,6 +26,16 @@ CHAR IO::InputChar(const STRING &msg) {
     char c = 0;
     std::cin.get(c);
     return c;
+}
+
+#undef MessageBox
+void IO::MessageBox(const STRING &title, const STRING &text, MessageBoxFlags_t style) {
+    ::MessageBoxA(
+        nullptr,
+        text.c_str(),
+        title.c_str(),
+        static_cast<UINT>(style)
+    );
 }
 
 Err<STRING> IO::File::ReadFile(const STRING &path) {
@@ -101,6 +112,7 @@ Err<NOT> IO::File::WriteFile(const STRING &path, const STRING &content) {
     return {.res = NOT{}, .err = nullptr};
 }
 
+#undef CreateDirectory
 Err<NOT> IO::File::CreateDirectory(const STRING &path) {
     try {
         std::filesystem::create_directories(path);

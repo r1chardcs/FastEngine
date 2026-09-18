@@ -5,8 +5,11 @@
 #ifndef FASTENGINE_FPSDRAW_H
 #define FASTENGINE_FPSDRAW_H
 
+#include <Engine/GameObject.h>
 
-class FPSOverlay {
+class FPSOverlay : public GameObject {
+public:
+    void DrawUI() override;
 };
 
 

@@ -166,5 +166,10 @@ public: \
 
 #define DEPRECTED_API
 #define COMMENT(x)
+#define NULLPTR nullptr
+
+#define _STR(x) #x
+#define _EXPAND_STR(x) _STR(x)
+#define SCRIPT(x) _EXPAND_STR(scripts/x)
 
 #endif //FASTENGINE_PLATFORM_H

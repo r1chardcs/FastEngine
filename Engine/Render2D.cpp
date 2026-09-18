@@ -50,10 +50,23 @@ Err<Texture> Render2D::GetTexture(LITERAL path)
     };
 }
 
-Err<Font> Render2D::GetFont(LITERAL path, INT _size) {
-    auto font = Font();
+static std::unordered_map<std::string, GLOBAL_PTR<Font>> s_fontCache;
+
+Err<GLOBAL_PTR<Font>> Render2D::GetFont(LITERAL path, INT _size) {
+    std::string key = std::string(path) + "#" + std::to_string(_size);
+
+    auto it = s_fontCache.find(key);
+    if (it != s_fontCache.end()) {
+        return {.res = it->second, .err = nullptr};
+    }
+
+    const auto font = MakeGlobalPtr<Font>();
 
     FILE* f = fopen(path, "rb");
+    if (!f) {
+        return {.res = nullptr, .err = "failed to open font file"};
+    }
+
     fseek(f, 0, SEEK_END);
     long size = ftell(f);
     fseek(f, 0, SEEK_SET);
@@ -62,36 +75,39 @@ Err<Font> Render2D::GetFont(LITERAL path, INT _size) {
     fread(ttfBuffer.data(), 1, size, f);
     fclose(f);
 
-    std::vector<unsigned char> alphaOnly(font.atlasW * font.atlasH);
+    std::vector<unsigned char> alphaOnly(font->atlasW * font->atlasH);
 
     stbtt_BakeFontBitmap(ttfBuffer.data(), 0, _size,
-                          alphaOnly.data(), font.atlasW, font.atlasH,
-                          32, 96, font.cdata);
+                          alphaOnly.data(), font->atlasW, font->atlasH,
+                          32, 96, font->cdata);
 
-    std::vector<unsigned char> la(font.atlasW * font.atlasH * 2);
-    for (int i = 0; i < font.atlasW * font.atlasH; i++) {
+    std::vector<unsigned char> la(font->atlasW * font->atlasH * 2);
+    for (int i = 0; i < font->atlasW * font->atlasH; i++) {
         la[i * 2 + 0] = 255;
         la[i * 2 + 1] = alphaOnly[i];
     }
 
-    glGenTextures(1, &font.fontTexture);
-    glBindTexture(GL_TEXTURE_2D, font.fontTexture);
+    glGenTextures(1, &font->fontTexture);
+    glBindTexture(GL_TEXTURE_2D, font->fontTexture);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE_ALPHA, font.atlasW, font.atlasH, 0,
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE_ALPHA, font->atlasW, font->atlasH, 0,
                  GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, la.data());
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    return {font, nullptr};
+    s_fontCache[key] = font;
+
+    return {.res = font, .err = nullptr};
 }
-TextMetrics Render2D::MeasureText(const Font &font, const char *text, float scale) {
+
+TextMetrics Render2D::MeasureText(VIEW_PTR<Font> font, const char *text, float scale) {
     float x = 0, y = 0;
     float minY = 0.0f, maxY = 0.0f;
 
     while (*text) {
         if (*text >= 32 && *text < 128) {
             stbtt_aligned_quad q;
-            stbtt_GetBakedQuad(font.cdata, font.atlasW, font.atlasH, *text - 32, &x, &y, &q, 1);
+            stbtt_GetBakedQuad(font->cdata, font->atlasW, font->atlasH, *text - 32, &x, &y, &q, 1);
             minY = std::min(minY, q.y0);
             maxY = std::max(maxY, q.y1);
         }
@@ -103,11 +119,11 @@ TextMetrics Render2D::MeasureText(const Font &font, const char *text, float scal
         .baselineOffset = -minY * scale
     };
 }
-void Render2D::RenderText(const Font &font, const char *text, float px, float py, float r, float g, float b, float scale) {
+void Render2D::RenderText(VIEW_PTR<Font> font, const char *text, float px, float py, float r, float g, float b, float scale) {
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glBindTexture(GL_TEXTURE_2D, font.fontTexture);
+    glBindTexture(GL_TEXTURE_2D, font->fontTexture);
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
     glColor4f(r, g, b, 1.0f);
@@ -121,7 +137,7 @@ void Render2D::RenderText(const Font &font, const char *text, float px, float py
     while (*text) {
         if (*text >= 32 && *text < 128) {
             stbtt_aligned_quad q;
-            stbtt_GetBakedQuad(font.cdata, font.atlasW, font.atlasH, *text - 32, &x, &y, &q, 1);
+            stbtt_GetBakedQuad(font->cdata, font->atlasW, font->atlasH, *text - 32, &x, &y, &q, 1);
 
             glTexCoord2f(q.s0, q.t0); glVertex2f(q.x0, q.y0);
             glTexCoord2f(q.s1, q.t0); glVertex2f(q.x1, q.y0);
@@ -137,11 +153,11 @@ void Render2D::RenderText(const Font &font, const char *text, float px, float py
     glDisable(GL_TEXTURE_2D);
 }
 
-void Render2D::DrawTexture(const Texture &texture, const Vec2f &pos, const Vec2f &size, const Brush &color) {
-    DrawTexture(texture, Recti{0, 0, texture.width, texture.height}, pos, size, color);
+void Render2D::DrawTexture(const Texture &texture, const Vec2f &pos, const Vec2f &size, const Brush &color, bool flipX) {
+    DrawTexture(texture, Recti{0, 0, texture.width, texture.height}, pos, size, color, flipX);
 }
 
-void Render2D::DrawTexture(const Texture &texture, const Recti &srcRect, const Vec2f &pos, const Vec2f &size, const Brush &color) {
+void Render2D::DrawTexture(const Texture &texture, const Recti &srcRect, const Vec2f &pos, const Vec2f &size, const Brush &color, bool flipX) {
     if (texture.id == 0) {
         LOGERR.Output("Invalid Draw texture in pos %f %f\n", pos.x, pos.y);
         return;
@@ -155,11 +171,13 @@ void Render2D::DrawTexture(const Texture &texture, const Recti &srcRect, const V
     const FLOAT texW = static_cast<FLOAT>(texture.width);
     const FLOAT texH = static_cast<FLOAT>(texture.height);
 
-    const FLOAT u0 = static_cast<FLOAT>(srcRect.x) / texW;
-    const FLOAT v0 = static_cast<FLOAT>(srcRect.y) / texH;
-    const FLOAT u1 = static_cast<FLOAT>(srcRect.x + srcRect.width) / texW;
-    const FLOAT v1 = static_cast<FLOAT>(srcRect.y + srcRect.height) / texH;
-
+    FLOAT u0 = static_cast<FLOAT>(srcRect.x) / texW;
+    FLOAT v0 = static_cast<FLOAT>(srcRect.y) / texH;
+    FLOAT u1 = static_cast<FLOAT>(srcRect.x + srcRect.width) / texW;
+    FLOAT v1 = static_cast<FLOAT>(srcRect.y + srcRect.height) / texH;
+    if (flipX) {
+        std::swap(u0, u1);
+    }
     const Color topLeft = color.At(0);
     const Color topRight = color.At(1);
     const Color bottomRight = color.At(2);
@@ -286,4 +304,26 @@ void Render2D::DrawLine(FLOAT y, FLOAT minX, FLOAT maxX, const Brush &color) {
     bb.Vertex(minX, y, 0.0f, start.GetRed(), start.GetGreen(), start.GetBlue(), start.GetAlpha())
             .Vertex(maxX, y, 0.0f, end.GetRed(), end.GetGreen(), end.GetBlue(), end.GetAlpha())
             .Flush();
+}
+
+Recti Recti::CalculateStepRect(INT atlasWidth, INT atlasHeight, INT frameSize, UINT step) {
+    const INT framesPerRow = frameSize > 0 ? atlasWidth / frameSize : 0;
+    const INT framesPerCol = frameSize > 0 ? atlasHeight / frameSize : 0;
+    const INT totalFrames = framesPerRow * framesPerCol;
+
+    if (framesPerRow <= 0 || totalFrames <= 0) {
+        return Recti{0, 0, atlasWidth, atlasHeight};
+    }
+
+    const UINT clampedStep = step % totalFrames;
+
+    const INT col = static_cast<INT>(clampedStep) % framesPerRow;
+    const INT row = static_cast<INT>(clampedStep) / framesPerRow;
+
+    return Recti{
+        .x = col * frameSize,
+        .y = row * frameSize,
+        .width = frameSize,
+        .height = frameSize
+    };
 }

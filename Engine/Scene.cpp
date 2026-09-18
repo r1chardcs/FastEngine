@@ -5,7 +5,7 @@
 #include "Scene.h"
 
 #include "App.h"
-#include "Object.h"
+#include "GameObject.h"
 #include "../Toolkit/Debug/Logger.h"
 #include "Toolkit/Anim/AnimationSystem.h"
 
@@ -34,8 +34,16 @@ void Scene::Render() {
 
         App::GetInstance().GetRenderSystem()->NewContext();
         for (const auto components = game_object->GetComponents();
-                auto component : components) if (component) component->Render();
+                auto component : components) if (component) {
+                    component->Render();
+                    component->Render(Component::Type::Pre);
+                }
+
         game_object->DrawWorld();
+        for (const auto components = game_object->GetComponents();
+                auto component : components) if (component) {
+                    component->Render(Component::Type::Post);
+                }
         App::GetInstance().GetRenderSystem()->StopContext();
     }
 }
@@ -52,6 +60,16 @@ void Scene::Finish() {
 
     game_objects.clear();
     is_started = false;
+}
+
+void Scene::UI() {
+    for (const auto& game_object : Snapshot()) {
+        if (!game_object->IsActive()) continue;
+
+        App::GetInstance().GetRenderSystem()->NewContext();
+        game_object->DrawUI();
+        App::GetInstance().GetRenderSystem()->StopContext();
+    }
 }
 
 void Scene::AddGameObject(const GLOBAL_PTR<GameObject>& game_object) {
@@ -109,4 +127,8 @@ BOOL Scene::IsStarted() const {
 
 DOUBLE Scene::GetDeltaTime() {
     return App::GetInstance().GetDeltaTime();
+}
+
+INT Scene::GetGameObjectSize() const {
+    return game_objects.size();
 }

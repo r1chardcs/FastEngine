@@ -64,7 +64,9 @@ void RenderSystem::UpdateDeltaTime() {
     }
 }
 
-RenderSystem::RenderSystem(VIEW_PTR<App> app): app(app) {}
+RenderSystem::RenderSystem(VIEW_PTR<App> app): app(app) {
+    camera = MakeSelfPtr<Camera>();
+}
 
 void RenderSystem::SetRenderUICallback(const FUNC<void(VIEW_PTR<RenderSystem>)> &callback) {
     ui_render_callback = callback;
@@ -79,12 +81,8 @@ void RenderSystem::OnResize(INT width, INT height) {
 
     glViewport(0, 0, width, height);
 
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    const FLOAT factor = static_cast<FLOAT>(width) / static_cast<FLOAT>(height);
-    glOrtho(-factor, factor, -1, 1, -1, 1);
-
-    glMatrixMode(GL_MODELVIEW);
+    lastWidth = width;
+    lastHeight = height;
 }
 
 void RenderSystem::OnUpdate() {
@@ -127,11 +125,26 @@ void RenderSystem::StopContext() {
 }
 
 void RenderSystem::StartWorld() {
+    const FLOAT aspect = static_cast<FLOAT>(lastWidth) / static_cast<FLOAT>(lastHeight);
+
+    const FLOAT camHeight = camera->GetHeight() / camera->GetScale();
+    const FLOAT camWidth = camHeight * aspect;
+
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadIdentity();
+    glOrtho(-camWidth, camWidth, -camHeight, camHeight, -1, 1);
+
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
+    glLoadIdentity();
+    glTranslatef(-camera->GetX(), -camera->GetY(), 0);
 }
 
 void RenderSystem::EndWorld() {
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
 }
@@ -193,6 +206,16 @@ Texture RenderSystem::LoadTextureSync(LITERAL path) {
 }
 
 Texture RenderSystem::GetTexture(LITERAL path) const {
+    MUTEX_LOCK lock(mutex_textures);
+    const auto it = textures.find(path);
+    if (it == textures.end()) {
+        LOGWRN.Output("Texture not loaded: %s", path);
+        return Texture{};
+    }
+    return it->second;
+}
+
+Texture RenderSystem::GetTexture(LITERAL path) {
     MUTEX_LOCK lock(mutex_textures);
     const auto it = textures.find(path);
     if (it == textures.end()) {

@@ -31,19 +31,29 @@ void Sprite::Render() {
         Render2D::DrawTexture(
             texture.value(),
             srcRect,
-            transform->Position().ToVec2(),
+            transform->HalfPos().ToVec2(),
             transform->Size().ToVec2(),
-            Brush::Solid(255, 255, 255, 255));
+            Brush::Solid(255, 255, 255, 255),
+            flipX);
     } else {
         Render2D::DrawTexture(
             texture.value(),
-            transform->Position().ToVec2(),
+            transform->HalfPos().ToVec2(),
             transform->Size().ToVec2(),
-            Brush::Solid(255, 255, 255, 255));
+            Brush::Solid(255, 255, 255, 255),
+            flipX);
     }
 
 
     self->GetRenderSystem()->StopContext();
+}
+
+void Sprite::SetFlipX(BOOL flip) {
+    this->flipX = flip;
+}
+
+BOOL Sprite::GetFlipX() const {
+    return flipX;
 }
 
 void Sprite::SetSourceRect(const Recti& rect) {

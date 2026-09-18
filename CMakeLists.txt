@@ -30,8 +30,8 @@ add_library(FastEngine SHARED main.cpp
         Engine/Render2D.h
         Toolkit/Assets/Assets.cpp
         Toolkit/Assets/Assets.h
-        Engine/Object.cpp
-        Engine/Object.h
+        Engine/GameObject.cpp
+        Engine/GameObject.h
         Engine/Component.cpp
         Engine/Component.h
         Engine/components/Transform.cpp
@@ -43,7 +43,6 @@ add_library(FastEngine SHARED main.cpp
         Engine/components/Sprite.h
         Toolkit/Debug/SelfCrashDumper.cpp
         Toolkit/Debug/SelfCrashDumper.h
-        TheNightKnight/App.cpp
         Engine/components/HitboxBox2D.cpp
         Engine/components/HitboxBox2D.h
         Toolkit/Box2D.cpp

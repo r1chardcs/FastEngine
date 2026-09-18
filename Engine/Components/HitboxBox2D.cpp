@@ -5,51 +5,70 @@
 #include "HitboxBox2D.h"
 
 #include "Engine/App.h"
-#include "Engine/Object.h"
+#include "Engine/GameObject.h"
 #include "Engine/Render2D.h"
-#include "Engine/components/Transform.h"
+#include "Engine/Components/Transform.h"
 #include "Toolkit/Debug/Logger.h"
 
-
-Vec2f & HitboxBox2D::Size() {
+Vec2f& HitboxBox2D::Size() {
     return size;
 }
 
-Box2D & HitboxBox2D::Box() {
+Vec2f& HitboxBox2D::Position() {
+    return position;
+}
+
+Box2D& HitboxBox2D::Box() {
     return box;
 }
 
-BOOL & HitboxBox2D::IsSolid() {
+BOOL& HitboxBox2D::IsSolid() {
     return solid;
 }
 
 void HitboxBox2D::Start() {
     Component::Start();
-}
 
-void HitboxBox2D::Update() {
-    Component::Update();
     transform = self->GetComponent<Transform>();
 
     if (!transform) {
         LOGWRN.Output("HitboxBox2D has no Transform component");
-        return;
+    }
+}
+
+void HitboxBox2D::Update() {
+    Component::Update();
+
+    if (!transform) {
+        transform = self->GetComponent<Transform>();
+
+        if (!transform) {
+            LOGWRN.Output("HitboxBox2D has no Transform component");
+            return;
+        }
     }
 
-    auto transform_pos = transform->Position();
-    auto transform_size = transform->Size();
-    auto custom_size = size;
+    const Vec2f transform_pos = transform->Position().ToVec2();
+    const Vec2f transform_size = transform->Size().ToVec2();
 
+    const Vec2f hitbox_pos = {
+        transform_pos.x + position.x,
+        transform_pos.y + position.y
+    };
 
+    const Vec2f hitbox_size = {
+        size.x > 0.0f ? size.x : transform_size.x,
+        size.y > 0.0f ? size.y : transform_size.y
+    };
 
-    const float halfW = transform_size.x * 0.5f + size.x;
-    const float halfH = transform_size.y * 0.5f + size.y;
+    const float halfW = hitbox_size.x * 0.5f;
+    const float halfH = hitbox_size.y * 0.5f;
 
     box = {
-        transform_pos.x - halfW,
-        transform_pos.y - halfH,
-        transform_pos.x + halfW,
-        transform_pos.y + halfH
+        hitbox_pos.x - halfW,
+        hitbox_pos.y - halfH,
+        hitbox_pos.x + halfW,
+        hitbox_pos.y + halfH
     };
 
     if (!solid) {
@@ -65,33 +84,45 @@ void HitboxBox2D::Update() {
         float pushY = 0.0f;
 
         if (box.Overlap(other->Box(), pushX, pushY)) {
-            transform_pos.x += pushX;
-            transform_pos.y += pushY;
+            auto& transform_position = transform->Position();
 
-            transform->Position() = transform_pos;
+            transform_position.x += pushX;
+            transform_position.y += pushY;
+
+            const Vec2f new_hitbox_pos = {
+                transform_position.x + position.x,
+                transform_position.y + position.y
+            };
 
             box = {
-                transform_pos.x - halfW, transform_pos.y - halfH,
-                transform_pos.x + halfW, transform_pos.y + halfH
+                new_hitbox_pos.x - halfW,
+                new_hitbox_pos.y - halfH,
+                new_hitbox_pos.x + halfW,
+                new_hitbox_pos.y + halfH
             };
         }
     }
 }
 
-void HitboxBox2D::Render() {
+void HitboxBox2D::Render(Type type) {
+    if (type == Type::Pre) return;;
     Component::Render();
 
     self->GetRenderSystem()->NewContext();
-    Render2D::DrawBorder(box, {{1, 0, 0, 1}});
+
+    Render2D::DrawBorder(
+        box,
+        {{1, 0, 0, 1}}
+    );
+
     self->GetRenderSystem()->StopContext();
 }
 
 BOOL HitboxBox2D::IsCollision(VIEW_PTR<GameObject> game_object) const {
     if (const auto hitbox = game_object->GetComponent<HitboxBox2D>()) {
-        if (IsCollision(hitbox)) {
-            return true;
-        }
+        return IsCollision(hitbox);
     }
+
     return false;
 }
 
@@ -102,4 +133,3 @@ BOOL HitboxBox2D::IsCollision(VIEW_PTR<HitboxBox2D> box2d) const {
 BOOL HitboxBox2D::IsCollision(VIEW_PTR<Box2D> box2d) const {
     return box.Contains(*box2d);
 }
-

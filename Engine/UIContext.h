@@ -42,7 +42,7 @@ public:
 
     void Text(
         Layout layout,
-        const Font& font,
+        VIEW_PTR<Font> font,
         const char* text,
         Vec2i pos,
         RGBA color,
