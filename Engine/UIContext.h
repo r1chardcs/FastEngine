@@ -43,47 +43,46 @@ public:
     void Text(
         Layout layout,
         VIEW_PTR<Font> font,
-        const char* text,
+        LITERAL text,
         Vec2i pos,
         RGBA color,
         FLOAT scale
-    );
+    ) const;
 
     void Rect(
         Layout layout,
         Vec2i pos,
         Vec2i size,
         RGBA color
-    );
+    ) const;
 
     void Border(
         Layout layout,
         Vec2i pos,
         Vec2i size,
         RGBA color
-    );
+    ) const;
 
     void Rect(
         Vec2i pos,
         Vec2i size,
         RGBA color
-    );
+    ) const;
 
     void Border(
         Vec2i pos,
         Vec2i size,
         RGBA color
-    );
+    ) const;
 
-    void Line(
+    static void Line(
         Vec2i start,
         Vec2i end,
         RGBA color
     );
 
-    void Image1(Layout layout, VIEW_PTR<Texture> texture, Vec2i pos, Vec2i size, RGBA tint = {1, 1, 1, 1}, FLOAT scale = 1);
-    void Image2(Layout layout, VIEW_PTR<Texture> texture, const Recti& srcRect, Vec2i pos, Vec2i size, RGBA tint = {1, 1, 1, 1});
-    void Image3(VIEW_PTR<Texture> texture, Vec2i pos, Vec2i size, RGBA tint = {1, 1, 1, 1});
+    void Image(Layout layout, VIEW_PTR<Texture> texture, Vec2i pos, Vec2i size,
+        RGBA tint = {.r = 1, .g = 1, .b = 1, .a = 1}, FLOAT scale = 1) const;
 };
 
 #endif //FASTENGINE_UICONTEXT_H
