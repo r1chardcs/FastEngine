@@ -14,6 +14,7 @@
 #include "Engine/Components/Transform.h"
 #include "../scripts/map/MapGenerator.h"
 #include "TheNightKnight/scripts/entity/enemy/Denuvo.h"
+#include "TheNightKnight/scripts/weapon/sword/OxidativeSword.h"
 
 class MainScene : public Scene {
 public:

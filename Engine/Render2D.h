@@ -22,6 +22,8 @@ struct Font {
     UIHANDLE fontTexture;
     const int atlasW = 512;
     const int atlasH = 512;
+
+    static GLOBAL_PTR<Font> Get(LITERAL path, INT size);
 };
 
 struct Recti {
@@ -37,7 +39,7 @@ struct TextMetrics {
 
 namespace Render2D {
 
-    Err<Texture> GetTexture(LITERAL path);
+    Err<GLOBAL_PTR<Texture>> GetTexture(LITERAL path);
     Err<GLOBAL_PTR<Font>> GetFont(LITERAL path, INT size);
     void RenderText(VIEW_PTR<Font> font, const char *text, float px, float py, float r, float g, float b,
         float scale);
@@ -45,8 +47,8 @@ namespace Render2D {
 
     void DrawCircle(const Vec2f &pos, const Vec2f &size, const Brush& color,
         bool fill = true);
-    void DrawTexture(const Texture &texture, const Vec2f &pos, const Vec2f &size, const Brush &color, bool flipX = false);
-    void DrawTexture(const Texture &texture, const Recti &srcRect, const Vec2f &pos, const Vec2f &size, const Brush &color, bool flipX = false);
+    void DrawTexture(VIEW_PTR<Texture> texture, const Vec2f &pos, const Vec2f &size, const Brush &color, bool flipX = false);
+    void DrawTexture(VIEW_PTR<Texture> texture, const Recti &srcRect, const Vec2f &pos, const Vec2f &size, const Brush &color, bool flipX = false);
     void DrawBorder(const Vec2f &pos, const Vec2f &size, const Brush& color);
     void DrawBorder(const Box2D &box, const Brush& color);
     void DrawRect(const Vec2f &pos, const Vec2f &size, const Brush& color);

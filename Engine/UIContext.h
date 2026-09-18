@@ -80,6 +80,10 @@ public:
         Vec2i end,
         RGBA color
     );
+
+    void Image1(Layout layout, VIEW_PTR<Texture> texture, Vec2i pos, Vec2i size, RGBA tint = {1, 1, 1, 1}, FLOAT scale = 1);
+    void Image2(Layout layout, VIEW_PTR<Texture> texture, const Recti& srcRect, Vec2i pos, Vec2i size, RGBA tint = {1, 1, 1, 1});
+    void Image3(VIEW_PTR<Texture> texture, Vec2i pos, Vec2i size, RGBA tint = {1, 1, 1, 1});
 };
 
 #endif //FASTENGINE_UICONTEXT_H

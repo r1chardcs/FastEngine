@@ -17,17 +17,21 @@ class Scene {
 public:
     explicit Scene(MOVE_PLEASE STRING scene_name);
     VIRTUAL ~Scene() = default;
-
+    void Setup();
     VIRTUAL void Start();
     VIRTUAL void Update();
     VIRTUAL void Render();
     VIRTUAL void Finish();
 
+    VIRTUAL RGBA GetBackgroundColor();
+
     VIRTUAL void UI();
 
     void AddGameObject(const GLOBAL_PTR<GameObject>& game_object);
     void DeleteGameObject(VIEW_PTR<GameObject> game_object);
+    VIEW_PTR<RenderSystem> GetRenderSystem();
 
+    static App& GetApp();
     LIST<VIEW_PTR<GameObject>> GetGameObjectByTags(const STRING& tag) const;
 
     template <typename TemplateComponent>

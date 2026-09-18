@@ -17,8 +17,7 @@ class Window final {
 public:
     Window(MOVE_PLEASE STRING title, INT width, INT height);
 
-    INT GetKey(INT key);
-    INT GetPressKey(INT key) const;
+    INT GetKey(INT key) const;
     INT GetMouseKey(INT key) const;
     Vec2f GetMousePosition() const;
 

@@ -25,10 +25,16 @@ add_executable(TheNightKnight App.cpp
         scripts/entity/EnemyEntity.h
         scripts/entity/ai/EnemyState.cpp
         scripts/entity/ai/EnemyState.h
-        scripts/entity/ai/SimpleAIEnemyState.cpp
-        scripts/entity/ai/SimpleAIEnemyState.h
         scripts/entity/ai/MeleeAIStates.cpp
-        scripts/entity/ai/MeleeAIStates.h)
+        scripts/entity/ai/MeleeAIStates.h
+        scenes/DieScene.cpp
+        scenes/DieScene.h
+        scenes/LoadScene.cpp
+        scenes/LoadScene.h
+        scripts/weapon/Weapon.cpp
+        scripts/weapon/Weapon.h
+        scripts/weapon/sword/OxidativeSword.cpp
+        scripts/weapon/sword/OxidativeSword.h)
 
 target_link_libraries(TheNightKnight PUBLIC FastEngine)
 

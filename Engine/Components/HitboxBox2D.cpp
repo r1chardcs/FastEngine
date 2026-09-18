@@ -105,17 +105,19 @@ void HitboxBox2D::Update() {
 }
 
 void HitboxBox2D::Render(Type type) {
-    if (type == Type::Pre) return;;
-    Component::Render();
+    if (type == Type::Pre) return;
+    if (isDebug) {
+        Component::Render();
 
-    self->GetRenderSystem()->NewContext();
+        self->GetRenderSystem()->NewContext();
 
-    Render2D::DrawBorder(
-        box,
-        {{1, 0, 0, 1}}
-    );
+        Render2D::DrawBorder(
+            box,
+            {{1, 0, 0, 1}}
+        );
 
-    self->GetRenderSystem()->StopContext();
+        self->GetRenderSystem()->StopContext();
+    }
 }
 
 BOOL HitboxBox2D::IsCollision(VIEW_PTR<GameObject> game_object) const {

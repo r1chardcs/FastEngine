@@ -16,41 +16,56 @@
 
 #define STB_TRUETYPE_IMPLEMENTATION
 #include <stb_truetype.h>
+static std::unordered_map<std::string, GLOBAL_PTR<Font>> s_fontCache;
+static std::unordered_map<std::string, GLOBAL_PTR<Texture>> s_textureCache;
 
-Err<Texture> Render2D::GetTexture(LITERAL path)
+Err<GLOBAL_PTR<Texture>> Render2D::GetTexture(LITERAL path)
 {
-    Texture texture = {};
+    std::string key = std::string(path);
+
+    auto it = s_textureCache.find(key);
+    if (it != s_textureCache.end()) {
+        return {.res = it->second, .err = nullptr};
+    }
+    auto texture = MakeGlobalPtr<Texture>();
 
     stbi_set_flip_vertically_on_load(true);
-    auto bytes = stbi_load(path, &texture.width, &texture.height, &texture.channels, STBI_rgb_alpha);
+    auto bytes = stbi_load(path, &texture->width, &texture->height, &texture->channels, STBI_rgb_alpha);
     if (!bytes) {
         return {.res = texture, .err = "Error load texture"};
     }
 
-    glGenTextures(1, &texture.id);
-    if (texture.id == 0) {
+    glGenTextures(1, &texture->id);
+    if (texture->id == 0) {
         stbi_image_free(bytes);
         return {
             .res = texture, .err = "Error generate texture"
         };
     }
 
-    glBindTexture(GL_TEXTURE_2D, texture.id);
+    glBindTexture(GL_TEXTURE_2D, texture->id);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture.width, texture.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texture->width, texture->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);
+    GLenum error = glGetError();
 
+    if (error != GL_NO_ERROR) {
+        LOGERR.Output(
+            "glTexImage2D error: 0x%X\n",
+            error
+        );
+    }
+    
     stbi_image_free(bytes);
+    s_textureCache[key] = texture;
 
     return {
         .res = texture,
         .err = nullptr
     };
 }
-
-static std::unordered_map<std::string, GLOBAL_PTR<Font>> s_fontCache;
 
 Err<GLOBAL_PTR<Font>> Render2D::GetFont(LITERAL path, INT _size) {
     std::string key = std::string(path) + "#" + std::to_string(_size);
@@ -153,23 +168,23 @@ void Render2D::RenderText(VIEW_PTR<Font> font, const char *text, float px, float
     glDisable(GL_TEXTURE_2D);
 }
 
-void Render2D::DrawTexture(const Texture &texture, const Vec2f &pos, const Vec2f &size, const Brush &color, bool flipX) {
-    DrawTexture(texture, Recti{0, 0, texture.width, texture.height}, pos, size, color, flipX);
+void Render2D::DrawTexture(VIEW_PTR<Texture> texture, const Vec2f &pos, const Vec2f &size, const Brush &color, bool flipX) {
+    DrawTexture(texture, Recti{0, 0, texture->width, texture->height}, pos, size, color, flipX);
 }
 
-void Render2D::DrawTexture(const Texture &texture, const Recti &srcRect, const Vec2f &pos, const Vec2f &size, const Brush &color, bool flipX) {
-    if (texture.id == 0) {
+void Render2D::DrawTexture(VIEW_PTR<Texture> texture, const Recti &srcRect, const Vec2f &pos, const Vec2f &size, const Brush &color, bool flipX) {
+    if (texture->id == 0) {
         LOGERR.Output("Invalid Draw texture in pos %f %f\n", pos.x, pos.y);
         return;
     }
 
-    if (texture.width <= 0 || texture.height <= 0) {
+    if (texture->width <= 0 || texture->height <= 0) {
         LOGERR.Output("Invalid texture dimensions for atlas region draw\n");
         return;
     }
 
-    const FLOAT texW = static_cast<FLOAT>(texture.width);
-    const FLOAT texH = static_cast<FLOAT>(texture.height);
+    const FLOAT texW = static_cast<FLOAT>(texture->width);
+    const FLOAT texH = static_cast<FLOAT>(texture->height);
 
     FLOAT u0 = static_cast<FLOAT>(srcRect.x) / texW;
     FLOAT v0 = static_cast<FLOAT>(srcRect.y) / texH;
@@ -186,26 +201,32 @@ void Render2D::DrawTexture(const Texture &texture, const Recti &srcRect, const V
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBindTexture(GL_TEXTURE_2D, texture->id);
+    GLenum error = glGetError();
 
-    glBindTexture(GL_TEXTURE_2D, texture.id);
-
+    if (error != GL_NO_ERROR) {
+        LOGERR.Output(
+            "glBindTexture error: 0x%X\n",
+            error
+        );
+    }
     glBegin(GL_QUADS);
 
     glColor4ub(topLeft.GetRed(), topLeft.GetGreen(), topLeft.GetBlue(), topLeft.GetAlpha());
     glTexCoord2f(u0, v0);
-    glVertex3f(pos.x, pos.y, 0.0f);
+    glVertex3f(pos.x, pos.y, 1.0f);
 
     glColor4ub(topRight.GetRed(), topRight.GetGreen(), topRight.GetBlue(), topRight.GetAlpha());
     glTexCoord2f(u1, v0);
-    glVertex3f(pos.x + size.x, pos.y, 0.0f);
+    glVertex3f(pos.x + size.x, pos.y, 1.0f);
 
     glColor4ub(bottomRight.GetRed(), bottomRight.GetGreen(), bottomRight.GetBlue(), bottomRight.GetAlpha());
     glTexCoord2f(u1, v1);
-    glVertex3f(pos.x + size.x, pos.y + size.y, 0.0f);
+    glVertex3f(pos.x + size.x, pos.y + size.y, 1.0f);
 
     glColor4ub(bottomLeft.GetRed(), bottomLeft.GetGreen(), bottomLeft.GetBlue(), bottomLeft.GetAlpha());
     glTexCoord2f(u0, v1);
-    glVertex3f(pos.x, pos.y + size.y, 0.0f);
+    glVertex3f(pos.x, pos.y + size.y, 1.0f);
 
     glEnd();
 
@@ -304,6 +325,14 @@ void Render2D::DrawLine(FLOAT y, FLOAT minX, FLOAT maxX, const Brush &color) {
     bb.Vertex(minX, y, 0.0f, start.GetRed(), start.GetGreen(), start.GetBlue(), start.GetAlpha())
             .Vertex(maxX, y, 0.0f, end.GetRed(), end.GetGreen(), end.GetBlue(), end.GetAlpha())
             .Flush();
+}
+
+GLOBAL_PTR<Font> Font::Get(LITERAL path, INT size) {
+    const auto [res, err] = Render2D::GetFont(path, size);
+    if (err) {
+        LOGERR.Output("%s\n", err);
+    }
+    return res;
 }
 
 Recti Recti::CalculateStepRect(INT atlasWidth, INT atlasHeight, INT frameSize, UINT step) {

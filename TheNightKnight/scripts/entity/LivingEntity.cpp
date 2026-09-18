@@ -110,12 +110,14 @@ BOOL LivingEntity::IsAlive() {
 }
 
 BOOL LivingEntity::Damage(INT damage) {
-    if (damage > health) {
+    if (damage <= 0) return IsAlive();
+
+    health -= damage;
+    if (health <= 0) {
         health = 0;
         Died();
         return false;
     }
-    health -= damage;
     return true;
 }
 

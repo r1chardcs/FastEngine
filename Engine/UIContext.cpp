@@ -185,6 +185,122 @@ void UIContext::Border(
     );
 }
 
+void UIContext::Image1(
+    Layout layout,
+    VIEW_PTR<Texture> texture,
+    Vec2i pos,
+    Vec2i size,
+    RGBA tint,
+    FLOAT scale
+) {
+    if (!render_system || !texture)
+        return;
+
+    const Vec2i finalPos = GetLayoutPosition(layout, pos, size);
+
+    const FLOAT scaledWidth =
+        static_cast<FLOAT>(size.x) * scale;
+
+    const FLOAT scaledHeight =
+        static_cast<FLOAT>(size.y) * scale;
+
+    const FLOAT centerX =
+        static_cast<FLOAT>(finalPos.x) +
+        static_cast<FLOAT>(size.x) / 2.0f;
+
+    const FLOAT centerY =
+        static_cast<FLOAT>(finalPos.y) +
+        static_cast<FLOAT>(size.y) / 2.0f;
+
+    const FLOAT left =
+        centerX - scaledWidth / 2.0f;
+
+    const FLOAT top =
+        centerY - scaledHeight / 2.0f;
+
+    const FLOAT right =
+        centerX + scaledWidth / 2.0f;
+
+    const FLOAT bottom =
+        centerY + scaledHeight / 2.0f;
+
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_BLEND);
+
+    glEnable(GL_TEXTURE_2D);
+
+    glTexEnvi(
+        GL_TEXTURE_ENV,
+        GL_TEXTURE_ENV_MODE,
+        GL_REPLACE
+    );
+
+    glColor4f(
+        static_cast<FLOAT>(tint.r),
+        static_cast<FLOAT>(tint.g),
+        static_cast<FLOAT>(tint.b),
+        static_cast<FLOAT>(tint.a)
+    );
+
+    glBindTexture(GL_TEXTURE_2D, texture->id);
+
+    glBegin(GL_QUADS);
+
+    glTexCoord2f(0, 1);
+    glVertex2f(left, top);
+
+    glTexCoord2f(1, 1);
+    glVertex2f(right, top);
+
+    glTexCoord2f(1, 0);
+    glVertex2f(right, bottom);
+
+    glTexCoord2f(0, 0);
+    glVertex2f(left, bottom);
+
+    glEnd();
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_TEXTURE_2D);
+}
+
+void UIContext::Image2(
+    Layout layout,
+    VIEW_PTR<Texture> texture,
+    const Recti& srcRect,
+    Vec2i pos,
+    Vec2i size,
+    RGBA tint
+) {
+    if (!render_system || !texture) {
+        return;
+    }
+
+    const Vec2i finalPos = GetLayoutPosition(layout, pos, size);
+    const Vec2i center = {
+        finalPos.x + size.x / 2,
+        finalPos.y + size.y / 2
+    };
+
+    Render2D::DrawTexture(
+        texture,
+        srcRect,
+        {static_cast<FLOAT>(center.x), static_cast<FLOAT>(center.y)},
+        {static_cast<FLOAT>(size.x), static_cast<FLOAT>(size.y)},
+        Brush(tint)
+    );
+}
+
+void UIContext::Image3(
+    VIEW_PTR<Texture> texture,
+    Vec2i pos,
+    Vec2i size,
+    RGBA tint
+) {
+    Image1(Layout::UP_LEFT, texture, pos, size, tint);
+}
+
 void UIContext::Line(
     Vec2i start,
     Vec2i end,

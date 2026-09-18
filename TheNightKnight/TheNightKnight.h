@@ -9,6 +9,7 @@
 #include <Engine/App.h>
 #include <Engine/Objects/Rect.h>
 
+#include "scenes/LoadScene.h"
 #include "scenes/MainScene.h"
 #include "Toolkit/IO/IO.h"
 
@@ -17,6 +18,7 @@ public:
     TheNightKnight() : App("The Night Knight") {}
 
     void Start() override {
+        SetExpectationsScene(MakeGlobalPtr<LoadScene>());
         SetScene(MakeGlobalPtr<MainScene>());
     }
 

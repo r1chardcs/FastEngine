@@ -7,7 +7,7 @@
 #include "Transform.h"
 #include "../../Toolkit/Debug/Logger.h"
 
-void Sprite::SetTexture(const NIL<Texture> &texture_) {
+void Sprite::SetTexture(const NIL<GLOBAL_PTR<Texture>> &texture_) {
     this->texture = texture_;
 }
 
@@ -29,7 +29,7 @@ void Sprite::Render() {
 
     if (useSrcRect) {
         Render2D::DrawTexture(
-            texture.value(),
+            texture.value().get(),
             srcRect,
             transform->HalfPos().ToVec2(),
             transform->Size().ToVec2(),
@@ -37,7 +37,7 @@ void Sprite::Render() {
             flipX);
     } else {
         Render2D::DrawTexture(
-            texture.value(),
+            texture.value().get(),
             transform->HalfPos().ToVec2(),
             transform->Size().ToVec2(),
             Brush::Solid(255, 255, 255, 255),

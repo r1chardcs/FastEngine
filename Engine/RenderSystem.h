@@ -39,15 +39,24 @@ class RenderSystem {
     CALLBACK<VOID(VIEW_PTR<RenderSystem>)> ui_render_callback;
     CALLBACK<VOID(VIEW_PTR<RenderSystem>)> world_render_callback;
 
-    HASH_MAP<STRING, Texture> textures;
+    HASH_MAP<STRING, GLOBAL_PTR<Texture>> textures;
     mutable MUTEX mutex_textures;
     INT lastWidth = 1;
     INT lastHeight = 1;
     DOUBLE fps = 0.0;
     DOUBLE fps_accum_time = 0.0;
     INT fps_frame_count = 0;
+
+    RGBA backgroundColor = {
+        .r = 0,
+        .g = 0,
+        .b = 0,
+        .a = 1
+    };
 public:
     RenderSystem(VIEW_PTR<App> app);
+
+    RGBA& BackgroundColor();
 
     void SetRenderUICallback(const CALLBACK<VOID(VIEW_PTR<RenderSystem>)> &callback);
     void SetRenderWorldCallback(const CALLBACK<VOID(VIEW_PTR<RenderSystem>)> &callback);
@@ -69,11 +78,11 @@ public:
 
     void LoadTexture(LITERAL path);
 
-    Texture LoadTextureSync(LITERAL path);
+    GLOBAL_PTR<Texture> LoadTextureSync(LITERAL path);
 
-    Texture GetTexture(LITERAL path) const;
+    GLOBAL_PTR<Texture> GetTexture(LITERAL path) const;
 
-    Texture GetTexture(LITERAL path);
+    GLOBAL_PTR<Texture> GetTexture(LITERAL path);
 
     VIEW_PTR<Camera> GetCamera() const;
     VIEW_PTR<App> GetApp() const;

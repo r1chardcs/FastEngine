@@ -6,16 +6,26 @@
 #define FASTENGINE_PLAYER_H
 
 #include "LivingEntity.h"
+#include "TheNightKnight/scripts/weapon/Weapon.h"
 
 class Player : public LivingEntity {
+    GLOBAL_PTR<Weapon> weapon = nullptr;
+    FLOAT attackCooldown = 0.0f;
 public:
     Player();
+
+    void SetWeapon(const GLOBAL_PTR<Weapon> &weapon_);
 
     void Update() override;
     void DrawWorld() override;
 
+    void UpdateWeapon();
+    void UpdateAttack();
+    VIEW_PTR<LivingEntity> FindVictim(float rad);
     void Move(FLOAT addX, FLOAT addY, FLOAT curspeed) override;
     RGBA GetHealthBarColor() override;
+
+    void Died() override;
 };
 
 

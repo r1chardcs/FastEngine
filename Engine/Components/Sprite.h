@@ -10,7 +10,7 @@
 #include "../GameObject.h"
 
 class Sprite : public Component {
-    NIL<Texture> texture;
+    NIL<GLOBAL_PTR<Texture>> texture;
     Recti srcRect;
     bool useSrcRect = false;
     BOOL flipX = false;
@@ -24,7 +24,7 @@ public:
     void SetSourceRect(const Recti& rect);
     void ClearSourceRect();
 
-    void SetTexture(const NIL<Texture> &texture_);
+    void SetTexture(const NIL<GLOBAL_PTR<Texture>> &texture_);
     void Render() override;
 
     public: static ClassID StaticClassID() {

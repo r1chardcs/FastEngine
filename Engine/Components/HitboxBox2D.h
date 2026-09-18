@@ -28,6 +28,8 @@ public:
           position(0, 0) {
     }
 
+    bool isDebug = false;
+
     Vec2f& Size();
     Vec2f& Position();
 

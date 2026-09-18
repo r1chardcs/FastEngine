@@ -6,6 +6,7 @@
 #include <glfw3.h>
 
 #include "../Toolkit/Debug/Logger.h"
+#include "Toolkit/Debug/Test.h"
 
 void Window::SetWindowSize(const INT _width, const INT _height) {
     this->width = _width;
@@ -16,6 +17,7 @@ void Window::SetWindowSize(const INT _width, const INT _height) {
 
 Window::Window(MOVE_PLEASE STRING title, const INT width, const INT height) : title(
                                                                       MOVE(title)), width(width), height(height) {
+    TEST(title.empty() && "Invalid Title")
     glfwInit();
     handle = glfwCreateWindow(width, height, this->title.c_str(), NULL, NULL);
     if (!handle) {
@@ -23,33 +25,25 @@ Window::Window(MOVE_PLEASE STRING title, const INT width, const INT height) : ti
     }
 }
 
-INT Window::GetKey(INT key) {
-    return glfwGetKey(static_cast<GLFWwindow *>(handle), key) != GLFW_RELEASE;
+INT Window::GetKey(const INT key) const {
+    TEST(!handle)
+    return handle == nullptr? -1 : (glfwGetKey(static_cast<GLFWwindow *>(handle), key) != GLFW_RELEASE);
 }
 
-INT Window::GetPressKey(INT key) const {
-    static std::unordered_map<void*, std::unordered_map<INT, INT>> prev_states;
-
-    auto& states = prev_states[handle];
-    const INT current = glfwGetKey(static_cast<GLFWwindow *>(handle), key);
-    const INT was_pressed = states[key];
-
-    states[key] = current;
-
-    return current == GLFW_PRESS && was_pressed != GLFW_PRESS;
-}
-
-INT Window::GetMouseKey(INT key) const {
+INT Window::GetMouseKey(const INT key) const {
+    TEST(!handle);
     return glfwGetMouseButton(static_cast<GLFWwindow *>(handle), key) != GLFW_RELEASE;
 }
 
 Vec2f Window::GetMousePosition() const {
+    TEST(!handle);
     double x, y;
     glfwGetCursorPos(static_cast<GLFWwindow *>(handle), &x, &y);
     return { static_cast<float>(x), static_cast<float>(y) };
 }
 
 void Window::MakeContext()  {
+    TEST(!handle);
     glfwMakeContextCurrent(static_cast<GLFWwindow *>(handle));
     glfwSetWindowUserPointer(static_cast<GLFWwindow *>(handle), this);
     glfwSetFramebufferSizeCallback(static_cast<GLFWwindow *>(handle), [](auto handle, auto width, auto height) {
@@ -61,11 +55,13 @@ void Window::MakeContext()  {
 }
 
 BOOL Window::IsRun() const {
+    TEST(!handle);
     return !glfwWindowShouldClose(
         static_cast<GLFWwindow *>(handle));
 }
 
 void Window::SwapBuffer() const {
+    TEST(!handle);
     glfwSwapBuffers(static_cast<GLFWwindow *>(handle));
     glfwPollEvents();
 }
@@ -79,7 +75,9 @@ HANDLE Window::GetHandle() const {
 }
 
 Window::~Window() {
-    glfwDestroyWindow(static_cast<GLFWwindow *>(handle));
+    if (handle) {
+        glfwDestroyWindow(static_cast<GLFWwindow *>(handle));
+    }
     glfwTerminate();
 }
 

@@ -68,6 +68,10 @@ RenderSystem::RenderSystem(VIEW_PTR<App> app): app(app) {
     camera = MakeSelfPtr<Camera>();
 }
 
+RGBA & RenderSystem::BackgroundColor() {
+    return backgroundColor;
+}
+
 void RenderSystem::SetRenderUICallback(const FUNC<void(VIEW_PTR<RenderSystem>)> &callback) {
     ui_render_callback = callback;
 }
@@ -89,7 +93,7 @@ void RenderSystem::OnUpdate() {
     UpdateDeltaTime();
 
     glClear(GL_COLOR_BUFFER_BIT);
-    glClearColor(0, 0, 0, 1);
+    glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
 
     StartWorld();
     {
@@ -183,10 +187,10 @@ void RenderSystem::LoadTexture(LITERAL path) {
     });
 }
 
-Texture RenderSystem::LoadTextureSync(LITERAL path) {
+GLOBAL_PTR<Texture> RenderSystem::LoadTextureSync(LITERAL path) {
     STRING key(path);
-    auto promise = std::make_shared<std::promise<Texture>>();
-    std::future<Texture> future = promise->get_future();
+    auto promise = std::make_shared<std::promise<GLOBAL_PTR<Texture>>>();
+    std::future<GLOBAL_PTR<Texture>> future = promise->get_future();
 
     app->ExecuteInRenderThread([this, key, promise](auto self) {
         auto [res, err] = Render2D::GetTexture(key.c_str());
@@ -205,22 +209,22 @@ Texture RenderSystem::LoadTextureSync(LITERAL path) {
     return future.get();
 }
 
-Texture RenderSystem::GetTexture(LITERAL path) const {
+GLOBAL_PTR<Texture> RenderSystem::GetTexture(LITERAL path) const {
     MUTEX_LOCK lock(mutex_textures);
     const auto it = textures.find(path);
     if (it == textures.end()) {
         LOGWRN.Output("Texture not loaded: %s", path);
-        return Texture{};
+        return nullptr;
     }
     return it->second;
 }
 
-Texture RenderSystem::GetTexture(LITERAL path) {
+GLOBAL_PTR<Texture> RenderSystem::GetTexture(LITERAL path) {
     MUTEX_LOCK lock(mutex_textures);
     const auto it = textures.find(path);
     if (it == textures.end()) {
         LOGWRN.Output("Texture not loaded: %s", path);
-        return Texture{};
+        return nullptr;
     }
     return it->second;
 }

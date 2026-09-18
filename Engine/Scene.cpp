@@ -12,6 +12,10 @@
 Scene::Scene(STRING scene_name) : scene_name(MOVE(scene_name)) {
 }
 
+void Scene::Setup() {
+    GetRenderSystem()->BackgroundColor() = GetBackgroundColor();
+}
+
 void Scene::Start() {
     is_started = true;
 }
@@ -62,6 +66,10 @@ void Scene::Finish() {
     is_started = false;
 }
 
+RGBA Scene::GetBackgroundColor() {
+    return {.r = 0, .g = 0, .b = 0, .a = 1};
+}
+
 void Scene::UI() {
     for (const auto& game_object : Snapshot()) {
         if (!game_object->IsActive()) continue;
@@ -97,6 +105,14 @@ void Scene::DeleteGameObject(VIEW_PTR<GameObject> game_object) {
     game_objects.remove_if([game_object](const GLOBAL_PTR<GameObject>& obj) {
         return obj.get() == static_cast<GameObject*>(game_object);
     });
+}
+
+VIEW_PTR<RenderSystem> Scene::GetRenderSystem() {
+    return GetApp().GetRenderSystem();
+}
+
+App& Scene::GetApp() {
+    return App::GetInstance();
 }
 
 LIST<VIEW_PTR<GameObject>> Scene::GetGameObjectByTags(const STRING &tag) const {

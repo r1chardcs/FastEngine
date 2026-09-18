@@ -87,20 +87,58 @@ App & App::GetInstance() {
     return *instance;
 }
 
+VIEW_PTR<Scene> App::GetExpectationsScene() const {
+    return scene_expectations.get();
+}
+
+void App::SetExpectationsScene(const GLOBAL_PTR<Scene> &scene) {
+    this->scene_expectations = scene;
+}
+
 void App::SetScene(const GLOBAL_PTR<Scene>& scene) {
-    if (current_scene) {
-        current_scene->Finish();
+    if (!scene) {
+        LOGWRN.Output("SetScene called with null scene");
+        return;
     }
-    current_scene = scene;
-    if (current_scene) {
+
+    if (!scene_expectations) {
+        MUTEX_LOCK lock(mutex_scene);
+        if (current_scene) {
+            current_scene->Finish();
+        }
+        current_scene = scene;
+        current_scene->Setup();
         current_scene->Start();
+        return;
     }
+
+    {
+        MUTEX_LOCK lock(mutex_scene);
+        if (current_scene) {
+            current_scene->Finish();
+        }
+        current_scene = scene_expectations;
+    }
+    scene_expectations->Start();
+    scene_expectations->Setup();
+
+    ExecuteInLogicThread([this, scene](VIEW_PTR<App> self) {
+        scene->Start();
+        scene->Setup();
+
+        MUTEX_LOCK lock(mutex_scene);
+        if (current_scene.get() == scene_expectations.get()) {
+            scene_expectations->Finish();
+        }
+        current_scene = scene;
+    });
 }
 
 VIEW_PTR<Scene> App::GetScene() const {
     return current_scene.get();
 }
 void App::AddGameObject(const GLOBAL_PTR<GameObject>& game_object) {
+    MUTEX_LOCK lock(mutex_scene);
     if (!current_scene) {
         LOGWRN.Output("AddGameObject called with no active scene");
         return;
@@ -109,6 +147,7 @@ void App::AddGameObject(const GLOBAL_PTR<GameObject>& game_object) {
 }
 
 void App::DeleteGameObject(VIEW_PTR<GameObject> game_object) {
+    MUTEX_LOCK lock(mutex_scene);
     if (!current_scene) return;
     current_scene->DeleteGameObject(game_object);
 }
@@ -175,10 +214,6 @@ void App::GrabSelfCrash(const CrashContext &ctx) {
 
 INT App::GetKey(INT key) {
     return window->GetKey(key);
-}
-
-INT App::GetPressKey(INT key) {
-    return window->GetPressKey(key);
 }
 
 INT App::GetMouseKey(INT key) {

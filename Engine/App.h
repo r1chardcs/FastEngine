@@ -43,6 +43,8 @@ class App {
 
     static VIEW_PTR<App> instance;
     GLOBAL_PTR<Scene> current_scene;
+    GLOBAL_PTR<Scene> scene_expectations;
+    MUTEX mutex_scene;
 protected:
     VIRTUAL void ProcessRenderQueue();
     VIRTUAL void ProcessLogicQueue();
@@ -52,6 +54,9 @@ protected:
 public:
     App(MOVE_PLEASE STRING app_name);
     static App& GetInstance();
+
+    VIEW_PTR<Scene> GetExpectationsScene() const;
+    void SetExpectationsScene(const GLOBAL_PTR<Scene>& scene);
 
     void SetScene(const GLOBAL_PTR<Scene>& scene);
     VIEW_PTR<Scene> GetScene() const;
@@ -74,7 +79,6 @@ public:
     VIRTUAL void GrabSelfCrash(const CrashContext& ctx);
 
     INT GetKey(INT key);
-    INT GetPressKey(INT key);
     INT GetMouseKey(INT key);
     Vec2f GetMousePos();
 
