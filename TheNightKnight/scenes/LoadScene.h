@@ -20,7 +20,7 @@ public:
 
         auto [texture, err] = Render2D::GetTexture("assets/gameicon.png");
 
-        ctx.Image1(
+        ctx.Image(
             Layout::CENTER,
             texture.get(),
             Vec2i{0, -50},

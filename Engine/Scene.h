@@ -42,7 +42,7 @@ public:
     STRING GetName() const;
     BOOL IsStarted() const;
 
-    DOUBLE GetDeltaTime();
+    static DOUBLE GetDeltaTime();
 
     INT GetGameObjectSize() const;
 };
@@ -51,8 +51,7 @@ template<typename TemplateComponent>
 LIST<VIEW_PTR<TemplateComponent>> Scene::GetComponents() {
     LIST<VIEW_PTR<TemplateComponent>> result;
 
-    const auto objects = Snapshot();
-    for (const auto& game_object : objects) {
+    for (const auto objects = Snapshot(); const auto& game_object : objects) {
         if (auto component = game_object->GetComponent<TemplateComponent>()) {
             result.push_back(component);
         }

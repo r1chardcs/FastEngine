@@ -33,9 +33,11 @@ public:
         AddGameObject(denuvo);
         AddGameObject(MakeGlobalPtr<FPSOverlay>());
         denuvo->Teleport(5, 5);
-        auto map = MapGenerator::CreateMap(10, 10, {{1, 1, 1, 1}});
+        auto map = MapGenerator::CreateMap(1441, 104543, {{1, 1, 1, 1}});
         for (const auto &color_block : map) {
-            // AddGameObject(color_block);
+            AddGameObject(color_block);
+            AddGameObject(color_block);
+            AddGameObject(color_block);
         }
 
     }

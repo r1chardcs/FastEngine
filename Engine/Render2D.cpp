@@ -334,10 +334,16 @@ void Render2D::DrawTextureUI(const Texture& texture, Vec2f pos, Vec2f size, RGBA
     const FLOAT halfW = (size.x * scale) / 2.0f;
     const FLOAT halfH = (size.y * scale) / 2.0f;
 
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_BLEND);
+
     glEnable(GL_TEXTURE_2D);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+    glTexEnvi(
+       GL_TEXTURE_ENV,
+       GL_TEXTURE_ENV_MODE,
+       GL_REPLACE
+   );
 
     glColor4f(tint.r, tint.g, tint.b, tint.a);
     glBindTexture(GL_TEXTURE_2D, texture.id);

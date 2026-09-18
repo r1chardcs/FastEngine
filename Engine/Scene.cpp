@@ -8,9 +8,9 @@
 #include "GameObject.h"
 #include "../Toolkit/Debug/Logger.h"
 #include "Toolkit/Anim/AnimationSystem.h"
+#include "Toolkit/Debug/Test.h"
 
-Scene::Scene(STRING scene_name) : scene_name(MOVE(scene_name)) {
-}
+Scene::Scene(STRING scene_name) : scene_name(MOVE(scene_name)) {}
 
 void Scene::Setup() {
     GetRenderSystem()->BackgroundColor() = GetBackgroundColor();
@@ -21,14 +21,17 @@ void Scene::Start() {
 }
 
 void Scene::Update() {
-    AnimationSystem::GetInstance().Update(static_cast<FLOAT>(App::GetInstance().GetDeltaTime()));
+    AnimationSystem::GetInstance()
+        .Update(static_cast<FLOAT>(App::GetInstance().GetDeltaTime()));
 
     for (const auto& game_object : Snapshot()) {
+        TEST(!game_object && "Invalid Game Object at Snapshot");
         if (!game_object->IsActive()) continue;
 
         game_object->Update();
         for (const auto components = game_object->GetComponents();
                 auto component : components) if (component) component->Update();
+        else { TEST(true && "Invalid component at object") }
     }
 }
 
@@ -42,12 +45,16 @@ void Scene::Render() {
                     component->Render();
                     component->Render(Component::Type::Pre);
                 }
+        else { TEST(true && "Invalid component at object") }
 
         game_object->DrawWorld();
         for (const auto components = game_object->GetComponents();
                 auto component : components) if (component) {
                     component->Render(Component::Type::Post);
+                    component->Render();
                 }
+        else { TEST(true && "Invalid component at object") }
+
         App::GetInstance().GetRenderSystem()->StopContext();
     }
 }
@@ -119,7 +126,10 @@ LIST<VIEW_PTR<GameObject>> Scene::GetGameObjectByTags(const STRING &tag) const {
     LIST<VIEW_PTR<GameObject>> tags;
 
     for (const auto& game_object : Snapshot()) {
-        if (!game_object) continue;
+        if (!game_object) {
+            TEST(true && "Invalid Game Object at Snaphsot")
+            continue;
+        }
         for (const auto& obj_tag : game_object->GetTags()) {
             if (obj_tag == tag) { tags.push_back(game_object.get()); }
         }
