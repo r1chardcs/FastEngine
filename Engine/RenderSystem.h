@@ -47,12 +47,7 @@ class RenderSystem {
     DOUBLE fps_accum_time = 0.0;
     INT fps_frame_count = 0;
 
-    RGBA backgroundColor = {
-        .r = 0,
-        .g = 0,
-        .b = 0,
-        .a = 1
-    };
+    RGBA backgroundColor = {.r = 0, .g = 0, .b = 0, .a = 1};
 public:
     RenderSystem(VIEW_PTR<App> app);
 
@@ -64,17 +59,20 @@ public:
     void OnResize(INT width, INT height);
     void OnUpdate();
 
-    void Rotate(FLOAT angle, FLOAT x, FLOAT y, FLOAT z);
-    void Rotate(const Quat& quat);
+    static void Rotate(FLOAT angle, FLOAT x, FLOAT y, FLOAT z);
 
-    void NewContext();
-    void StopContext();
+    static void Rotate(const Quat& quat);
 
-    void StartWorld();
-    void EndWorld();
+    static void NewContext();
 
-    void StartUI();
-    void EndUI();
+    static void StopContext();
+
+    void StartWorld() const;
+    void EndWorld() const;
+
+    void StartUI() const;
+    void EndUI() const
+    ;
 
     void LoadTexture(LITERAL path);
 

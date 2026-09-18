@@ -15,7 +15,7 @@
 
 Camera::Camera(): x(0), y(0), height(10), scale(1) {}
 
-Camera::Camera(FLOAT height, FLOAT scale): x(0), y(0), height(height), scale(scale) {}
+Camera::Camera(const FLOAT height, const FLOAT scale): x(0), y(0), height(height), scale(scale) {}
 
 FLOAT Camera::GetX() const {
     return x;
@@ -33,19 +33,19 @@ FLOAT Camera::GetScale() const {
     return scale;
 }
 
-void Camera::SetX(FLOAT value) {
+void Camera::SetX(const FLOAT value) {
     x = value;
 }
 
-void Camera::SetY(FLOAT value) {
+void Camera::SetY(const FLOAT value) {
     y = value;
 }
 
-void Camera::SetHeight(FLOAT value) {
+void Camera::SetHeight(const FLOAT value) {
     height = value;
 }
 
-void Camera::SetScale(FLOAT value) {
+void Camera::SetScale(const FLOAT value) {
     scale = value;
 }
 
@@ -128,7 +128,7 @@ void RenderSystem::StopContext() {
     glPopMatrix();
 }
 
-void RenderSystem::StartWorld() {
+void RenderSystem::StartWorld() const {
     const FLOAT aspect = static_cast<FLOAT>(lastWidth) / static_cast<FLOAT>(lastHeight);
 
     const FLOAT camHeight = camera->GetHeight() / camera->GetScale();
@@ -145,7 +145,7 @@ void RenderSystem::StartWorld() {
     glTranslatef(-camera->GetX(), -camera->GetY(), 0);
 }
 
-void RenderSystem::EndWorld() {
+void RenderSystem::EndWorld() const {
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();
 
@@ -153,7 +153,7 @@ void RenderSystem::EndWorld() {
     glPopMatrix();
 }
 
-void RenderSystem::StartUI() {
+void RenderSystem::StartUI() const {
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
@@ -166,7 +166,7 @@ void RenderSystem::StartUI() {
     glLoadIdentity();
 }
 
-void RenderSystem::EndUI() {
+void RenderSystem::EndUI() const {
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();
 
@@ -174,9 +174,9 @@ void RenderSystem::EndUI() {
     glPopMatrix();
 }
 
-void RenderSystem::LoadTexture(LITERAL path) {
+void RenderSystem::LoadTexture(const LITERAL path) {
     STRING key(path);
-    app->ExecuteInRenderThread([this, key](auto self) {
+    app->ExecuteInRenderThread([this, key](auto) {
         auto [res, err] = Render2D::GetTexture(key.c_str());
         if (err) {
             LOGWRN.Output("%s", err);
@@ -187,12 +187,12 @@ void RenderSystem::LoadTexture(LITERAL path) {
     });
 }
 
-GLOBAL_PTR<Texture> RenderSystem::LoadTextureSync(LITERAL path) {
+GLOBAL_PTR<Texture> RenderSystem::LoadTextureSync(const LITERAL path) {
     STRING key(path);
     auto promise = std::make_shared<std::promise<GLOBAL_PTR<Texture>>>();
     std::future<GLOBAL_PTR<Texture>> future = promise->get_future();
 
-    app->ExecuteInRenderThread([this, key, promise](auto self) {
+    app->ExecuteInRenderThread([this, key, promise](auto) {
         auto [res, err] = Render2D::GetTexture(key.c_str());
         if (err) {
             LOGWRN.Output("%s", err);
@@ -209,7 +209,7 @@ GLOBAL_PTR<Texture> RenderSystem::LoadTextureSync(LITERAL path) {
     return future.get();
 }
 
-GLOBAL_PTR<Texture> RenderSystem::GetTexture(LITERAL path) const {
+GLOBAL_PTR<Texture> RenderSystem::GetTexture(const LITERAL path) const {
     MUTEX_LOCK lock(mutex_textures);
     const auto it = textures.find(path);
     if (it == textures.end()) {
@@ -219,7 +219,7 @@ GLOBAL_PTR<Texture> RenderSystem::GetTexture(LITERAL path) const {
     return it->second;
 }
 
-GLOBAL_PTR<Texture> RenderSystem::GetTexture(LITERAL path) {
+GLOBAL_PTR<Texture> RenderSystem::GetTexture(const LITERAL path) {
     MUTEX_LOCK lock(mutex_textures);
     const auto it = textures.find(path);
     if (it == textures.end()) {
