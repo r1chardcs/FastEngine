@@ -17,7 +17,7 @@ void Window::SetWindowSize(const INT _width, const INT _height) {
 
 Window::Window(MOVE_PLEASE STRING title, const INT width, const INT height) : title(
                                                                       MOVE(title)), width(width), height(height) {
-    TEST(title.empty() && "Invalid Title")
+    TEST(!title.empty() && "Invalid Title")
     glfwInit();
     handle = glfwCreateWindow(width, height, this->title.c_str(), NULL, NULL);
     if (!handle) {
