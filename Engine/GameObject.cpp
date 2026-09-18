@@ -4,6 +4,8 @@
 
 #include "GameObject.h"
 
+#include <algorithm>
+
 #include "App.h"
 #include "../Toolkit/Debug/Logger.h"
 #include "Components/Transform.h"
@@ -24,11 +26,67 @@ LIST<STRING> GameObject::GetTags() {
     return tags;
 }
 
-void GameObject::DrawWorld() {
+void GameObject::Update() {
+    for (const auto snapshot = children; const auto &child : snapshot) {
+        if (child && child->IsActive()) {
+            child->Update();
+        }
+    }
+}
 
+void GameObject::DrawWorld() {
+    for (const auto snapshot = children; const auto &child : snapshot) {
+        if (child && child->IsActive()) {
+            child->DrawWorld();
+        }
+    }
+}
+
+void GameObject::DrawUI() {
+    for (const auto snapshot = children; const auto &child : snapshot) {
+        if (child && child->IsActive()) {
+            child->DrawUI();
+        }
+    }
+}
+
+VIEW_PTR<GameObject> GameObject::AddChild(const GLOBAL_PTR<GameObject> &child) {
+    if (!child) {
+        LOGWRN.Output("AddChild called with null child\n");
+        return nullptr;
+    }
+
+    child->parent = this;
+    const auto raw_ptr = child.get();
+
+    children.push_back(child);
+    child->Start();
+
+    return raw_ptr;
+}
+
+void GameObject::RemoveChild(VIEW_PTR<GameObject> child) {
+    std::erase_if(children,
+                  [child](const GLOBAL_PTR<GameObject> &c) { return c.get() == child; });
+}
+
+VIEW_PTR<GameObject> GameObject::GetParent() const {
+    return parent;
+}
+
+VECTOR<VIEW_PTR<GameObject>> GameObject::GetChildren() const {
+    VECTOR<VIEW_PTR<GameObject>> result;
+    for (const auto &child : children) {
+        if (child) result.push_back(child.get());
+    }
+    return result;
 }
 
 void GameObject::Destroy() {
+    if (parent) {
+        parent->RemoveChild(this);
+        return;
+    }
     GetApp().GetScene()->DeleteGameObject(this);
 }
 
@@ -37,7 +95,7 @@ DOUBLE GameObject::GetDeltaTime() {
 }
 
 VIEW_PTR<RenderSystem> GameObject::GetRenderSystem() {
-    return App::GetInstance().GetRenderSystem();
+    return GetApp().GetRenderSystem();
 }
 
 void GameObject::SetActive(const BOOL value) {

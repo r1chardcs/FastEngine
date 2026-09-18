@@ -14,6 +14,8 @@ class GameObject {
     LIST<STRING> tags;
     VECTOR<SELF_PTR<Component>> components;
     BOOL isActive = true;
+    VIEW_PTR<GameObject> parent = nullptr;
+    VECTOR<GLOBAL_PTR<GameObject>> children;
 public:
     virtual ~GameObject() = default;
 
@@ -22,16 +24,20 @@ public:
 
     LIST<STRING> GetTags();
 
-    VIRTUAL VOID Start() {}
-    VIRTUAL VOID Shutdown() {}
-    VIRTUAL VOID Update() {}
+    VIRTUAL VOID Start();
+
+    VIRTUAL VOID Shutdown();
+
+    VIRTUAL VOID Update();
+
     VIRTUAL VOID DrawWorld();
-    VIRTUAL VOID DrawUI() {}
+    VIRTUAL VOID DrawUI();
 
     void Destroy();
 
-    DOUBLE GetDeltaTime();
-    VIEW_PTR<RenderSystem> GetRenderSystem();
+    static DOUBLE GetDeltaTime();
+
+    static VIEW_PTR<RenderSystem> GetRenderSystem();
 
     template <typename TemplateComponent>
     VIEW_PTR<TemplateComponent> AddComponent() {
@@ -74,7 +80,12 @@ public:
     void SetActive(BOOL value);
 
     BOOL IsActive() const;
-    App& GetApp();
+    VIEW_PTR<GameObject> AddChild(const GLOBAL_PTR<GameObject> &child);
+    void RemoveChild(VIEW_PTR<GameObject> child);
+    VIEW_PTR<GameObject> GetParent() const;
+    VECTOR<VIEW_PTR<GameObject>> GetChildren() const;
+
+    static App& GetApp();
 };
 
 
