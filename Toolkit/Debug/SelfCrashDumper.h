@@ -21,6 +21,31 @@ struct CrashContext {
     VECTOR<StackFrame> stack_trace;
 };
 
+namespace ExceptionApi {
+    struct StackFrame {
+        static constexpr unsigned long long MAX_FUNCTION_NAME = 256;
+        static constexpr unsigned long long MAX_MODULE_NAME = 256;
+        static constexpr unsigned long long MAX_FILE_NAME = 512;
+
+        CHAR function_name[MAX_FUNCTION_NAME] = {};
+        CHAR module_name[MAX_MODULE_NAME] = {};
+        CHAR file_name[MAX_FILE_NAME] = {};
+
+        UINT line_number = 0;
+        POINTER address = nullptr;
+    };
+
+    struct StackTrace {
+        static constexpr unsigned long long MAX_FRAMES = 64;
+
+        StackFrame frames[MAX_FRAMES] = {};
+        unsigned long long count = 0;
+    };
+
+    STRING DescribeException(unsigned long code);
+    StackTrace CaptureStackTraceCurrent();
+}
+
 namespace CrashDumper {
     void SetCallback(const FUNC<VOID(CrashContext)> &callback);
     void AttachHandler();

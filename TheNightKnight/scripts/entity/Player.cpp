@@ -11,11 +11,9 @@
 #include "TheNightKnight/scenes/DieScene.h"
 
 Player::Player(): LivingEntity(20, 3) {
-    /*
     const auto sprite = AddComponent<Sprite>();
     sprite->SetTexture(GetRenderSystem()->LoadTextureSync("assets/players.png"));
     sprite->SetSourceRect({.x = 0, .y = 0, .width = 16, .height = 16});
-    */
 }
 
 void Player::SetWeapon(const GLOBAL_PTR<Weapon> &weapon_) {
@@ -28,7 +26,7 @@ void Player::SetWeapon(const GLOBAL_PTR<Weapon> &weapon_) {
 
 void Player::Update() {
     LivingEntity::Update();
-    return;
+
     if (GetApp().GetKey(GLFW_KEY_W)) {
         Move(0, 1, speed);
     }
@@ -103,7 +101,6 @@ VIEW_PTR<LivingEntity> Player::FindVictim(FLOAT radius) {
 }
 
 void Player::Move(FLOAT addX, FLOAT addY, FLOAT curspeed) {
-    return;
     LivingEntity::Move(addX, addY, curspeed);
     const auto sprite = GetComponent<Sprite>();
 
