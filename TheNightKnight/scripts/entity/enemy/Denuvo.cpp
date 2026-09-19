@@ -3,3 +3,7 @@
 //
 
 #include "Denuvo.h"
+
+void Denuvo::Start() {
+    EnemyEntity::Start();
+}

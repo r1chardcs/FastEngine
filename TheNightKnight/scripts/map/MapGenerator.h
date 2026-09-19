@@ -9,10 +9,13 @@
 
 #include "../block/ColorBlock.h"
 
-namespace MapGenerator {
+namespace MapGenerator
+{
     VECTOR<GLOBAL_PTR<ColorBlock>> CreateMap(
         FLOAT width, FLOAT height, Brush color
     );
+
+    VECTOR<GLOBAL_PTR<GameObject>> ParseMap(LITERAL);
 };
 
 

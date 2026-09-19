@@ -37,6 +37,7 @@ void App::Render() {
 
 VIEW_PTR<App> App::instance = nullptr;
 
+
 void App::ProcessRenderQueue() {
     QUEUE<FUNC<VOID(VIEW_PTR<App>)>> tasks;
     {
@@ -104,36 +105,43 @@ void App::SetScene(const GLOBAL_PTR<Scene>& scene) {
         return;
     }
 
-    if (!scene_expectations) {
-        MUTEX_LOCK lock(mutex_scene);
-        if (current_scene) {
-            current_scene->Finish();
-        }
-        current_scene = scene;
-        current_scene->Setup();
-        current_scene->Start();
-        return;
-    }
+    GLOBAL_PTR<Scene> expectation;
 
     {
         MUTEX_LOCK lock(mutex_scene);
+
+        expectation = scene_expectations;
+
+        if (!expectation) {
+            if (current_scene) {
+                current_scene->Finish();
+            }
+
+            current_scene = scene;
+            current_scene->Setup();
+            current_scene->Start();
+            return;
+        }
+
         if (current_scene) {
             current_scene->Finish();
         }
-        current_scene = scene_expectations;
+
+        current_scene = expectation;
     }
-    scene_expectations->Start();
-    scene_expectations->Setup();
 
-    ExecuteInLogicThread([this, scene](VIEW_PTR<App>) {
-        scene->Start();
-        scene->Setup();
+    expectation->Setup();
+    expectation->Start();
 
+    ExecuteInLogicThread([this, scene, expectation](VIEW_PTR<App>) {
         MUTEX_LOCK lock(mutex_scene);
-        if (current_scene.get() == scene_expectations.get()) {
-            scene_expectations->Finish();
+
+        if (current_scene.get() == expectation.get()) {
+            current_scene = scene;
         }
-        current_scene = scene;
+
+        scene->Setup();
+        scene->Start();
     });
 }
 

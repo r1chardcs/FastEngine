@@ -15,8 +15,8 @@ LivingEntity::LivingEntity(INT maxHealth, FLOAT speed): maxHealth(maxHealth), sp
     transform->Size().y = 1;
 
     const auto hitbox = AddComponent<HitboxBox2D>();
-    hitbox->Position() = {0.0f, -0.42f};
-    hitbox->Size() = {0.58f, 0.26f};
+    hitbox->Position() = {0.0f, -0.22f};
+    hitbox->Size() = {0.58f, 0.56f};
 }
 
 void LivingEntity::DrawWorld() {
@@ -72,6 +72,16 @@ void LivingEntity::Teleport(FLOAT x, FLOAT y) {
 
     transform->Position().x = x;
     transform->Position().y = y;
+}
+
+void LivingEntity::Teleport(GameObject &obj) {
+    const auto otherTransform = obj.GetComponent<Transform>();
+    if (!otherTransform) {
+        LOGERR.Output("Error teleport: Object not Transform component\n");
+        return;
+    }
+
+    Teleport(otherTransform->HalfPos().x, otherTransform->HalfPos().y);
 }
 
 void LivingEntity::DrawHealthBar(const RGBA &color) {

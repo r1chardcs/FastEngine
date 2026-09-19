@@ -194,9 +194,6 @@ void Render2D::DrawTexture(VIEW_PTR<Texture> texture, const Recti &srcRect, cons
         std::swap(u0, u1);
     }
 
-    /* Модулируем цвет каждой вершины оттенком (tint), как это делает
-       GL_MODULATE в текстурном environment, только вручную, раз здесь
-       используется per-vertex glColor4ub, а не глобальный glColor4f. */
     auto applyTint = [&tint](const Color& c) -> RGBA {
         return {
             c.GetRed()   * tint.r,

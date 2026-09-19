@@ -26,6 +26,10 @@ BOOL& HitboxBox2D::IsSolid() {
     return solid;
 }
 
+BOOL & HitboxBox2D::NoMove() {
+    return noMove;
+}
+
 void HitboxBox2D::Start() {
     Component::Start();
 
@@ -74,46 +78,47 @@ void HitboxBox2D::Update() {
     if (!solid) {
         return;
     }
+    if (!noMove) {
+        for (const auto& other : self->GetApp().GetScene()->GetComponents<HitboxBox2D>()) {
+            if (other == this || !other->IsSolid()) {
+                continue;
+            }
 
-    for (const auto& other : self->GetApp().GetScene()->GetComponents<HitboxBox2D>()) {
-        if (other == this || !other->IsSolid()) {
-            continue;
-        }
+            float pushX = 0.0f;
+            float pushY = 0.0f;
 
-        float pushX = 0.0f;
-        float pushY = 0.0f;
+            if (box.Overlap(other->Box(), pushX, pushY)) {
+                auto& transform_position = transform->Position();
 
-        if (box.Overlap(other->Box(), pushX, pushY)) {
-            auto& transform_position = transform->Position();
+                transform_position.x += pushX;
+                transform_position.y += pushY;
 
-            transform_position.x += pushX;
-            transform_position.y += pushY;
+                const Vec2f new_hitbox_pos = {
+                    transform_position.x + position.x,
+                    transform_position.y + position.y
+                };
 
-            const Vec2f new_hitbox_pos = {
-                transform_position.x + position.x,
-                transform_position.y + position.y
-            };
-
-            box = {
-                new_hitbox_pos.x - halfW,
-                new_hitbox_pos.y - halfH,
-                new_hitbox_pos.x + halfW,
-                new_hitbox_pos.y + halfH
-            };
+                box = {
+                    new_hitbox_pos.x - halfW,
+                    new_hitbox_pos.y - halfH,
+                    new_hitbox_pos.x + halfW,
+                    new_hitbox_pos.y + halfH
+                };
+            }
         }
     }
 }
 
 void HitboxBox2D::Render(Type type) {
     if (type == Type::Pre) return;
-    if (!isDebug) {
+    if (isDebug) {
         Component::Render();
 
         self->GetRenderSystem()->NewContext();
 
         Render2D::DrawBorder(
             box,
-            {{1, 0, 0, 1}}
+            {{.r = 1, .g = 0, .b = 0, .a = 1}}
         );
 
         self->GetRenderSystem()->StopContext();

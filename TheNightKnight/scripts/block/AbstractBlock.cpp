@@ -6,7 +6,7 @@
 
 AbstractBlock::AbstractBlock() {
     const auto transform = AddComponent<Transform>();
-    AddComponent<HitboxBox2D>();
+    AddComponent<HitboxBox2D>()->NoMove() = true;
 
     transform->Size().x = 1;
     transform->Size().y = 1;

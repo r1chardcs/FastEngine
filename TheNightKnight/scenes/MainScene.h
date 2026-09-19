@@ -37,11 +37,27 @@ public:
         player = MakeGlobalPtr<Player>();
         denuvo = MakeGlobalPtr<Denuvo>();
 
-        AddGameObject(player);
         AddGameObject(denuvo);
         AddGameObject(MakeGlobalPtr<FPSOverlay>());
         denuvo->Teleport(7, 7);
 
+        auto blocks = MapGenerator::ParseMap(R"(
+#################
+#               #
+#   ^      ^    #
+#    ##         #
+#               #
+#      #        #
+#      #        #
+#               #
+#  ^            #
+#################
+)");
+
+        for (auto game_object : blocks) {
+            AddGameObject(game_object);
+        }
+        AddGameObject(player);
     }
 };
 

@@ -38,7 +38,15 @@ add_executable(TheNightKnight App.cpp
         scripts/hotbar/Hotbar.cpp
         scripts/hotbar/Hotbar.h
         scripts/item/Item.cpp
-        scripts/item/Item.h)
+        scripts/item/Item.h
+        scripts/block/SpriteBlock.cpp
+        scripts/block/SpriteBlock.h
+        scripts/block/impl/dark/DarkBlock.cpp
+        scripts/block/impl/dark/DarkBlock.h
+        scripts/block/impl/dark/DarkWinBlock.cpp
+        scripts/block/impl/dark/DarkWinBlock.h
+        scripts/block/impl/dark/DarkSpawnEntityBlock.cpp
+        scripts/block/impl/dark/DarkSpawnEntityBlock.h)
 
 target_link_libraries(TheNightKnight PUBLIC FastEngine)
 

@@ -56,9 +56,6 @@ void Player::Update() {
 }
 
 void Player::DrawWorld() {
-    auto camera = GetRenderSystem()->GetCamera();
-    camera->SetX(transform->Position().x);
-    camera->SetY(transform->Position().y);
     LivingEntity::DrawWorld();
 }
 
@@ -142,5 +139,4 @@ RGBA Player::GetHealthBarColor() {
 
 void Player::Died() {
     LivingEntity::Died();
-    GetApp().SetScene(MakeGlobalPtr<DieScene>());
 }

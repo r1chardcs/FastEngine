@@ -24,6 +24,7 @@ public:
     VIRTUAL void MoveTo(Vec2f to);
 
     VIRTUAL void Teleport(FLOAT x, FLOAT y);
+    VIRTUAL void Teleport(GameObject &obj);
 
     VIRTUAL void DrawHealthBar(const RGBA &color);
     VIRTUAL RGBA GetHealthBarColor();

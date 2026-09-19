@@ -17,6 +17,7 @@ class HitboxBox2D : public Component {
     VIEW_PTR<Transform> transform = nullptr;
 
     BOOL solid = true;
+    BOOL noMove = false;
 
     Vec2f size;
     Vec2f position;
@@ -36,6 +37,7 @@ public:
     Box2D& Box();
 
     BOOL& IsSolid();
+    BOOL& NoMove();
 
     void Start() override;
     void Update() override;

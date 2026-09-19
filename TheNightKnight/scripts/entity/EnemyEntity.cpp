@@ -3,20 +3,15 @@
 //
 
 #include "EnemyEntity.h"
-#include <random>
+#include <Toolkit/Random.h>
 
 SELF_PTR<EnemyEntity::Specifications> EnemyEntity::Specifications::Random() {
-    static std::random_device rd;
-    static std::mt19937 gen(rd());
-    static std::uniform_real_distribution<FLOAT> multiplierDist(1.0f, 1.5f);
-    static std::uniform_int_distribution<INT> priorityDist(0, 1);
-
     auto spec = MakeSelfPtr<Specifications>();
 
-    spec->cowardice = multiplierDist(gen);
-    spec->strengthening = multiplierDist(gen);
-    spec->celerity = multiplierDist(gen);
-    spec->priority = priorityDist(gen) == 0 ? Priority::Survive : Priority::Die;
+    spec->cowardice =  Random::RandFloat(1, 1.5);
+    spec->strengthening = Random::RandFloat(1, 1.5);
+    spec->celerity = Random::RandFloat(1, 1.5);
+    spec->priority = Random::RandBool() == 0 ? Priority::Survive : Priority::Die;
 
     return spec;
 }
