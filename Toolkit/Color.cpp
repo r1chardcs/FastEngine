@@ -36,11 +36,13 @@ RGBA & Color::GetRGBA() {
 }
 
 void Brush::Put(const Color& color) {
-    colors.push_back(color);
+    if (count < kMaxColors) {
+        colors[count++] = color;
+    }
 }
 
 Color Brush::At(const INT index) const {
-    if (index < colors.size()) {
+    if (index < count) {
         return colors[index];
     }
     return colors[0];
@@ -57,5 +59,4 @@ Brush Brush::Solid(BYTE r, BYTE g, BYTE b, BYTE a) {
 Brush Brush::Solid(const Color &color) {
     return Brush(color);
 }
-
 

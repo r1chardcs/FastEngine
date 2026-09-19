@@ -22,7 +22,7 @@ void GameObject::DeleteTag(const STRING &tag) {
     tags.remove(tag);
 }
 
-LIST<STRING> GameObject::GetTags() {
+const LIST<STRING> & GameObject::GetTags() const {
     return tags;
 }
 
@@ -102,6 +102,14 @@ DOUBLE GameObject::GetDeltaTime() {
 
 VIEW_PTR<RenderSystem> GameObject::GetRenderSystem() {
     return GetApp().GetRenderSystem();
+}
+
+void GameObject::RebuildComponentsCache() {
+    componentsCache.clear();
+    componentsCache.reserve(components.size());
+    for (const auto &component : components) {
+        if (component) componentsCache.push_back(component.get());
+    }
 }
 
 void GameObject::SetActive(const BOOL value) {

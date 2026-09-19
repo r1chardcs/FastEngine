@@ -32,7 +32,7 @@ void HitboxBox2D::Start() {
     transform = self->GetComponent<Transform>();
 
     if (!transform) {
-        LOGWRN.Output("HitboxBox2D has no Transform component");
+        LOGWRN.Output("HitboxBox2D has no Transform component\n");
     }
 }
 
@@ -43,7 +43,7 @@ void HitboxBox2D::Update() {
         transform = self->GetComponent<Transform>();
 
         if (!transform) {
-            LOGWRN.Output("HitboxBox2D has no Transform component");
+            LOGWRN.Output("HitboxBox2D has no Transform component\n");
             return;
         }
     }
@@ -75,7 +75,7 @@ void HitboxBox2D::Update() {
         return;
     }
 
-    for (const auto& other : self->GetApp().GetComponents<HitboxBox2D>()) {
+    for (const auto& other : self->GetApp().GetScene()->GetComponents<HitboxBox2D>()) {
         if (other == this || !other->IsSolid()) {
             continue;
         }

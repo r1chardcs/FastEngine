@@ -11,9 +11,11 @@
 #include "TheNightKnight/scenes/DieScene.h"
 
 Player::Player(): LivingEntity(20, 3) {
+    /*
     const auto sprite = AddComponent<Sprite>();
     sprite->SetTexture(GetRenderSystem()->LoadTextureSync("assets/players.png"));
     sprite->SetSourceRect({.x = 0, .y = 0, .width = 16, .height = 16});
+    */
 }
 
 void Player::SetWeapon(const GLOBAL_PTR<Weapon> &weapon_) {
@@ -26,7 +28,7 @@ void Player::SetWeapon(const GLOBAL_PTR<Weapon> &weapon_) {
 
 void Player::Update() {
     LivingEntity::Update();
-
+    return;
     if (GetApp().GetKey(GLFW_KEY_W)) {
         Move(0, 1, speed);
     }
@@ -75,19 +77,25 @@ VIEW_PTR<LivingEntity> Player::FindVictim(FLOAT radius) {
 
     const auto selfPos = selfTransform->Position();
 
-    for (const auto& gameObject : App::GetInstance().GetScene()->Snapshot()) {
+    const auto snapshot = App::GetInstance().GetScene()->Snapshot();
+
+    for (const auto& gameObject : *snapshot) {
         if (gameObject.get() == this)
             continue;
 
         if (!gameObject->IsActive())
             continue;
 
-        const auto transform = gameObject->GetComponent<Transform>();
+        const auto living = dynamic_cast<LivingEntity*>(gameObject.get());
+        if (!living)
+            continue;
+
+        const auto transform = living->GetComponent<Transform>();
         if (!transform)
             continue;
 
         if (transform->Position().DistanceTo(selfPos) <= radius) {
-            return static_cast<LivingEntity*>(gameObject.get());
+            return living;
         }
     }
 
@@ -95,6 +103,7 @@ VIEW_PTR<LivingEntity> Player::FindVictim(FLOAT radius) {
 }
 
 void Player::Move(FLOAT addX, FLOAT addY, FLOAT curspeed) {
+    return;
     LivingEntity::Move(addX, addY, curspeed);
     const auto sprite = GetComponent<Sprite>();
 

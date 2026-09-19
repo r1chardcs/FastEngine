@@ -7,11 +7,14 @@
 
 #include <Engine/GameObject.h>
 
+#include "Engine/Components/Transform.h"
+
 class LivingEntity : public GameObject {
 protected:
     INT health;
     INT maxHealth;
     FLOAT speed;
+    VIEW_PTR<Transform> transform = NULLPTR;
 public:
     LivingEntity(INT maxHealth, FLOAT speed);
 

@@ -16,13 +16,14 @@ class GameObject {
     BOOL isActive = true;
     VIEW_PTR<GameObject> parent = nullptr;
     VECTOR<GLOBAL_PTR<GameObject>> children;
+    VECTOR<VIEW_PTR<Component>> componentsCache;
 public:
     virtual ~GameObject() = default;
 
     void AddTag(MOVE_PLEASE STRING tag);
     void DeleteTag(const STRING& tag);
 
-    LIST<STRING> GetTags();
+    const LIST<STRING>& GetTags() const;
 
     VIRTUAL VOID Start();
 
@@ -39,8 +40,10 @@ public:
 
     static VIEW_PTR<RenderSystem> GetRenderSystem();
 
+    void RebuildComponentsCache();
+
     template <typename TemplateComponent>
-    VIEW_PTR<TemplateComponent> AddComponent() {
+ VIEW_PTR<TemplateComponent> AddComponent() {
         static_assert(std::is_base_of_v<Component, TemplateComponent>,
                       "TemplateComponent must derive from Component");
 
@@ -53,20 +56,18 @@ public:
         component->Start();
         const auto raw_ptr = component.get();
         components.push_back(MOVE(component));
+
+        RebuildComponentsCache();
+
         return raw_ptr;
     }
 
-    VECTOR<VIEW_PTR<Component>> GetComponents() const {
-        VECTOR<VIEW_PTR<Component>> array;
-        for (const auto &component : components) {
-            if (component) array.push_back(component.get());
-        }
-
-        return array;
+    const VECTOR<VIEW_PTR<Component>>& GetComponents() const {
+        return componentsCache;
     }
 
     template <typename TemplateComponent>
-    VIEW_PTR<TemplateComponent> GetComponent() {
+       VIEW_PTR<TemplateComponent> GetComponent() {
         static_assert(std::is_base_of_v<Component, TemplateComponent>,
                       "TemplateComponent must derive from Component");
 

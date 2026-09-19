@@ -5,6 +5,7 @@
 #include "Rect.h"
 
 #include "../Render2D.h"
+#include  "../Components/Transform.h"
 
 Rect::Rect() {
     AddComponent<Transform>();

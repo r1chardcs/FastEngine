@@ -54,6 +54,7 @@ namespace Render2D {
     void DrawRect(const Vec2f &pos, const Vec2f &size, const Brush& color);
     void DrawLine(FLOAT y, FLOAT minX, FLOAT maxX, const Brush &color);
     void DrawTextureUI(const Texture& texture, Vec2f pos, Vec2f size, RGBA tint, FLOAT scale = 1);
+    void DrawTextureUI(const Texture& texture, Vec2f pos, Vec2f size, RGBA tint, FLOAT scale = 1);
 };
 
 

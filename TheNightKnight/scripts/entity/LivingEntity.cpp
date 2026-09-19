@@ -8,7 +8,7 @@
 #include "Engine/Components/Transform.h"
 
 LivingEntity::LivingEntity(INT maxHealth, FLOAT speed): maxHealth(maxHealth), speed(speed), health(maxHealth) {
-    const auto transform = AddComponent<Transform>();
+    transform = AddComponent<Transform>();
     transform->Size().x = 1;
     transform->Size().y = 1;
 
@@ -26,7 +26,6 @@ void LivingEntity::Move(
     const FLOAT addX,
     const FLOAT addY,
     const FLOAT curspeed) {
-    const auto transform = GetComponent<Transform>();
     if (!transform) {
         LOGERR.Output("LivingEntity::Move called without Transform component\n");
         return;
@@ -36,7 +35,6 @@ void LivingEntity::Move(
 }
 
 void LivingEntity::MoveTo(const Vec2f to) {
-    const auto transform = GetComponent<Transform>();
     if (!transform) {
         LOGERR.Output("LivingEntity::MoveTo called without Transform component\n");
         return;
@@ -66,7 +64,6 @@ void LivingEntity::MoveTo(const Vec2f to) {
 }
 
 void LivingEntity::Teleport(FLOAT x, FLOAT y) {
-    const auto transform = GetComponent<Transform>();
     if (!transform) {
         AddComponent<Transform>();
     }
@@ -76,7 +73,6 @@ void LivingEntity::Teleport(FLOAT x, FLOAT y) {
 }
 
 void LivingEntity::DrawHealthBar(const RGBA &color) {
-    const auto transform = GetComponent<Transform>();
     const auto pos = transform->Position();
     const auto halfPos = transform->HalfPos();
 

@@ -8,7 +8,10 @@
 #include <Engine/GameObject.h>
 
 class Scene {
-    LIST<GLOBAL_PTR<GameObject>> game_objects;
+public:
+    using ObjectList = VECTOR<GLOBAL_PTR<GameObject>>;
+private:
+    GLOBAL_PTR<const ObjectList> game_objects = MakeGlobalPtr<const ObjectList>();
     mutable MUTEX mutex_objects;
 
     STRING scene_name;
@@ -37,7 +40,7 @@ public:
     template <typename TemplateComponent>
     LIST<VIEW_PTR<TemplateComponent>> GetComponents();
 
-    LIST<GLOBAL_PTR<GameObject>> Snapshot() const;
+    GLOBAL_PTR<const ObjectList> Snapshot() const;
 
     STRING GetName() const;
     BOOL IsStarted() const;
@@ -51,7 +54,8 @@ template<typename TemplateComponent>
 LIST<VIEW_PTR<TemplateComponent>> Scene::GetComponents() {
     LIST<VIEW_PTR<TemplateComponent>> result;
 
-    for (const auto objects = Snapshot(); const auto& game_object : objects) {
+    const auto snapshot = Snapshot();
+    for (const auto& game_object : *snapshot) {
         if (auto component = game_object->GetComponent<TemplateComponent>()) {
             result.push_back(component);
         }
@@ -59,5 +63,6 @@ LIST<VIEW_PTR<TemplateComponent>> Scene::GetComponents() {
 
     return result;
 }
+
 
 #endif //FASTENGINE_SCENE_H

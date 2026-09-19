@@ -7,6 +7,7 @@
 #include "App.h"
 #include "GameObject.h"
 #include "../Toolkit/Debug/Logger.h"
+#include "Components/Transform.h"
 #include "Toolkit/Anim/AnimationSystem.h"
 #include "Toolkit/Debug/Test.h"
 
@@ -24,52 +25,69 @@ void Scene::Update() {
     AnimationSystem::GetInstance()
         .Update(static_cast<FLOAT>(App::GetInstance().GetDeltaTime()));
 
-    for (const auto& game_object : Snapshot()) {
+    const auto snapshot = Snapshot();
+    for (const auto& game_object : *snapshot) {
         TEST(!game_object && "Invalid Game Object at Snapshot");
         if (!game_object->IsActive()) continue;
 
         game_object->Update();
-        for (const auto components = game_object->GetComponents();
-                auto component : components) if (component) component->Update();
-        else { TEST(true && "Invalid component at object") }
+        for (const auto& component : game_object->GetComponents()) {
+            if (component) component->Update();
+            else { TEST(true && "Invalid component at object") }
+        }
     }
 }
 
 void Scene::Render() {
-    for (const auto& game_object : Snapshot()) {
-        if (!game_object->IsActive()) continue;
+    const auto snapshot = Snapshot();
+    const auto render_system = App::GetInstance().GetRenderSystem();
 
-        App::GetInstance().GetRenderSystem()->NewContext();
-        for (const auto components = game_object->GetComponents();
-                auto component : components) if (component) {
-                    component->Render();
-                    component->Render(Component::Type::Pre);
-                }
-        else { TEST(true && "Invalid component at object") }
+    for (const auto& game_object : *snapshot) {
+        if (!game_object->IsActive()) continue;
+        if (const auto transform = game_object->GetComponent<Transform>()) {
+            if (!render_system->IsInView(transform->HalfPos().ToVec2(), transform->Size().ToVec2())) continue;
+        }
+
+        render_system->NewContext();
+
+        const auto& components = game_object->GetComponents();
+
+        for (const auto& component : components) {
+            if (component) {
+                component->Render();
+                component->Render(Component::Type::Pre);
+            } else { TEST(true && "Invalid component at object") }
+        }
 
         game_object->DrawWorld();
-        for (const auto components = game_object->GetComponents();
-                auto component : components) if (component) {
-                    component->Render(Component::Type::Post);
-                    component->Render();
-                }
-        else { TEST(true && "Invalid component at object") }
 
-        App::GetInstance().GetRenderSystem()->StopContext();
+        for (const auto& component : components) {
+            if (component) {
+                component->Render(Component::Type::Post);
+                component->Render();
+            }
+        }
+
+        render_system->StopContext();
     }
 }
 
 void Scene::Finish() {
-    MUTEX_LOCK lock(mutex_objects);
+    GLOBAL_PTR<const ObjectList> objects;
+    {
+        MUTEX_LOCK lock(mutex_objects);
+        objects = game_objects;
+        game_objects = MakeGlobalPtr<const ObjectList>();
+    }
 
-    for (const auto& game_object : game_objects) {
+    for (const auto& game_object : *objects) {
         if (!game_object) continue;
-        for (const auto components = game_object->GetComponents();
-                auto component : components) if (component) component->Shutdown();
+        for (const auto& component : game_object->GetComponents()) {
+            if (component) component->Shutdown();
+        }
         game_object->Shutdown();
     }
 
-    game_objects.clear();
     is_started = false;
 }
 
@@ -78,12 +96,15 @@ RGBA Scene::GetBackgroundColor() {
 }
 
 void Scene::UI() {
-    for (const auto& game_object : Snapshot()) {
+    const auto snapshot = Snapshot();
+    const auto render_system = App::GetInstance().GetRenderSystem();
+
+    for (const auto& game_object : *snapshot) {
         if (!game_object->IsActive()) continue;
 
-        App::GetInstance().GetRenderSystem()->NewContext();
+        render_system->NewContext();
         game_object->DrawUI();
-        App::GetInstance().GetRenderSystem()->StopContext();
+        render_system->StopContext();
     }
 }
 
@@ -95,7 +116,9 @@ void Scene::AddGameObject(const GLOBAL_PTR<GameObject>& game_object) {
     game_object->Start();
 
     MUTEX_LOCK lock(mutex_objects);
-    game_objects.push_back(game_object);
+    auto new_list = MakeGlobalPtr<ObjectList>(*game_objects);
+    new_list->push_back(game_object);
+    game_objects = MOVE(new_list);
 }
 
 void Scene::DeleteGameObject(VIEW_PTR<GameObject> game_object) {
@@ -104,14 +127,20 @@ void Scene::DeleteGameObject(VIEW_PTR<GameObject> game_object) {
         return;
     }
 
-    for (const auto components = game_object->GetComponents();
-            auto component : components) if (component) component->Shutdown();
+    for (const auto& component : game_object->GetComponents()) {
+        if (component) component->Shutdown();
+    }
     game_object->Shutdown();
 
     MUTEX_LOCK lock(mutex_objects);
-    game_objects.remove_if([game_object](const GLOBAL_PTR<GameObject>& obj) {
-        return obj.get() == static_cast<GameObject*>(game_object);
-    });
+    auto new_list = MakeGlobalPtr<ObjectList>();
+    new_list->reserve(game_objects->size());
+    for (const auto& obj : *game_objects) {
+        if (obj.get() != static_cast<GameObject*>(game_object)) {
+            new_list->push_back(obj);
+        }
+    }
+    game_objects = MOVE(new_list);
 }
 
 VIEW_PTR<RenderSystem> Scene::GetRenderSystem() {
@@ -125,20 +154,24 @@ App& Scene::GetApp() {
 LIST<VIEW_PTR<GameObject>> Scene::GetGameObjectByTags(const STRING &tag) const {
     LIST<VIEW_PTR<GameObject>> tags;
 
-    for (const auto& game_object : Snapshot()) {
+    const auto snapshot = Snapshot();
+    for (const auto& game_object : *snapshot) {
         if (!game_object) {
             TEST(true && "Invalid Game Object at Snaphsot")
             continue;
         }
         for (const auto& obj_tag : game_object->GetTags()) {
-            if (obj_tag == tag) { tags.push_back(game_object.get()); }
+            if (obj_tag == tag) {
+                tags.push_back(game_object.get());
+                break;
+            }
         }
     }
 
     return tags;
 }
 
-LIST<GLOBAL_PTR<GameObject>> Scene::Snapshot() const {
+GLOBAL_PTR<const Scene::ObjectList> Scene::Snapshot() const {
     MUTEX_LOCK lock(mutex_objects);
     return game_objects;
 }
@@ -156,5 +189,5 @@ DOUBLE Scene::GetDeltaTime() {
 }
 
 INT Scene::GetGameObjectSize() const {
-    return game_objects.size();
+    return static_cast<INT>(game_objects->size());
 }

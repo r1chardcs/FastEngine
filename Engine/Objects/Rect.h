@@ -7,7 +7,6 @@
 
 #include "../GameObject.h"
 #include "../../Toolkit/Color.h"
-#include  "../Components/Transform.h"
 
 class Rect : public GameObject {
     Brush color = {

@@ -26,19 +26,21 @@ public:
     }
 
     void Start() override {
+        static auto obj = MakeGlobalPtr<GameObject>();
+        obj->AddComponent<Transform>();
+        obj->AddComponent<HitboxBox2D>();
+        auto sprite = obj->AddComponent<Sprite>();
+        sprite->SetTexture(GetRenderSystem()->LoadTextureSync("assets/players.png"));
+
+        AddGameObject(obj);
+
         player = MakeGlobalPtr<Player>();
-        denuvo = MakeGlobalPtr<Denuvo>();
+        // denuvo = MakeGlobalPtr<Denuvo>();
 
         AddGameObject(player);
-        AddGameObject(denuvo);
-        AddGameObject(MakeGlobalPtr<FPSOverlay>());
-        denuvo->Teleport(5, 5);
-        auto map = MapGenerator::CreateMap(1441, 104543, {{1, 1, 1, 1}});
-        for (const auto &color_block : map) {
-            AddGameObject(color_block);
-            AddGameObject(color_block);
-            AddGameObject(color_block);
-        }
+        // AddGameObject(denuvo);
+        // AddGameObject(MakeGlobalPtr<FPSOverlay>());
+        // denuvo->Teleport(5, 5);
 
     }
 };

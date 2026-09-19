@@ -124,6 +124,31 @@ void RenderSystem::NewContext() {
     glLoadIdentity();
 }
 
+BOOL RenderSystem::IsInView(Vec2f pos, Vec2f size) const {
+    const FLOAT aspect = static_cast<FLOAT>(lastWidth) / static_cast<FLOAT>(lastHeight);
+
+    const FLOAT camHeight = camera->GetHeight() / camera->GetScale();
+    const FLOAT camWidth = camHeight * aspect;
+
+    const FLOAT viewLeft   = camera->GetX() - camWidth;
+    const FLOAT viewRight  = camera->GetX() + camWidth;
+    const FLOAT viewBottom = camera->GetY() - camHeight;
+    const FLOAT viewTop    = camera->GetY() + camHeight;
+
+    const FLOAT halfW = size.x / 2.0f;
+    const FLOAT halfH = size.y / 2.0f;
+
+    const FLOAT objLeft   = pos.x - halfW;
+    const FLOAT objRight  = pos.x + halfW;
+    const FLOAT objBottom = pos.y - halfH;
+    const FLOAT objTop    = pos.y + halfH;
+
+    return objRight  >= viewLeft
+        && objLeft   <= viewRight
+        && objTop    >= viewBottom
+        && objBottom <= viewTop;
+}
+
 void RenderSystem::StopContext() {
     glPopMatrix();
 }

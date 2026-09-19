@@ -64,15 +64,14 @@ public:
     static void Rotate(const Quat& quat);
 
     static void NewContext();
-
+    BOOL IsInView(Vec2f pos, Vec2f size) const;
     static void StopContext();
 
     void StartWorld() const;
     void EndWorld() const;
 
     void StartUI() const;
-    void EndUI() const
-    ;
+    void EndUI() const;
 
     void LoadTexture(LITERAL path);
 
