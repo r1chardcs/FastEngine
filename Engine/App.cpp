@@ -9,8 +9,9 @@
 #include "GameObject.h"
 #include "../Toolkit/Debug/Logger.h"
 #include "../Toolkit/Debug/Test.h"
-#include "../Toolkit/IO/IO.h"
 #include "../Toolkit/Debug/LagProfiler.h"
+#include "../Toolkit/IO/IO.h"
+#include "../Toolkit/Input.h"
 
 void App::Render() {
     window = MakeSelfPtr<Window>(this->app_name.c_str(), 800, 800);
@@ -253,6 +254,8 @@ STATUS App::Run() {
     render_thread = MakeSelfPtr<THREAD>([this]() { this->Render(); });
     render_thread->detach();
 
+    Input::InitializeInput();
+
     auto next_tick = std::chrono::steady_clock::now();
 
     render_system->SetRenderWorldCallback([this](auto) {
@@ -294,6 +297,7 @@ STATUS App::Run() {
             }
         }
         if (window) {
+            Input::UpdateKeys();
             Update();
         }
 

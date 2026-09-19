@@ -70,6 +70,8 @@ add_library(FastEngine SHARED main.cpp
         Toolkit/Debug/LagProfiler.h
         Toolkit/Debug/MemoryProfiler.cpp
         Toolkit/Debug/MemoryProfiler.h
+        Toolkit/Input.cpp
+        Toolkit/Input.h
 )
 
 target_link_libraries(FastEngine PUBLIC gdi32 opengl32 dbghelp ${CMAKE_SOURCE_DIR}/Libraries/libglfw3.lib)

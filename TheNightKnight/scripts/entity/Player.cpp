@@ -9,6 +9,7 @@
 #include "Engine/Components/Sprite.h"
 #include "Engine/Components/Transform.h"
 #include "TheNightKnight/scenes/DieScene.h"
+#include "Toolkit/Input.h"
 
 Player::Player(): LivingEntity(20, 3) {
     const auto sprite = AddComponent<Sprite>();
@@ -27,16 +28,16 @@ void Player::SetWeapon(const GLOBAL_PTR<Weapon> &weapon_) {
 void Player::Update() {
     LivingEntity::Update();
 
-    if (GetApp().GetKey(GLFW_KEY_W)) {
+    if (Input::Down(Input::MoveUp)) {
         Move(0, 1, speed);
     }
-    if (GetApp().GetKey(GLFW_KEY_S)) {
+    if (Input::Down(Input::MoveDown)) {
         Move(0, -1, speed);
     }
-    if (GetApp().GetKey(GLFW_KEY_D)) {
+    if (Input::Down(Input::MoveRight)) {
         Move(1, 0, speed);
     }
-    if (GetApp().GetKey(GLFW_KEY_A)) {
+    if (Input::Down(Input::MoveLeft)) {
         Move(-1, 0, speed);
     }
 
