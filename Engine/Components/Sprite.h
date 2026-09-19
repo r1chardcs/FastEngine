@@ -11,13 +11,16 @@
 
 class Sprite : public Component {
     NIL<GLOBAL_PTR<Texture>> texture;
-    Recti srcRect;
+    Recti srcRect = {};
     bool useSrcRect = false;
     BOOL flipX = false;
+    RGBA tint = {.r = 1,.g = 1,.b = 1,.a = 1};
 public:
     Sprite(const VIEW_PTR<GameObject> &self)
         : Component(self) {
     }
+    RGBA& Tint();
+
     void SetFlipX(BOOL flip);
     BOOL GetFlipX() const;
 

@@ -20,6 +20,18 @@ public:
     RGBA& GetRGBA();
 };
 
+inline RGBA operator+(const RGBA& a, const RGBA& b) {
+    return {.r = a.r + b.r, .g = a.g + b.g, .b = a.b + b.b, .a = a.a + b.a};
+}
+
+inline RGBA operator-(const RGBA& a, const RGBA& b) {
+    return {.r = a.r - b.r, .g = a.g - b.g, .b = a.b - b.b, .a = a.a - b.a};
+}
+
+inline RGBA operator*(const RGBA& c, FLOAT t) {
+    return {.r = c.r * t, .g = c.g * t, .b = c.b * t, .a = c.a * t};
+}
+
 class Brush {
     static constexpr INT kMaxColors = 4;
 

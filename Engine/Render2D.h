@@ -47,8 +47,8 @@ namespace Render2D {
 
     void DrawCircle(const Vec2f &pos, const Vec2f &size, const Brush& color,
         bool fill = true);
-    void DrawTexture(VIEW_PTR<Texture> texture, const Vec2f &pos, const Vec2f &size, const Brush &color, bool flipX = false);
-    void DrawTexture(VIEW_PTR<Texture> texture, const Recti &srcRect, const Vec2f &pos, const Vec2f &size, const Brush &color, bool flipX = false);
+    void DrawTexture(VIEW_PTR<Texture> texture, const Vec2f &pos, const Vec2f &size, const Brush &color, RGBA tint = {0,0,0,0}, bool flipX = false);
+    void DrawTexture(VIEW_PTR<Texture> texture, const Recti &srcRect, const Vec2f &pos, const Vec2f &size, const Brush &color, RGBA tint = {0,0,0,0}, bool flipX = false);
     void DrawBorder(const Vec2f &pos, const Vec2f &size, const Brush& color);
     void DrawBorder(const Box2D &box, const Brush& color);
     void DrawRect(const Vec2f &pos, const Vec2f &size, const Brush& color);

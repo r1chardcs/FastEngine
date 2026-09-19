@@ -33,19 +33,23 @@ void Sprite::Render() {
             srcRect,
             transform->HalfPos().ToVec2(),
             transform->Size().ToVec2(),
-            Brush::Solid(255, 255, 255, 255),
+            Brush::Solid(255, 255, 255, 255),tint,
             flipX);
     } else {
         Render2D::DrawTexture(
             texture.value().get(),
             transform->HalfPos().ToVec2(),
             transform->Size().ToVec2(),
-            Brush::Solid(255, 255, 255, 255),
+            Brush::Solid(255, 255, 255, 255), tint,
             flipX);
     }
 
 
     self->GetRenderSystem()->StopContext();
+}
+
+RGBA & Sprite::Tint() {
+    return tint;
 }
 
 void Sprite::SetFlipX(BOOL flip) {

@@ -34,7 +34,11 @@ add_executable(TheNightKnight App.cpp
         scripts/weapon/Weapon.cpp
         scripts/weapon/Weapon.h
         scripts/weapon/sword/OxidativeSword.cpp
-        scripts/weapon/sword/OxidativeSword.h)
+        scripts/weapon/sword/OxidativeSword.h
+        scripts/hotbar/Hotbar.cpp
+        scripts/hotbar/Hotbar.h
+        scripts/item/Item.cpp
+        scripts/item/Item.h)
 
 target_link_libraries(TheNightKnight PUBLIC FastEngine)
 

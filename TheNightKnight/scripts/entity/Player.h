@@ -8,11 +8,17 @@
 #include "LivingEntity.h"
 #include "TheNightKnight/scripts/weapon/Weapon.h"
 
+class Item;
+
 class Player : public LivingEntity {
     GLOBAL_PTR<Weapon> weapon = nullptr;
     FLOAT attackCooldown = 0.0f;
+    LIST<GLOBAL_PTR<Item>> items;
+
 public:
     Player();
+    void AddItem(const GLOBAL_PTR<Item>& item);
+    void RemoveItem(VIEW_PTR<Item> item);
 
     void SetWeapon(const GLOBAL_PTR<Weapon> &weapon_);
 

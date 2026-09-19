@@ -168,11 +168,11 @@ void Render2D::RenderText(VIEW_PTR<Font> font, const char *text, float px, float
     glDisable(GL_TEXTURE_2D);
 }
 
-void Render2D::DrawTexture(VIEW_PTR<Texture> texture, const Vec2f &pos, const Vec2f &size, const Brush &color, bool flipX) {
-    DrawTexture(texture, Recti{0, 0, texture->width, texture->height}, pos, size, color, flipX);
+void Render2D::DrawTexture(VIEW_PTR<Texture> texture, const Vec2f &pos, const Vec2f &size, const Brush &color, RGBA tint, bool flipX) {
+    DrawTexture(texture, Recti{0, 0, texture->width, texture->height}, pos, size, color, tint, flipX);
 }
 
-void Render2D::DrawTexture(VIEW_PTR<Texture> texture, const Recti &srcRect, const Vec2f &pos, const Vec2f &size, const Brush &color, bool flipX) {
+void Render2D::DrawTexture(VIEW_PTR<Texture> texture, const Recti &srcRect, const Vec2f &pos, const Vec2f &size, const Brush &color, RGBA tint, bool flipX) {
     if (texture->id == 0) {
         LOGERR.Output("Invalid Draw texture in pos %f %f\n", pos.x, pos.y);
         return;
@@ -193,10 +193,23 @@ void Render2D::DrawTexture(VIEW_PTR<Texture> texture, const Recti &srcRect, cons
     if (flipX) {
         std::swap(u0, u1);
     }
-    const Color topLeft = color.At(0);
-    const Color topRight = color.At(1);
-    const Color bottomRight = color.At(2);
-    const Color bottomLeft = color.At(3);
+
+    /* Модулируем цвет каждой вершины оттенком (tint), как это делает
+       GL_MODULATE в текстурном environment, только вручную, раз здесь
+       используется per-vertex glColor4ub, а не глобальный glColor4f. */
+    auto applyTint = [&tint](const Color& c) -> RGBA {
+        return {
+            c.GetRed()   * tint.r,
+            c.GetGreen() * tint.g,
+            c.GetBlue()  * tint.b,
+            c.GetAlpha() * tint.a
+        };
+    };
+
+    const RGBA topLeft     = applyTint(color.At(0));
+    const RGBA topRight    = applyTint(color.At(1));
+    const RGBA bottomRight = applyTint(color.At(2));
+    const RGBA bottomLeft  = applyTint(color.At(3));
 
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_BLEND);
@@ -212,19 +225,19 @@ void Render2D::DrawTexture(VIEW_PTR<Texture> texture, const Recti &srcRect, cons
     }
     glBegin(GL_QUADS);
 
-    glColor4ub(topLeft.GetRed(), topLeft.GetGreen(), topLeft.GetBlue(), topLeft.GetAlpha());
+    glColor4f(topLeft.r, topLeft.g, topLeft.b, topLeft.a);
     glTexCoord2f(u0, v0);
     glVertex3f(pos.x, pos.y, 1.0f);
 
-    glColor4ub(topRight.GetRed(), topRight.GetGreen(), topRight.GetBlue(), topRight.GetAlpha());
+    glColor4f(topRight.r, topRight.g, topRight.b, topRight.a);
     glTexCoord2f(u1, v0);
     glVertex3f(pos.x + size.x, pos.y, 1.0f);
 
-    glColor4ub(bottomRight.GetRed(), bottomRight.GetGreen(), bottomRight.GetBlue(), bottomRight.GetAlpha());
+    glColor4f(bottomRight.r, bottomRight.g, bottomRight.b, bottomRight.a);
     glTexCoord2f(u1, v1);
     glVertex3f(pos.x + size.x, pos.y + size.y, 1.0f);
 
-    glColor4ub(bottomLeft.GetRed(), bottomLeft.GetGreen(), bottomLeft.GetBlue(), bottomLeft.GetAlpha());
+    glColor4f(bottomLeft.r, bottomLeft.g, bottomLeft.b, bottomLeft.a);
     glTexCoord2f(u0, v1);
     glVertex3f(pos.x, pos.y + size.y, 1.0f);
 
@@ -234,6 +247,7 @@ void Render2D::DrawTexture(VIEW_PTR<Texture> texture, const Recti &srcRect, cons
     glDisable(GL_BLEND);
     glDisable(GL_TEXTURE_2D);
 }
+
 void Render2D::DrawCircle(const Vec2f &pos, const Vec2f &size, const Brush &color, bool fill) {
     constexpr INT SEGMENTS = 32;
 

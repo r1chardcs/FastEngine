@@ -17,6 +17,16 @@ Player::Player(): LivingEntity(20, 3) {
     sprite->SetSourceRect({.x = 0, .y = 0, .width = 16, .height = 16});
 }
 
+void Player::AddItem(const GLOBAL_PTR<Item> &item) {
+    this->items.push_back(item);
+}
+
+void Player::RemoveItem(VIEW_PTR<Item> item) {
+    items.remove_if([&item](const GLOBAL_PTR<Item>& source) {
+        return source.get() == item.operator->();
+    });
+}
+
 void Player::SetWeapon(const GLOBAL_PTR<Weapon> &weapon_) {
     if (weapon) {
         weapon->Destroy();

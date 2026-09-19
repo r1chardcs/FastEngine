@@ -5,7 +5,9 @@
 #include "LivingEntity.h"
 
 #include "Engine/components/HitboxBox2D.h"
+#include "Engine/Components/Sprite.h"
 #include "Engine/Components/Transform.h"
+#include "Toolkit/Anim/Animation.h"
 
 LivingEntity::LivingEntity(INT maxHealth, FLOAT speed): maxHealth(maxHealth), speed(speed), health(maxHealth) {
     transform = AddComponent<Transform>();
@@ -107,6 +109,22 @@ BOOL LivingEntity::IsAlive() {
 
 BOOL LivingEntity::Damage(INT damage) {
     if (damage <= 0) return IsAlive();
+
+    if (const auto sprite = GetComponent<Sprite>()) {
+        sprite->Tint() = {1, 0, 0, 1};
+
+        Animation::To<RGBA>(
+                  [sprite]() { return sprite->Tint(); },
+                  [sprite](RGBA value) { sprite->Tint() = value; },
+                  RGBA{1, 1, 1, 1},
+                  150,
+                  Ease::QuadOut,
+                  LoopMode::Once,
+                  0.0f,
+                  nullptr,
+                  Animation::MakeKey(this, "tint")
+              );
+    }
 
     health -= damage;
     if (health <= 0) {

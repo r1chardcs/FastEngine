@@ -21,7 +21,7 @@ public:
     }
 
     FLOAT GetSearchRadius() override { return 5.0f * GetSpecifications()->celerity; }
-    FLOAT GetDamage() override { return 5.0f * GetSpecifications()->strengthening; }
+    FLOAT GetDamage() override { return 1.5f * GetSpecifications()->strengthening; }
     FLOAT GetAttackRange() override { return 1.2f; }
 };
 

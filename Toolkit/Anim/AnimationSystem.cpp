@@ -3,8 +3,6 @@
 //
 #include "AnimationSystem.h"
 
-#include "AnimationSystem.h"
-
 AnimationSystem& AnimationSystem::GetInstance() {
     static AnimationSystem instance;
     return instance;
@@ -12,6 +10,17 @@ AnimationSystem& AnimationSystem::GetInstance() {
 
 TweenHandle AnimationSystem::Add(GLOBAL_PTR<ITween> tween) {
     MUTEX_LOCK lock(mutex_tweens);
+
+    if (tween->ownerKey != 0) {
+        tweens.remove_if([&tween](const std::pair<TweenHandle, GLOBAL_PTR<ITween>>& entry) {
+            if (entry.second->ownerKey == tween->ownerKey) {
+                entry.second->Stop();
+                return true;
+            }
+            return false;
+        });
+    }
+
     const TweenHandle handle = next_handle++;
     tweens.push_back({handle, MOVE(tween)});
     return handle;
