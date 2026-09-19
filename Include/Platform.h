@@ -64,6 +64,8 @@ typedef short SHORT, STATUS;
 typedef char CHAR;
 typedef float FLOAT;
 typedef long LONG;
+typedef long long LONGLONG;
+typedef unsigned long long SIZE_T;
 #if !defined(__OBJC__) && !defined(__OBJC_BOOL) && !defined(__objc_INCLUDE_GNU) && !defined(_NO_BOOL_TYPEDEF)
 typedef int BOOL;
 #endif
