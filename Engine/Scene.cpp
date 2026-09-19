@@ -13,6 +13,10 @@
 
 Scene::Scene(STRING scene_name) : scene_name(MOVE(scene_name)) {}
 
+const Scene::DebugInfo & Scene::GetDebugInfo() const {
+    return debug_info;
+}
+
 void Scene::Setup() {
     GetRenderSystem()->BackgroundColor() = GetBackgroundColor();
 }
@@ -26,6 +30,7 @@ void Scene::Update() {
         .Update(static_cast<FLOAT>(App::GetInstance().GetDeltaTime()));
 
     const auto snapshot = Snapshot();
+
     for (const auto& game_object : *snapshot) {
         TEST(!game_object && "Invalid Game Object at Snapshot");
         if (!game_object->IsActive()) continue;
@@ -41,11 +46,19 @@ void Scene::Update() {
 void Scene::Render() {
     const auto snapshot = Snapshot();
     const auto render_system = App::GetInstance().GetRenderSystem();
-
+    DebugInfo tempDebugInfo = {};
+    tempDebugInfo.CountAllObject = snapshot->size();
     for (const auto& game_object : *snapshot) {
-        if (!game_object->IsActive()) continue;
+        TEST(!game_object);
+        if (!game_object->IsActive()) {
+            tempDebugInfo.CountDisableObject++;
+            continue;
+        }
         if (const auto transform = game_object->GetComponent<Transform>()) {
-            if (!render_system->IsInView(transform->HalfPos().ToVec2(), transform->Size().ToVec2())) continue;
+            if (!render_system->IsInView(transform->Position().ToVec2(), transform->Size().ToVec2())) {
+                tempDebugInfo.CountNotRenderObject++;
+                continue;
+            }
         }
 
         render_system->NewContext();
@@ -60,6 +73,7 @@ void Scene::Render() {
         }
 
         game_object->DrawWorld();
+        tempDebugInfo.CountRenderObject++;
 
         for (const auto& component : components) {
             if (component) {
@@ -70,6 +84,8 @@ void Scene::Render() {
 
         render_system->StopContext();
     }
+
+    debug_info = tempDebugInfo;
 }
 
 void Scene::Finish() {

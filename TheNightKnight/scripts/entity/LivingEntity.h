@@ -31,6 +31,7 @@ public:
     VIRTUAL BOOL IsAlive();
     VIRTUAL BOOL Damage(INT damage);
     VIRTUAL void Died();
+    VIRTUAL void MarkDamageSprite();
 
     INT GetMaxHealth() const;
 

@@ -51,6 +51,7 @@ protected:
 
     SELF_PTR<Assets> assets;
     SELF_PTR<LocalStorage> local_storage;
+    void UpdateAppDebugObjectInfo();
 public:
     App(MOVE_PLEASE STRING app_name);
     static App& GetInstance();

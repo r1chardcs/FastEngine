@@ -56,6 +56,9 @@ void Player::Update() {
 }
 
 void Player::DrawWorld() {
+    auto camera = GetRenderSystem()->GetCamera();
+    camera->SetX(transform->Position().x);
+    camera->SetY(transform->Position().y);
     LivingEntity::DrawWorld();
 }
 

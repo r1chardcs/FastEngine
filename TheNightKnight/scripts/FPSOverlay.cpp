@@ -19,18 +19,21 @@ void FPSOverlay::DrawUI() {
 
     char buf[128];
     const auto ram = Profiler::GetRAMMemoyInfo();
-
+    auto debugObj = GetApp().GetScene()->GetDebugInfo();
     if (ram.err) {
         sprintf(buf, "FPS: %.0f  RAM: %s", GetApp().GetFPS(), ram.err);
     } else {
         const auto& m = ram.res;
-        sprintf(buf, "FPS: %.0f  WS: %llu MB  PF: %llu MB  Peak: %llu/%llu MB GameObjects: %d",
+        sprintf(buf, "FPS: %.0f  WS: %llu MB  PF: %llu MB  Peak: %llu/%llu MB GameObjects: %d View: %d NoView: %d Disable: %d",
                 GetApp().GetFPS(),
                 m.workingSetSize / 1024 / 1024,
                 m.pageFileUsage  / 1024 / 1024,
                 m.peakWorkingSize / 1024 / 1024,
                 m.peakFileUsage   / 1024 / 1024,
-                GetApp().GetScene()->GetGameObjectSize());
+                debugObj.CountAllObject,
+                debugObj.CountRenderObject,
+                debugObj.CountNotRenderObject,
+                debugObj.CountDisableObject);
     }
     ctx.Text(Layout::UP_LEFT, font, buf, {5, 5}, {1, 1, 1, 1}, 0.5);
 

@@ -106,7 +106,7 @@ void HitboxBox2D::Update() {
 
 void HitboxBox2D::Render(Type type) {
     if (type == Type::Pre) return;
-    if (isDebug) {
+    if (!isDebug) {
         Component::Render();
 
         self->GetRenderSystem()->NewContext();

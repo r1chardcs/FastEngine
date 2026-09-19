@@ -72,6 +72,9 @@ RGBA & RenderSystem::BackgroundColor() {
     return backgroundColor;
 }
 
+void RenderSystem::UpdateCamera() {
+}
+
 void RenderSystem::SetRenderUICallback(const FUNC<void(VIEW_PTR<RenderSystem>)> &callback) {
     ui_render_callback = callback;
 }
@@ -121,7 +124,6 @@ void RenderSystem::Rotate(const Quat& quat) {
 void RenderSystem::NewContext() {
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
-    glLoadIdentity();
 }
 
 BOOL RenderSystem::IsInView(Vec2f pos, Vec2f size) const {

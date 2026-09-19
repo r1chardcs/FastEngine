@@ -52,6 +52,7 @@ public:
     RenderSystem(VIEW_PTR<App> app);
 
     RGBA& BackgroundColor();
+    void UpdateCamera();
 
     void SetRenderUICallback(const CALLBACK<VOID(VIEW_PTR<RenderSystem>)> &callback);
     void SetRenderWorldCallback(const CALLBACK<VOID(VIEW_PTR<RenderSystem>)> &callback);

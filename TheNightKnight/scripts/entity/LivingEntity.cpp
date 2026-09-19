@@ -109,22 +109,7 @@ BOOL LivingEntity::IsAlive() {
 
 BOOL LivingEntity::Damage(INT damage) {
     if (damage <= 0) return IsAlive();
-
-    if (const auto sprite = GetComponent<Sprite>()) {
-        sprite->Tint() = {1, 0, 0, 1};
-
-        Animation::To<RGBA>(
-                  [sprite]() { return sprite->Tint(); },
-                  [sprite](RGBA value) { sprite->Tint() = value; },
-                  RGBA{1, 1, 1, 1},
-                  150,
-                  Ease::QuadOut,
-                  LoopMode::Once,
-                  0.0f,
-                  nullptr,
-                  Animation::MakeKey(this, "tint")
-              );
-    }
+    MarkDamageSprite();
 
     health -= damage;
     if (health <= 0) {
@@ -137,6 +122,24 @@ BOOL LivingEntity::Damage(INT damage) {
 
 void LivingEntity::Died() {
     Destroy();
+}
+
+void LivingEntity::MarkDamageSprite() {
+    if (const auto sprite = GetComponent<Sprite>()) {
+        sprite->Tint() = {.r = 1, .g = 0, .b = 0, .a = 1};
+
+        Animation::To<RGBA>(
+                  [sprite]() { return sprite->Tint(); },
+                  [sprite](const RGBA value) { sprite->Tint() = value; },
+                  RGBA{.r = 1, .g = 1, .b = 1, .a = 1},
+                  150,
+                  Ease::QuadOut,
+                  LoopMode::Once,
+                  0.0f,
+                  nullptr,
+                  Animation::MakeKey(this, "tint")
+              );
+    }
 }
 
 INT LivingEntity::GetMaxHealth() const {

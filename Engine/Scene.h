@@ -10,16 +10,23 @@
 class Scene {
 public:
     using ObjectList = VECTOR<GLOBAL_PTR<GameObject>>;
+    struct DebugInfo {
+        INT CountAllObject;
+        INT CountRenderObject;
+        INT CountNotRenderObject;
+        INT CountDisableObject;
+    };
 private:
     GLOBAL_PTR<const ObjectList> game_objects = MakeGlobalPtr<const ObjectList>();
     mutable MUTEX mutex_objects;
 
     STRING scene_name;
     BOOL is_started = false;
-
+    DebugInfo debug_info = {};
 public:
     explicit Scene(MOVE_PLEASE STRING scene_name);
     VIRTUAL ~Scene() = default;
+    const DebugInfo& GetDebugInfo() const;
     void Setup();
     VIRTUAL void Start();
     VIRTUAL void Update();
