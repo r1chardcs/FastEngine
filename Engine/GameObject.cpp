@@ -10,6 +10,14 @@
 #include "../Toolkit/Debug/Logger.h"
 #include "Components/Transform.h"
 
+void GameObject::SetLayer(STRING layer_name) {
+    this->layer = MOVE(layer_name);
+}
+
+STRING GameObject::GetLayer() {
+    return layer;
+}
+
 void GameObject::AddTag(STRING tag) {
     if (tag.empty()) {
         LOGWRN.Output("Invalid tag: %s", tag.c_str());
@@ -110,6 +118,13 @@ void GameObject::RebuildComponentsCache() {
     for (const auto &component : components) {
         if (component) componentsCache.push_back(component.get());
     }
+}
+
+FLOAT GameObject::GetSortY() {
+    if (const auto transform = GetComponent<Transform>()) {
+        return transform->Position().y;
+    }
+    return 0.0f;
 }
 
 void GameObject::SetActive(const BOOL value) {

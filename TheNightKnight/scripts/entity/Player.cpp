@@ -13,7 +13,7 @@
 
 Player::Player(): LivingEntity(20, 3) {
     const auto sprite = AddComponent<Sprite>();
-    sprite->SetTexture(GetRenderSystem()->LoadTextureSync("assets/players.png"));
+    sprite->SetTexture(GetRenderSystem()->LoadTextureSync("assets/demons.png"));
     sprite->SetSourceRect({.x = 0, .y = 0, .width = 16, .height = 16});
 }
 
@@ -114,22 +114,11 @@ VIEW_PTR<LivingEntity> Player::FindVictim(FLOAT radius) {
 void Player::Move(FLOAT addX, FLOAT addY, FLOAT curspeed) {
     LivingEntity::Move(addX, addY, curspeed);
     const auto sprite = GetComponent<Sprite>();
-
-    if (addY > 0) {
-        sprite->SetSourceRect(Recti::CalculateStepRect(192, 64, 16, 8));
-        sprite->SetFlipX(false);
-    }
-    if (addY < 0) {
-        sprite->SetSourceRect(Recti::CalculateStepRect(192, 64, 16, 0));
-        sprite->SetFlipX(false);
-    }
     if (addX > 0) {
-        sprite->SetSourceRect(Recti::CalculateStepRect(192, 64, 16, 4));
-        sprite->SetFlipX(true);
+        sprite->SetFlipX(false);
     }
     if (addX < 0) {
-        sprite->SetSourceRect(Recti::CalculateStepRect(192, 64, 16, 4));
-        sprite->SetFlipX(false);
+        sprite->SetFlipX(true);
     }
 }
 

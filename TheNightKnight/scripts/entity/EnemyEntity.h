@@ -9,6 +9,7 @@
 #include "LivingEntity.h"
 #include "ai/EnemyState.h"
 
+class HitboxBox2D;
 class EnemyEntity;
 
 struct SearchStrategy {

@@ -29,7 +29,7 @@ CHAR IO::InputChar(const STRING &msg) {
 }
 
 #undef MessageBox
-void IO::MessageBox(const STRING &title, const STRING &text, MessageBoxFlags_t style) {
+void IO::MsgBox(const STRING &title, const STRING &text, MessageBoxFlags_t style) {
     ::MessageBoxA(
         nullptr,
         text.c_str(),

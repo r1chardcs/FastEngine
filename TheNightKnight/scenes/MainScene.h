@@ -14,7 +14,10 @@
 #include "Engine/Components/Transform.h"
 #include "../scripts/map/MapGenerator.h"
 #include "TheNightKnight/scripts/entity/enemy/Denuvo.h"
+#include "TheNightKnight/scripts/entity/health/HealthEntity.h"
+#include "TheNightKnight/scripts/map/NatureMapGenerator.h"
 #include "TheNightKnight/scripts/weapon/sword/OxidativeSword.h"
+#include "Toolkit/Debug/MemoryProfiler.h"
 
 class MainScene : public Scene {
 public:
@@ -25,39 +28,17 @@ public:
         : Scene("MainScene") {
     }
 
+    RGBA GetBackgroundColor() override {
+        return RGBA(0.17f,0.17f,0.17f);
+    }
+
     void Start() override {
-        static auto obj = MakeGlobalPtr<GameObject>();
-        obj->AddComponent<Transform>();
-        obj->AddComponent<HitboxBox2D>();
-        auto sprite = obj->AddComponent<Sprite>();
-        sprite->SetTexture(GetRenderSystem()->LoadTextureSync("assets/players.png"));
-
-        AddGameObject(obj);
-
         player = MakeGlobalPtr<Player>();
-        denuvo = MakeGlobalPtr<Denuvo>();
 
-        AddGameObject(denuvo);
-        AddGameObject(MakeGlobalPtr<FPSOverlay>());
-        denuvo->Teleport(7, 7);
-
-        auto blocks = MapGenerator::ParseMap(R"(
-#################
-#               #
-#   ^      ^    #
-#    ##         #
-#               #
-#      #        #
-#      #        #
-#               #
-#  ^            #
-#################
-)");
-
-        for (auto game_object : blocks) {
-            AddGameObject(game_object);
-        }
         AddGameObject(player);
+        AddGameObject(MakeGlobalPtr<HealthEntity>());
+        AddGameObject(MakeGlobalPtr<FPSOverlay>());
+        NatureMapGenerator::generate(50);
     }
 };
 

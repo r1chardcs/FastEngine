@@ -17,6 +17,7 @@ class Player : public LivingEntity {
 
 public:
     Player();
+
     void AddItem(const GLOBAL_PTR<Item>& item);
     void RemoveItem(VIEW_PTR<Item> item);
 

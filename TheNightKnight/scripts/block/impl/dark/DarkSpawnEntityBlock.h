@@ -15,6 +15,7 @@ public:
         GetComponent<HitboxBox2D>()->IsSolid() = false;
     }
 
+    void DrawWorld() override;
     void Start() override;
 };
 

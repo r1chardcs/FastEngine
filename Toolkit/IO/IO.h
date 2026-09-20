@@ -90,7 +90,7 @@ constexpr MessageBoxFlags_t ToFlags(MessageBoxStyle style) noexcept
 namespace IO {
     STRING InputString(const STRING & = "");
     CHAR InputChar(const STRING & = "");
-    void MessageBox(const STRING& title, const STRING& text, MessageBoxFlags_t style);
+    void MsgBox(const STRING& title, const STRING& text, MessageBoxFlags_t style);
 
     namespace File {
         Err<STRING> ReadFile(const STRING& path);

@@ -13,6 +13,8 @@
 #include "scenes/MainScene.h"
 #include "Toolkit/IO/IO.h"
 
+#undef MessageBox
+
 class TheNightKnight : public App {
 public:
     TheNightKnight() : App("The Night Knight") {}
@@ -37,7 +39,7 @@ public:
         }
 
         ss << std::hex << std::uppercase << reinterpret_cast<uintptr_t>(ctx.exception_address);
-        IO::MessageBox("Unhandled Exception", "Exception at 0x" + (ss.str()) + " Throw " + frameStream.str(), static_cast<MessageBoxFlags_t>(MessageBoxStyle::IconError | MessageBoxStyle::Ok));
+        IO::MsgBox("Unhandled Exception", "Exception at 0x" + (ss.str()) + " Throw " + frameStream.str(), static_cast<MessageBoxFlags_t>(MessageBoxStyle::IconError | MessageBoxStyle::Ok));
     }
 };
 

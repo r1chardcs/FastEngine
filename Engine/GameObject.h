@@ -17,8 +17,12 @@ class GameObject {
     VIEW_PTR<GameObject> parent = nullptr;
     VECTOR<GLOBAL_PTR<GameObject>> children;
     VECTOR<VIEW_PTR<Component>> componentsCache;
+    STRING layer;
 public:
     virtual ~GameObject() = default;
+
+    void SetLayer(MOVE_PLEASE STRING layer_name);
+    STRING GetLayer();
 
     void AddTag(MOVE_PLEASE STRING tag);
     void DeleteTag(const STRING& tag);
@@ -41,9 +45,10 @@ public:
     static VIEW_PTR<RenderSystem> GetRenderSystem();
 
     void RebuildComponentsCache();
+    VIRTUAL FLOAT GetSortY();
 
     template <typename TemplateComponent>
- VIEW_PTR<TemplateComponent> AddComponent() {
+    VIEW_PTR<TemplateComponent> AddComponent() {
         static_assert(std::is_base_of_v<Component, TemplateComponent>,
                       "TemplateComponent must derive from Component");
 

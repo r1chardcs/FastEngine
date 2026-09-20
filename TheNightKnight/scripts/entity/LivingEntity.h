@@ -20,6 +20,8 @@ public:
 
     void DrawWorld() override;
 
+    FLOAT GetSortY() override;
+
     VIRTUAL void Move(FLOAT addX, FLOAT addY, FLOAT curspeed);
     VIRTUAL void MoveTo(Vec2f to);
 

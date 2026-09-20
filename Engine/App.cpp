@@ -105,47 +105,46 @@ void App::SetScene(const GLOBAL_PTR<Scene>& scene) {
         return;
     }
 
-    GLOBAL_PTR<Scene> expectation;
-
-    {
+    if (!scene_expectations) {
         MUTEX_LOCK lock(mutex_scene);
-
-        expectation = scene_expectations;
-
-        if (!expectation) {
-            if (current_scene) {
-                current_scene->Finish();
-            }
-
-            current_scene = scene;
-            current_scene->Setup();
-            current_scene->Start();
-            return;
-        }
-
         if (current_scene) {
             current_scene->Finish();
         }
-
-        current_scene = expectation;
+        current_scene = scene;
+        current_scene->Setup();
+        current_scene->Start();
+        return;
     }
 
-    expectation->Setup();
-    expectation->Start();
-
-    ExecuteInLogicThread([this, scene, expectation](VIEW_PTR<App>) {
+    {
         MUTEX_LOCK lock(mutex_scene);
-
-        if (current_scene.get() == expectation.get()) {
-            current_scene = scene;
+        if (current_scene) {
+            current_scene->Finish();
         }
+        current_scene = scene_expectations;
+    }
+    scene_expectations->Start();
+    scene_expectations->Setup();
 
-        scene->Setup();
+    ExecuteInLogicThread([this, scene](VIEW_PTR<App>) {
+        temp_current_scene = scene;
+
         scene->Start();
+        scene->Setup();
+
+        MUTEX_LOCK lock(mutex_scene);
+        if (current_scene.get() == scene_expectations.get()) {
+            scene_expectations->Finish();
+        }
+        current_scene = scene;
+        temp_current_scene = nullptr;
     });
 }
 
 VIEW_PTR<Scene> App::GetScene() const {
+    if (temp_current_scene) {
+        return temp_current_scene.get();
+    }
     return current_scene.get();
 }
 void App::AddGameObject(const GLOBAL_PTR<GameObject>& game_object) {

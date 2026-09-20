@@ -15,6 +15,13 @@ class AbstractBlock : public GameObject
 public:
     AbstractBlock();
     void Start() override;
+
+    FLOAT GetSortY() override {
+        if (const auto hitbox = GetComponent<HitboxBox2D>()) {
+            return hitbox->Box().minY;
+        }
+        return GameObject::GetSortY();
+    }
 };
 
 

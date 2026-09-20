@@ -42,8 +42,9 @@ class App {
     MUTEX mutex_game_objects;
 
     static VIEW_PTR<App> instance;
-    GLOBAL_PTR<Scene> current_scene;
+    GLOBAL_PTR<Scene> current_scene,temp_current_scene;
     GLOBAL_PTR<Scene> scene_expectations;
+
     MUTEX mutex_scene;
 protected:
     VIRTUAL void ProcessRenderQueue();

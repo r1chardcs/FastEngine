@@ -7,6 +7,9 @@
 #include "Engine/App.h"
 #include "TheNightKnight/scripts/entity/enemy/Denuvo.h"
 
+void DarkSpawnEntityBlock::DrawWorld() {
+}
+
 void DarkSpawnEntityBlock::Start() {
     ColorBlock::Start();
 

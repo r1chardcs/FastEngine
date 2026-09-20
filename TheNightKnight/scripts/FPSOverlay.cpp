@@ -9,6 +9,7 @@
 
 #include "Engine/App.h"
 #include "Engine/UIContext.h"
+#include "TheNightKnight/scenes/MainScene.h"
 #include "Toolkit/Debug/Profiler.h"
 #include "Toolkit/Debug/LagProfiler.h"
 
@@ -36,6 +37,12 @@ void FPSOverlay::DrawUI() {
                 debugObj.CountDisableObject);
     }
     ctx.Text(Layout::UP_LEFT, font, buf, {5, 5}, {1, 1, 1, 1}, 0.5);
+    char buf2[128];
+    sprintf(buf2, "Position: %f %f",
+        static_cast<MainScene *>(App::GetInstance().GetScene().operator->())->player->GetComponent<Transform>()->HalfPos().x,
+        static_cast<MainScene *>(App::GetInstance().GetScene().operator->())->player->GetComponent<Transform>()->HalfPos().y);
+
+    ctx.Text(Layout::UP_LEFT, font, buf2, {5, 24}, {1, 1, 1, 1}, 0.5);
 
     lagReportTimer += GetDeltaTime();
     if (lagReportTimer >= 1.0) {
@@ -59,7 +66,7 @@ void FPSOverlay::DrawUI() {
 
     constexpr INT rowHeight = 22;
     constexpr INT panelWidth = 340;
-    constexpr INT panelTop = 30;
+    constexpr INT panelTop = 50;
     const INT panelHeight = rowHeight * (rows + 1) + 12;
 
     ctx.Rect(Layout::UP_LEFT, {5, panelTop}, {panelWidth, panelHeight}, {0, 0, 0, 0.55f});

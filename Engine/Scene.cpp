@@ -4,12 +4,58 @@
 
 #include "Scene.h"
 
+#include <algorithm>
+#include <ranges>
+
 #include "App.h"
 #include "GameObject.h"
 #include "../Toolkit/Debug/Logger.h"
 #include "Components/Transform.h"
 #include "Toolkit/Anim/AnimationSystem.h"
 #include "Toolkit/Debug/Test.h"
+
+VECTOR<VIEW_PTR<GameObject>> Scene::GetSortedByLayer(const GLOBAL_PTR<const ObjectList>& snapshot) {
+    VECTOR<std::pair<INT, VIEW_PTR<GameObject>>> indexed;
+    indexed.reserve(snapshot->size());
+
+    for (const auto& game_object : *snapshot) {
+        if (!game_object) continue;
+
+        const STRING& layerName = game_object->GetLayer();
+        INT layerIndex = 0;
+
+        if (!layerName.empty()) {
+            const auto it = layers.find(layerName);
+            if (it != layers.end()) {
+                layerIndex = it->second;
+            }
+        }
+
+        indexed.emplace_back(layerIndex, game_object.get());
+    }
+
+    std::stable_sort(indexed.begin(), indexed.end(),
+        [](const auto& a, const auto& b) {
+            if (a.first != b.first) return a.first < b.first;
+            return a.second->GetSortY() > b.second->GetSortY();
+        });
+
+    VECTOR<VIEW_PTR<GameObject>> result;
+    result.reserve(indexed.size());
+    for (const auto& [layerIndex, obj] : indexed) {
+        result.push_back(obj);
+    }
+
+    return result;
+}
+
+void Scene::SetLayer(INT index, const STRING &layer) {
+    layers[layer] = index;
+}
+
+INT Scene::GetLayer(const STRING &layer) {
+    return layers[layer];
+}
 
 Scene::Scene(STRING scene_name) : scene_name(MOVE(scene_name)) {}
 
@@ -30,8 +76,9 @@ void Scene::Update() {
         .Update(static_cast<FLOAT>(App::GetInstance().GetDeltaTime()));
 
     const auto snapshot = Snapshot();
+    const auto ordered = GetSortedByLayer(snapshot);
 
-    for (const auto& game_object : *snapshot) {
+    for (const auto& game_object : ordered) {
         TEST(!game_object && "Invalid Game Object at Snapshot");
         if (!game_object->IsActive()) continue;
 
@@ -45,10 +92,13 @@ void Scene::Update() {
 
 void Scene::Render() {
     const auto snapshot = Snapshot();
+    const auto ordered = GetSortedByLayer(snapshot);
     const auto render_system = App::GetInstance().GetRenderSystem();
+
     DebugInfo tempDebugInfo = {};
-    tempDebugInfo.CountAllObject = snapshot->size();
-    for (const auto& game_object : *snapshot) {
+    tempDebugInfo.CountAllObject = ordered.size();
+
+    for (const auto& game_object : ordered) {
         TEST(!game_object);
         if (!game_object->IsActive()) {
             tempDebugInfo.CountDisableObject++;
@@ -88,6 +138,20 @@ void Scene::Render() {
     debug_info = tempDebugInfo;
 }
 
+void Scene::UI() {
+    const auto snapshot = Snapshot();
+    const auto ordered = GetSortedByLayer(snapshot);
+    const auto render_system = App::GetInstance().GetRenderSystem();
+
+    for (const auto& game_object : ordered) {
+        if (!game_object->IsActive()) continue;
+
+        render_system->NewContext();
+        game_object->DrawUI();
+        render_system->StopContext();
+    }
+}
+
 void Scene::Finish() {
     GLOBAL_PTR<const ObjectList> objects;
     {
@@ -111,18 +175,6 @@ RGBA Scene::GetBackgroundColor() {
     return {.r = 0, .g = 0, .b = 0, .a = 1};
 }
 
-void Scene::UI() {
-    const auto snapshot = Snapshot();
-    const auto render_system = App::GetInstance().GetRenderSystem();
-
-    for (const auto& game_object : *snapshot) {
-        if (!game_object->IsActive()) continue;
-
-        render_system->NewContext();
-        game_object->DrawUI();
-        render_system->StopContext();
-    }
-}
 
 void Scene::AddGameObject(const GLOBAL_PTR<GameObject>& game_object) {
     if (!game_object || !game_object->IsActive()) {

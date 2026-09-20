@@ -24,6 +24,14 @@ void LivingEntity::DrawWorld() {
 
     DrawHealthBar(GetHealthBarColor());
 }
+
+FLOAT LivingEntity::GetSortY() {
+    if (const auto hitbox = GetComponent<HitboxBox2D>()) {
+        return hitbox->Box().minY;
+    }
+    return GameObject::GetSortY();
+}
+
 void LivingEntity::Move(
     const FLOAT addX,
     const FLOAT addY,

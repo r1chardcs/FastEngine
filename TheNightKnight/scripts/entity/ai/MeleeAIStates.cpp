@@ -4,27 +4,54 @@
 #include <Engine/Components/Transform.h>
 
 #include "Engine/App.h"
-#include "TheNightKnight/scenes/MainScene.h"
 
 namespace {
     constexpr FLOAT kAttackCooldown = 1.0f;
+    constexpr LITERAL kVictimTag = "health";
 
     FLOAT Distance(const Vec2f& a, const Vec2f& b) {
         const FLOAT dx = a.x - b.x;
         const FLOAT dy = a.y - b.y;
         return std::sqrt(dx * dx + dy * dy);
     }
+
+    VIEW_PTR<LivingEntity> FindNearestVictim(VIEW_PTR<EnemyEntity> self, FLOAT searchRadius) {
+        const auto selfTransform = self->GetComponent<Transform>();
+        if (!selfTransform) return nullptr;
+
+        const auto selfPos = selfTransform->Position().ToVec2();
+
+        const auto candidates = App::GetInstance().GetGameObjectByTags(kVictimTag);
+
+        VIEW_PTR<LivingEntity> nearest = nullptr;
+        FLOAT nearestDist = searchRadius;
+
+        for (const auto& obj : candidates) {
+            if (!obj || obj.operator->() == self.operator->()) continue;
+            if (!obj->IsActive()) continue;
+
+            const auto living = dynamic_cast<LivingEntity*>(obj.operator->());
+            if (!living || !living->IsAlive()) continue;
+
+            const auto transform = living->GetComponent<Transform>();
+            if (!transform) continue;
+
+            const FLOAT dist = Distance(selfPos, transform->Position().ToVec2());
+            if (dist <= nearestDist) {
+                nearestDist = dist;
+                nearest = living;
+            }
+        }
+
+        return nearest;
+    }
 }
 
 SELF_PTR<EnemyState> MeleeSearchState::Update(VIEW_PTR<EnemyEntity> self) {
-    const auto player = static_cast<MainScene*>(App::GetInstance().GetScene().operator->())->player;
-    if (player && player->GetComponent<Transform>()->Position().DistanceTo(self->GetComponent<Transform>()->Position()) > self->GetSearchRadius()) {
-        return nullptr;
-    }
-    const auto found = player;
+    const auto found = FindNearestVictim(self, self->GetSearchRadius());
 
     if (found && found->IsAlive()) {
-        self->SetTarget(found.get());
+        self->SetTarget(found);
         return MakeSelfPtr<MeleeChaseState>();
     }
 
@@ -59,7 +86,6 @@ SELF_PTR<EnemyState> MeleeChaseState::Update(VIEW_PTR<EnemyEntity> self) {
 
         const FLOAT searchRadius = self->GetSearchRadius();
 
-        // Уже достаточно далеко от игрока — перестаём убегать.
         if (dist < searchRadius) {
             const FLOAT dx = pos.x - targetPos.x;
             const FLOAT dy = pos.y - targetPos.y;

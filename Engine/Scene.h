@@ -23,7 +23,12 @@ private:
     STRING scene_name;
     BOOL is_started = false;
     DebugInfo debug_info = {};
+    HASH_MAP<STRING, INT> layers;
+    VECTOR<VIEW_PTR<GameObject>> GetSortedByLayer(const GLOBAL_PTR<const ObjectList>& snapshot);
 public:
+    void SetLayer(INT index, const STRING &layer);
+    INT GetLayer(const STRING& layer);
+
     explicit Scene(MOVE_PLEASE STRING scene_name);
     VIRTUAL ~Scene() = default;
     const DebugInfo& GetDebugInfo() const;

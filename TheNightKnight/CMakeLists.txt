@@ -46,7 +46,15 @@ add_executable(TheNightKnight App.cpp
         scripts/block/impl/dark/DarkWinBlock.cpp
         scripts/block/impl/dark/DarkWinBlock.h
         scripts/block/impl/dark/DarkSpawnEntityBlock.cpp
-        scripts/block/impl/dark/DarkSpawnEntityBlock.h)
+        scripts/block/impl/dark/DarkSpawnEntityBlock.h
+        scripts/entity/ai/Pathfinder.cpp
+        scripts/entity/ai/Pathfinder.h
+        scripts/entity/health/HealthEntity.cpp
+        scripts/entity/health/HealthEntity.h
+        scripts/block/impl/nature/Bush.cpp
+        scripts/block/impl/nature/Bush.h
+        scripts/map/NatureMapGenerator.cpp
+        scripts/map/NatureMapGenerator.h)
 
 target_link_libraries(TheNightKnight PUBLIC FastEngine)
 
