@@ -352,13 +352,12 @@ Err<NOT> SysBuild::Build(const STRING& target_name) {
     fs::create_directories(target.obj_dir, ec);
     fs::create_directories(target.output_dir, ec);
 
+    /* Этап проверки (NeedsRecompile) быстрый — прогрессбар тут не нужен,
+       он вводил в заблуждение, добегая до 100% раньше реальной компиляции. */
     VECTOR<CompileJob> jobs;
     VECTOR<STRING> allObjects;
-    Tui::ProgressBar progress_bar(target.sources.size());
 
     for (const auto& source : target.sources) {
-
-
         const STRING object = ObjectPathFor(target, source);
         const STRING depfile = object.substr(0, object.find_last_of('.')) + ".d";
 
@@ -367,9 +366,7 @@ Err<NOT> SysBuild::Build(const STRING& target_name) {
         if (NeedsRecompile(source, object, depfile)) {
             jobs.push_back({source, object, depfile});
         }
-
     }
-    progress_bar.Finish();
 
     if (jobs.empty()) {
         LOGWRN.Output("Target '%s' is up to date, nothing to compile\n", target.name.c_str());
@@ -386,6 +383,15 @@ Err<NOT> SysBuild::Build(const STRING& target_name) {
         std::mutex resultsMutex;
         VECTOR<CompileResult> results(jobs.size());
         std::atomic<BOOL> hadError{false};
+
+        /* Прогрессбар теперь отражает реальную компиляцию — двигается
+           по мере завершения каждого воркера, под тем же мьютексом,
+           что защищает results (SetProgress не потокобезопасна сама
+           по себе). */
+        Tui::ProgressBar progress_bar(static_cast<INT>(jobs.size()), 20);
+        progress_bar.SetChars('\xDB', '-');
+        progress_bar.SetLabel("Compiling " + target.name);
+        progress_bar.Render();
 
         const UINT workerCount = std::min(max_parallel_jobs, static_cast<UINT>(jobs.size()));
         VECTOR<std::thread> workers;
@@ -410,6 +416,7 @@ Err<NOT> SysBuild::Build(const STRING& target_name) {
                         if (!result.success) {
                             hadError.store(true);
                         }
+                        progress_bar.Advance();
                     }
                 }
             });
@@ -418,6 +425,8 @@ Err<NOT> SysBuild::Build(const STRING& target_name) {
         for (auto& worker : workers) {
             worker.join();
         }
+
+        progress_bar.Finish();
 
         for (const auto& result : results) {
             if (!result.log.empty()) {

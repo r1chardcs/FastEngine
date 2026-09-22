@@ -2,6 +2,7 @@
 build("my-game-fastengine")
 
 target("app_game")
+sources += scripts
 source += app.cpp
 
 type(fastengine)

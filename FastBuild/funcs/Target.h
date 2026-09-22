@@ -4,6 +4,8 @@
 
 #ifndef FASTENGINE_TARGET_H
 #define FASTENGINE_TARGET_H
+#include <algorithm>
+
 #include  "../lang/RuntimeFunc.h"
 #include "FastBuild/State.h"
 #include "IO/IO.h"
@@ -48,6 +50,65 @@ protected:
 public:
     explicit TargetCommand(const STRING& name)
         : RuntimeFunc(name) {
+    }
+};
+
+class TargetSources : public TargetCommand {
+public:
+    TargetSources() : TargetCommand("sources") {}
+
+    void Run(const VECTOR<STRING> &arguments) override {
+        auto* target = GetTarget();
+
+        if (!target) {
+            return;
+        }
+
+        if (arguments.empty()) {
+            Error("Specify source dir.");
+            return;
+        }
+
+        namespace fs = std::filesystem;
+
+        static const VECTOR<STRING> sourceExtensions = {".cpp", ".cc", ".cxx", ".c"};
+
+        for (const auto& source : arguments) {
+            std::error_code ec;
+            const fs::path path(source);
+
+            if (!fs::exists(path, ec) || ec) {
+                continue;
+            }
+
+            if (fs::is_regular_file(path, ec) && !ec) {
+                target->sources.push_back(source);
+                continue;
+            }
+
+            if (!fs::is_directory(path, ec) || ec) {
+                continue;
+            }
+
+            for (const auto& entry : fs::recursive_directory_iterator(path, ec)) {
+                if (ec) break;
+
+                if (!entry.is_regular_file()) {
+                    continue;
+                }
+
+                const STRING extension = entry.path().extension().string();
+
+                const BOOL matches = std::ranges::any_of(sourceExtensions
+                                                         ,
+                                                         [&extension](const STRING& ext) { return ext == extension; }
+                );
+
+                if (matches) {
+                    target->sources.push_back(entry.path().string());
+                }
+            }
+        }
     }
 };
 

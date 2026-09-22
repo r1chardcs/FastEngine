@@ -82,6 +82,7 @@ int main() {
         lang.AddRuntimeFunc(MakeGlobalPtr<TargetCompileFlag>());
         lang.AddRuntimeFunc(MakeGlobalPtr<TargetInclude>());
         lang.AddRuntimeFunc(MakeGlobalPtr<TargetSource>());
+        lang.AddRuntimeFunc(MakeGlobalPtr<TargetSources>());
         lang.AddRuntimeFunc(MakeGlobalPtr<TargetLibraryDir>());
         lang.AddRuntimeFunc(MakeGlobalPtr<TargetDefine>());
         lang.AddRuntimeFunc(MakeGlobalPtr<TargetLinkFlag>());

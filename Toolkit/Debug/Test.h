@@ -19,6 +19,6 @@ namespace Test {
 
 #define NEW_DEBUG_OBJECT DebugObject {__FILE__, __FUNCTION__, __LINE__}
 #define TEST(expression) if(!(!(expression))) {Test::Fault(#expression, NEW_DEBUG_OBJECT);}
-
+#define TEST_THIS(x) TEST(not this && #x)
 
 #endif //FASTENGINE_TEST_H
