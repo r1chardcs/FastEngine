@@ -113,11 +113,51 @@ Err<NOT> IO::File::WriteFile(const STRING &path, const STRING &content) {
 }
 
 #undef CreateDirectory
+#undef CopyFile
+#undef CopyDir
+
 Err<NOT> IO::File::CreateDirectory(const STRING &path) {
     try {
         std::filesystem::create_directories(path);
         return {.res = {}, .err = nullptr };
     } catch (const std::filesystem::filesystem_error& e) {
         return {.res = {}, .err = e.what() };
+    }
+}
+
+Err<NOT> IO::File::CopyFile(const STRING &from, const STRING &to) {
+    try {
+        const std::filesystem::path toPath(to);
+
+        if (toPath.has_parent_path()) {
+            std::error_code ec;
+            std::filesystem::create_directories(toPath.parent_path(), ec);
+        }
+
+        std::filesystem::copy_file(
+            from,
+            to,
+            std::filesystem::copy_options::overwrite_existing
+        );
+        return {.res = {}, .err = nullptr};
+    } catch (const std::filesystem::filesystem_error& e) {
+        static thread_local STRING lastError;
+        lastError = e.what();
+        return {.res = {}, .err = lastError.c_str()};
+    }
+}
+
+Err<NOT> IO::File::CopyDir(const STRING &from, const STRING &to) {
+    try {
+        std::filesystem::create_directories(to);
+        std::filesystem::copy(
+            from,
+            to,
+            std::filesystem::copy_options::recursive |
+            std::filesystem::copy_options::overwrite_existing
+        );
+        return {.res = {}, .err = nullptr};
+    } catch (const std::filesystem::filesystem_error& e) {
+        return {.res = {}, .err = e.what()};
     }
 }

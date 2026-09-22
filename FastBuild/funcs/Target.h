@@ -6,6 +6,7 @@
 #define FASTENGINE_TARGET_H
 #include  "../lang/RuntimeFunc.h"
 #include "FastBuild/State.h"
+#include "IO/IO.h"
 
 class Target : public RuntimeFunc {
 public:
@@ -236,17 +237,36 @@ public:
             return;
         }
 
-        const auto& type = arguments[0];
-        if (type == "fastengine"
-            || type == "game") {
+        if (const auto& type = arguments[0]; type == "fastengine"
+                                             || type == "game") {
             target->output_type =
                 BuildOutputType::Executable;
+
+
+            struct A : BuildAction {
+                BuildActionType GetType() const noexcept override { return BuildActionType::POST; }
+
+                void Action(VIEW_PTR<SysBuild> sys_build, VIEW_PTR<BuildTarget> build_target) override {
+                    const auto from = GetExecutablePath() + "/core/libs/FastEngine.dll";
+                    TuiApplication& instance = *TuiApplication::GetInstance();
+                    const STRING cwd = instance.GetCWD();
+
+                    const auto to = cwd + "/" + build_target->output_dir +"/FastEngine.dll";
+
+                    if (const auto [res, err] = IO::File::CopyFile(from, to); err) {
+                        LOGERR.Output(err).Output("\n");
+                    }
+                }
+            };
 
             const auto path = GetExecutablePath();
             target->include_dirs.push_back(path + "/core");
             target->include_dirs.push_back(path + "/core/include");
             target->include_dirs.push_back(path + "/core/include/include");
             target->libraries.push_back(path + "/core/libs/libFastEngine.dll.a");
+
+            auto a = MakeSelfPtr<A>();
+            State::sys_build->AddAction(MOVE(a));
         }
         else if (type == "executable" ||
             type == "exe") {

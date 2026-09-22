@@ -2,8 +2,10 @@
 
 #include <iostream>
 #include <filesystem>
+TuiApplication* TuiApplication::instance;
 
 TuiApplication::TuiApplication(RawBuff raw_buff) : raw_buf(MOVE(raw_buff)) {
+    instance = this;
 }
 
 void TuiApplication::AddArgument(Argument arg) {
@@ -102,4 +104,12 @@ STATUS TuiApplication::Run() {
     const STRING cwd = std::filesystem::current_path().string();
 
     return Main(arguments, cwd);
+}
+
+STRING TuiApplication::GetCWD() {
+    return std::filesystem::current_path().string();
+}
+
+VIEW_PTR<TuiApplication> TuiApplication::GetInstance() {
+    return instance;
 }

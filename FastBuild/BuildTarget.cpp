@@ -17,5 +17,5 @@ STRING GetExecutablePath() {
         return {};
     }
 
-    return path.substr(0, separator);   // <-- без +1
+    return path.substr(0, separator);
 }

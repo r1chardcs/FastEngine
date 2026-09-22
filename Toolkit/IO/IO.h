@@ -101,6 +101,9 @@ namespace IO {
 
         Err<NOT> WriteFile(const STRING& path, const STRING& content);
         Err<NOT> CreateDirectory(const STRING& path);
+
+        Err<NOT> CopyFile(const STRING& from, const STRING& to);
+        Err<NOT> CopyDir(const STRING& from, const STRING& to);
     }
 
 

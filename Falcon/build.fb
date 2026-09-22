@@ -1,0 +1,8 @@
+
+build("my-game-fastengine")
+
+target("app_game")
+source += app.cpp
+
+type(fastengine)
+

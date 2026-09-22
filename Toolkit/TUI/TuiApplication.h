@@ -28,7 +28,6 @@ public:
         VECTOR<STRING> positionals;
 
         friend class TuiApplication;
-
     public:
         BOOL HasFlag(const STRING& name) const {
             const auto it = flags.find(name);
@@ -75,6 +74,7 @@ private:
 
     ListArgument ParseArgs() const;
     void PrintUsageAndExit() const;
+    static TuiApplication* instance;
 
 protected:
     VIRTUAL VOID RegisterArguments() {}
@@ -87,10 +87,14 @@ public:
 
     STATUS Run();
 
+    static STRING GetCWD();
+
     VIRTUAL STATUS Main(const ListArgument& arguments, const STRING &cwd) = 0;
 
     static STATUS Ok() { return 0; }
     static STATUS Err() { return -1; }
+
+    static VIEW_PTR<TuiApplication> GetInstance();
 };
 
 #endif //FASTENGINE_TUIAPPLICATION_H
