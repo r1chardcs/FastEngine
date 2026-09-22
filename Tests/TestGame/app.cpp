@@ -1,5 +1,6 @@
 
 #include <Engine/App.h>
+#include "scenes/MainScene.h"
 
 class Game : public App {
 public:
@@ -7,6 +8,7 @@ public:
 
     void Start() override {
         LOGINF.Output("My game start!").Output("\n");
+        SetScene(MakeGlobalPtr<MainScene>());
     }
 };
 

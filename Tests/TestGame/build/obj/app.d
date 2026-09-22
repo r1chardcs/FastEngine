@@ -21,7 +21,10 @@ build/obj\app.o: app.cpp \
  C:\Users\dlllibstdntc\CLionProjects\FastEngine\bin/core/include/Toolkit/Data/LocalStorage.h \
  C:\Users\dlllibstdntc\CLionProjects\FastEngine\bin/core/include/Toolkit/Data/ICipher.h \
  C:\Users\dlllibstdntc\CLionProjects\FastEngine\bin/core/include/Toolkit/Data/NoCipher.h \
- C:\Users\dlllibstdntc\CLionProjects\FastEngine\bin/core/include/Toolkit/Data/StorageSerializer.h
+ C:\Users\dlllibstdntc\CLionProjects\FastEngine\bin/core/include/Toolkit/Data/StorageSerializer.h \
+ scenes/MainScene.h \
+ C:\Users\dlllibstdntc\CLionProjects\FastEngine\bin/core/include/Engine/Scene.h \
+ C:\Users\dlllibstdntc\CLionProjects\FastEngine\bin/core/include/Engine/UIContext.h
 C:\Users\dlllibstdntc\CLionProjects\FastEngine\bin/core/include/Engine/App.h:
 C:\Users\dlllibstdntc\CLionProjects\FastEngine\bin/core/include/Engine/GameObject.h:
 C:\Users\dlllibstdntc\CLionProjects\FastEngine\bin/core/include/Engine/Component.h:
@@ -45,3 +48,6 @@ C:\Users\dlllibstdntc\CLionProjects\FastEngine\bin/core/include/Toolkit/Data/Loc
 C:\Users\dlllibstdntc\CLionProjects\FastEngine\bin/core/include/Toolkit/Data/ICipher.h:
 C:\Users\dlllibstdntc\CLionProjects\FastEngine\bin/core/include/Toolkit/Data/NoCipher.h:
 C:\Users\dlllibstdntc\CLionProjects\FastEngine\bin/core/include/Toolkit/Data/StorageSerializer.h:
+scenes/MainScene.h:
+C:\Users\dlllibstdntc\CLionProjects\FastEngine\bin/core/include/Engine/Scene.h:
+C:\Users\dlllibstdntc\CLionProjects\FastEngine\bin/core/include/Engine/UIContext.h:

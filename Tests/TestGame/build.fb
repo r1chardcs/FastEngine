@@ -1,9 +1,15 @@
 
-build("my-game-fastengine")
+build("test_game")
 
 target("app_game")
+
 sources += scripts
+sources += scenes
+
 source += app.cpp
+
+include(scenes)
+include(scripts)
 
 type(fastengine)
 
