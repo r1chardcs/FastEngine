@@ -13,6 +13,7 @@
 #include "../Toolkit/Debug/Logger.h"
 #include "../Toolkit/IO/IO.h"
 #include "Debug/Test.h"
+#include "TUI/ConsoleWriter.h"
 
 #if defined(_WIN32)
     #define POPEN _popen
@@ -353,8 +354,11 @@ Err<NOT> SysBuild::Build(const STRING& target_name) {
 
     VECTOR<CompileJob> jobs;
     VECTOR<STRING> allObjects;
+    Tui::ProgressBar progress_bar(target.sources.size());
 
     for (const auto& source : target.sources) {
+
+
         const STRING object = ObjectPathFor(target, source);
         const STRING depfile = object.substr(0, object.find_last_of('.')) + ".d";
 
@@ -363,7 +367,9 @@ Err<NOT> SysBuild::Build(const STRING& target_name) {
         if (NeedsRecompile(source, object, depfile)) {
             jobs.push_back({source, object, depfile});
         }
+
     }
+    progress_bar.Finish();
 
     if (jobs.empty()) {
         LOGWRN.Output("Target '%s' is up to date, nothing to compile\n", target.name.c_str());

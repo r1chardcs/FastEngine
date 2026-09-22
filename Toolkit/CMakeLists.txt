@@ -19,6 +19,8 @@ add_library(Toolkit STATIC
         Debug/Profiler.cpp
         TUI/TuiApplication.cpp
         TUI/TuiApplication.h
+        TUI/ConsoleWriter.cpp
+        TUI/ConsoleWriter.h
 )
 
 target_link_libraries(Toolkit PUBLIC dbghelp)

@@ -127,9 +127,7 @@ Err<NOT> IO::File::CreateDirectory(const STRING &path) {
 
 Err<NOT> IO::File::CopyFile(const STRING &from, const STRING &to) {
     try {
-        const std::filesystem::path toPath(to);
-
-        if (toPath.has_parent_path()) {
+        if (const std::filesystem::path toPath(to); toPath.has_parent_path()) {
             std::error_code ec;
             std::filesystem::create_directories(toPath.parent_path(), ec);
         }

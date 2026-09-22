@@ -17,10 +17,19 @@ Logger & Logger::Output(LITERAL format, ...) {
         vprintf_s(format, x);
     }
     else {
-        char buf[256];
-        vsprintf_s(buf, 256, format, x);
+        va_list argsCopy;
+        va_copy(argsCopy, x);
+        const INT needed = _vscprintf(format, argsCopy);
+        va_end(argsCopy);
 
-        const STRING copy = buf;
+        if (needed < 0) {
+            return *this;
+        }
+
+        VECTOR<CHAR> buf(needed + 1);
+        vsprintf_s(buf.data(), buf.size(), format, x);
+
+        const STRING copy(buf.data(), needed);
         output_callback.operator()(this, copy);
     }
     va_end(x);

@@ -86,7 +86,6 @@ int main() {
         lang.AddRuntimeFunc(MakeGlobalPtr<TargetDefine>());
         lang.AddRuntimeFunc(MakeGlobalPtr<TargetLinkFlag>());
         lang.Run();
-        printf("%s\n", State::compiler_inf->cxx_compiler.c_str());
 
         if (State::sys_build) {
             for (const auto &target : State::all_targets) {
@@ -112,6 +111,56 @@ int main() {
 
 
 int main(const int c, char** r) {
+    LOGERR.SetOutputCallback([](VIEW_PTR<Logger> view_ptr, STRING basic_string) {});
+    LOGWRN.SetOutputCallback([](VIEW_PTR<Logger> view_ptr, STRING basic_string) {});
+    LOGINF.SetOutputCallback([](VIEW_PTR<Logger> view_ptr, STRING basic_string) {});
+
+    CrashDumper::SetCallback([](const CrashContext &crash_context) {
+        std::ostringstream ss;
+        ss << std::hex << std::uppercase << reinterpret_cast<uintptr_t>(crash_context.exception_address);
+        const STRING addressHex = ss.str();
+
+        STRING message;
+        message += "Exception: " + crash_context.exception_description + "\n";
+        message += "Address: 0x" + addressHex + "\n\n";
+        message += "Stack trace:\n";
+
+        constexpr SIZE_T maxFramesInBox = 12;
+        SIZE_T shown = 0;
+
+        for (const auto &frame : crash_context.stack_trace) {
+            if (shown >= maxFramesInBox) {
+                message += "  ... (" + std::to_string(crash_context.stack_trace.size() - shown) + " more frame(s), see log file)\n";
+                break;
+            }
+
+            message += "  at " + (frame.function_name.empty() ? "<unknown>" : frame.function_name);
+
+            if (!frame.module_name.empty()) {
+                message += " [" + frame.module_name + "]";
+            }
+
+            if (!frame.file_name.empty()) {
+                message += " (" + frame.file_name + ":" + std::to_string(frame.line_number) + ")";
+            }
+
+            message += "\n";
+            shown++;
+        }
+
+        if (crash_context.stack_trace.empty()) {
+            message += "  <no stack trace captured>\n";
+        }
+
+        IO::MsgBox(
+            "Unhandled Exception",
+            message,
+            static_cast<MessageBoxFlags_t>(MessageBoxStyle::IconError | MessageBoxStyle::Ok)
+        );
+    });
+
+    CrashDumper::AttachHandler();
+
     App app(App::RawBuff(r, c));
     return app.Run();
 }
