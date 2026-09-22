@@ -6,6 +6,7 @@
 #define FASTENGINE_ASSETS_H
 #include "Platform.h"
 
+DEPRECTED_API
 struct AssetFile {
     STRING name;
     STRING path;

@@ -34,22 +34,22 @@ VECTOR<VIEW_PTR<GameObject>> Scene::GetSortedByLayer(const GLOBAL_PTR<const Obje
         indexed.emplace_back(layerIndex, game_object.get());
     }
 
-    std::stable_sort(indexed.begin(), indexed.end(),
-        [](const auto& a, const auto& b) {
-            if (a.first != b.first) return a.first < b.first;
-            return a.second->GetSortY() > b.second->GetSortY();
-        });
+    std::ranges::stable_sort(indexed,
+                             [](const auto& a, const auto& b) {
+                                 if (a.first != b.first) return a.first < b.first;
+                                 return a.second->GetSortY() > b.second->GetSortY();
+                             });
 
     VECTOR<VIEW_PTR<GameObject>> result;
     result.reserve(indexed.size());
-    for (const auto& [layerIndex, obj] : indexed) {
+    for (const auto &obj: indexed | std::views::values) {
         result.push_back(obj);
     }
 
     return result;
 }
 
-void Scene::SetLayer(INT index, const STRING &layer) {
+void Scene::SetLayer(const INT index, const STRING &layer) {
     layers[layer] = index;
 }
 
