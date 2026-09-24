@@ -8,47 +8,48 @@
 #include "NoCipher.h"
 #include "StorageSerializer.h"
 
-class LocalStorage {
-    STRING dir;
-    STRING name;
+namespace toolkit {
+    class LocalStorage {
+        STRING dir;
+        STRING name;
 
-    HASH_MAP<STRING, std::vector<unsigned char>> data;
-    GLOBAL_PTR<ICipher> cipher;
+        HASH_MAP<STRING, std::vector<unsigned char>> data;
+        GLOBAL_PTR<ICipher> cipher;
 
-    mutable MUTEX mutex_data;
+        mutable MUTEX mutex_data;
 
-public:
-    LocalStorage(MOVE_PLEASE STRING dir,
-                 MOVE_PLEASE STRING name)
-        : dir(MOVE(dir)),
-          name(MOVE(name)),
-          cipher(MakeGlobalPtr<NoCipher>()) {}
+    public:
+        LocalStorage(MOVE_PLEASE STRING dir,
+                     MOVE_PLEASE STRING name)
+            : dir(MOVE(dir)),
+              name(MOVE(name)),
+              cipher(MakeGlobalPtr<NoCipher>()) {}
 
-    void SetCipher(GLOBAL_PTR<ICipher> newCipher);
+        void SetCipher(GLOBAL_PTR<ICipher> newCipher);
 
-    template <typename T>
-    void Set(const STRING& key, const T& value) {
-        const auto bytes = StorageSerializer<T>::Serialize(value);
-        MUTEX_LOCK lock(mutex_data);
-        data[key] = bytes;
-    }
+        template <typename T>
+        void Set(const STRING& key, const T& value) {
+            const auto bytes = StorageSerializer<T>::Serialize(value);
+            MUTEX_LOCK lock(mutex_data);
+            data[key] = bytes;
+        }
 
-    template <typename T>
-    T Get(const STRING& key, const T& defaultValue = T()) const {
-        MUTEX_LOCK lock(mutex_data);
-        const auto it = data.find(key);
-        if (it == data.end()) return defaultValue;
-        return StorageSerializer<T>::Deserialize(it->second);
-    }
+        template <typename T>
+        T Get(const STRING& key, const T& defaultValue = T()) const {
+            MUTEX_LOCK lock(mutex_data);
+            const auto it = data.find(key);
+            if (it == data.end()) return defaultValue;
+            return StorageSerializer<T>::Deserialize(it->second);
+        }
 
-    BOOL Has(const STRING& key) const;
-    void Remove(const STRING& key);
-    void Clear();
+        BOOL Has(const STRING& key) const;
+        void Remove(const STRING& key);
+        void Clear();
 
-    BOOL Save();
-    BOOL Load();
+        BOOL Save();
+        BOOL Load();
 
-    STRING GetFullPath() const;
-};
-
+        STRING GetFullPath() const;
+    };
+}
 #endif

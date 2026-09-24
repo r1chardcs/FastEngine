@@ -19,31 +19,31 @@ namespace {
     }
 }
 
-void LocalStorage::SetCipher(GLOBAL_PTR<ICipher> newCipher) {
+void toolkit::LocalStorage::SetCipher(GLOBAL_PTR<ICipher> newCipher) {
     MUTEX_LOCK lock(mutex_data);
     cipher = newCipher ? MOVE(newCipher) : MakeGlobalPtr<NoCipher>();
 }
 
-BOOL LocalStorage::Has(const STRING& key) const {
+BOOL toolkit::LocalStorage::Has(const STRING& key) const {
     MUTEX_LOCK lock(mutex_data);
     return data.find(key) != data.end();
 }
 
-void LocalStorage::Remove(const STRING& key) {
+void toolkit::LocalStorage::Remove(const STRING& key) {
     MUTEX_LOCK lock(mutex_data);
     data.erase(key);
 }
 
-void LocalStorage::Clear() {
+void toolkit::LocalStorage::Clear() {
     MUTEX_LOCK lock(mutex_data);
     data.clear();
 }
 
-STRING LocalStorage::GetFullPath() const {
+STRING toolkit::LocalStorage::GetFullPath() const {
     return dir + "/" + name;
 }
 
-BOOL LocalStorage::Save() {
+BOOL toolkit:: LocalStorage::Save() {
     HASH_MAP<STRING, std::vector<unsigned char>> snapshot;
     GLOBAL_PTR<ICipher> currentCipher;
     {
@@ -76,7 +76,7 @@ BOOL LocalStorage::Save() {
     return file.good();
 }
 
-BOOL LocalStorage::Load() {
+BOOL toolkit::LocalStorage::Load() {
     std::ifstream file(GetFullPath(), std::ios::binary | std::ios::ate);
     if (!file.is_open()) {
         return false;

@@ -10,15 +10,15 @@
 #include "Engine/Components/Transform.h"
 #include "Toolkit/Debug/Logger.h"
 
-Vec2f& HitboxBox2D::Size() {
+toolkit::Vec2f& HitboxBox2D::Size() {
     return size;
 }
 
-Vec2f& HitboxBox2D::Position() {
+toolkit::Vec2f& HitboxBox2D::Position() {
     return position;
 }
 
-Box2D& HitboxBox2D::Box() {
+toolkit::Box2D& HitboxBox2D::Box() {
     return box;
 }
 
@@ -36,7 +36,7 @@ void HitboxBox2D::Start() {
     transform = self->GetComponent<Transform>();
 
     if (!transform) {
-        LOGWRN.Output("HitboxBox2D has no Transform component\n");
+        toolkit::LOGWRN.Output("HitboxBox2D has no Transform component\n");
     }
 }
 
@@ -47,20 +47,20 @@ void HitboxBox2D::Update() {
         transform = self->GetComponent<Transform>();
 
         if (!transform) {
-            LOGWRN.Output("HitboxBox2D has no Transform component\n");
+            toolkit::LOGWRN.Output("HitboxBox2D has no Transform component\n");
             return;
         }
     }
 
-    const Vec2f transform_pos = transform->Position().ToVec2();
-    const Vec2f transform_size = transform->Size().ToVec2();
+    const toolkit::Vec2f transform_pos = transform->Position().ToVec2();
+    const toolkit::Vec2f transform_size = transform->Size().ToVec2();
 
-    const Vec2f hitbox_pos = {
+    const toolkit::Vec2f hitbox_pos = {
         transform_pos.x + position.x,
         transform_pos.y + position.y
     };
 
-    const Vec2f hitbox_size = {
+    const toolkit::Vec2f hitbox_size = {
         size.x > 0.0f ? size.x : transform_size.x,
         size.y > 0.0f ? size.y : transform_size.y
     };
@@ -93,7 +93,7 @@ void HitboxBox2D::Update() {
                 transform_position.x += pushX;
                 transform_position.y += pushY;
 
-                const Vec2f new_hitbox_pos = {
+                const toolkit::Vec2f new_hitbox_pos = {
                     transform_position.x + position.x,
                     transform_position.y + position.y
                 };
@@ -137,6 +137,6 @@ BOOL HitboxBox2D::IsCollision(VIEW_PTR<HitboxBox2D> box2d) const {
     return IsCollision(&box2d->Box());
 }
 
-BOOL HitboxBox2D::IsCollision(VIEW_PTR<Box2D> box2d) const {
+BOOL HitboxBox2D::IsCollision(VIEW_PTR<toolkit::Box2D> box2d) const {
     return box.Contains(*box2d);
 }

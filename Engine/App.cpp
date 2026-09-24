@@ -21,13 +21,13 @@ void App::Render() {
     window->MakeContext();
 
     while (window->IsRun() && is_run) {
-        LagProfiler::Push("Engine::App::Render");
+        toolkit::profiler::lag::Push("Engine::App::Render");
         ProcessRenderQueue();
         if (render_system) {
             render_system->OnUpdate();
         }
         window->SwapBuffer();
-        LagProfiler::Pop();
+        toolkit::profiler::lag::Pop();
     }
 
     if (is_run) {
@@ -66,23 +66,23 @@ App::App(STRING app_name) : app_name(MOVE(app_name)) {
     instance = this;
     is_run = false;
 
-    CrashDumper::SetCallback([this](auto ctx) { this->GrabSelfCrash(ctx); });
-    CrashDumper::AttachHandler();
+    toolkit::scd::SetCallback([this](auto ctx) { this->GrabSelfCrash(ctx); });
+    toolkit::scd::AttachHandler();
 
     assets = MakeSelfPtr<Assets>("Assets");
-    local_storage = MakeSelfPtr<LocalStorage>("data", "global.dat");
+    local_storage = MakeSelfPtr<toolkit::LocalStorage>("data", "global.dat");
 
     if (!local_storage->Load()) {
-        if (const auto [res, err] = IO::File::ExistDirectory("data"); !res || err) {
+        if (const auto [res, err] = toolkit::io::file::ExistDirectory("data"); !res || err) {
             if (err) {
-                LOGERR.Output("Filesystem error: %s\n", err);
+                toolkit::LOGERR.Output("Filesystem error: %s\n", err);
             }
             else {
-                IO::File::CreateDirectory("data");
+                toolkit::io::file::CreateDirectory("data");
             }
         }
         else {
-            LOGWRN.Output("Error load localstorage: %s\n", local_storage->GetFullPath().c_str());
+            toolkit::LOGWRN.Output("Error load localstorage: %s\n", local_storage->GetFullPath().c_str());
         }
     }
 }
@@ -101,7 +101,7 @@ void App::SetExpectationsScene(const GLOBAL_PTR<Scene> &scene) {
 
 void App::SetScene(const GLOBAL_PTR<Scene>& scene) {
     if (!scene) {
-        LOGWRN.Output("SetScene called with null scene");
+        toolkit::LOGWRN.Output("SetScene called with null scene");
         return;
     }
 
@@ -150,7 +150,7 @@ VIEW_PTR<Scene> App::GetScene() const {
 void App::AddGameObject(const GLOBAL_PTR<GameObject>& game_object) {
     MUTEX_LOCK lock(mutex_scene);
     if (!current_scene) {
-        LOGWRN.Output("AddGameObject called with no active scene");
+        toolkit::LOGWRN.Output("AddGameObject called with no active scene");
         return;
     }
     current_scene->AddGameObject(game_object);
@@ -159,7 +159,7 @@ void App::AddGameObject(const GLOBAL_PTR<GameObject>& game_object) {
 void App::DeleteGameObject(const VIEW_PTR<GameObject> game_object) {
     MUTEX_LOCK lock(mutex_scene);
     if (!current_scene) {
-        LOGERR.Output("The scene is not set.");
+        toolkit::LOGERR.Output("The scene is not set.");
         return;
     }
     current_scene->DeleteGameObject(game_object);
@@ -167,7 +167,7 @@ void App::DeleteGameObject(const VIEW_PTR<GameObject> game_object) {
 
 LIST<VIEW_PTR<GameObject>> App::GetGameObjectByTags(const STRING &tag) const {
     if (!current_scene) {
-        LOGERR.Output("The scene is not set.");
+        toolkit::LOGERR.Output("The scene is not set.");
         return {};
     }
     return current_scene->GetGameObjectByTags(tag);
@@ -199,7 +199,7 @@ void App::ExecuteInLogicThread(const FUNC<void(VIEW_PTR<App>)> callback) {
     queue_logic.push(callback);
 }
 
-void App::GrabSelfCrash(const CrashContext &ctx) {
+void App::GrabSelfCrash(const toolkit::CrashContext &ctx) {
     std::ostringstream ss;
     ss << std::hex << std::uppercase << reinterpret_cast<uintptr_t>(ctx.exception_address);
     const STRING addressHex = ss.str();
@@ -225,7 +225,7 @@ void App::GrabSelfCrash(const CrashContext &ctx) {
     }
 
     const STRING filename = "dump_at_" + addressHex + ".log";
-    IO::File::WriteFile(filename, content);
+    toolkit::io::file::WriteFile(filename, content);
 }
 
 INT App::GetKey(const INT key) const {
@@ -236,7 +236,7 @@ INT App::GetMouseKey(const INT key) const {
     return window->GetMouseKey(key);
 }
 
-Vec2f App::GetMousePos() const {
+toolkit::Vec2f App::GetMousePos() const {
     return window->GetMousePosition();
 }
 
@@ -261,41 +261,31 @@ STATUS App::Run() {
     render_thread = MakeSelfPtr<THREAD>([this]() { this->Render(); });
     render_thread->detach();
 
-    Input::InitializeInput();
+    toolkit::input::InitializeInput();
 
     auto next_tick = std::chrono::steady_clock::now();
 
     render_system->SetRenderWorldCallback([this](auto) {
-        LagProfiler::Push("RenderSystem::World::Render");
+        toolkit::profiler::lag::Push("RenderSystem::World::Render");
         World(TypeEvent::PRE);
 
         if (current_scene) current_scene->Render();
 
-        DEPRECTED_API
-        /*
-        for (const auto &game_object : game_objects) {
-            if (game_object->IsActive()) {
-                game_object->DrawWorld();
-                for (const auto components = game_object->GetComponents();
-                    auto component : components) if (component) component->Render();
-            }
-        }
-        */
         World(TypeEvent::POST);
-        LagProfiler::Pop();
+        toolkit::profiler::lag::Pop();
     });
 
     render_system->SetRenderUICallback([this](auto) {
-        LagProfiler::Push("RenderSystem::UI::Render");
+        toolkit::profiler::lag::Push("RenderSystem::UI::Render");
         UI(TypeEvent::PRE);
         if (current_scene)
             current_scene->UI();
         UI(TypeEvent::POST);
-        LagProfiler::Pop();
+        toolkit::profiler::lag::Pop();
     });
 
     while (is_run) {
-        LagProfiler::Push("Engine::App::Logic");
+        toolkit::profiler::lag::Push("Engine::App::Logic");
 
         if (first_call == false) {
             if (window) {
@@ -304,25 +294,17 @@ STATUS App::Run() {
             }
         }
         if (window) {
-            Input::UpdateKeys();
+            toolkit::input::UpdateKeys();
             Update();
         }
 
         if (current_scene) current_scene->Update();
 
-        DEPRECTED_API
-        /*
-        for (const auto &game_object : game_objects) {
-            game_object->Update();
-            for (const auto components = game_object->GetComponents();
-                auto component : components) if (component) component->Update();
-        }
-        */
         ProcessLogicQueue();
 
         next_tick += logic_tick;
         std::this_thread::sleep_until(next_tick);
-        LagProfiler::Pop();
+        toolkit::profiler::lag::Pop();
     }
     Finish();
     render_thread.release();

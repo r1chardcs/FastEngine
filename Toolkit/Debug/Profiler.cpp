@@ -11,7 +11,7 @@
 
 static char buf[256];
 
-void Profiler::Push(LITERAL format, ...) {
+void toolkit::profiler::Push(LITERAL format, ...) {
     if (!IsEmpty()) Pop();
 
     va_list x;
@@ -20,21 +20,21 @@ void Profiler::Push(LITERAL format, ...) {
     va_end(x);
 }
 
-void Profiler::Pop() {
+void toolkit::profiler::Pop() {
     memset(buf, 0, 255);
 }
 
-BOOL Profiler::IsEmpty() {
+BOOL toolkit::profiler::IsEmpty() {
     return buf[0] == 0;
 }
 
-LITERAL Profiler::GetProfiler() {
+LITERAL toolkit::profiler::GetProfiler() {
     if (IsEmpty()) return nullptr;
 
     return buf;
 }
 
-Err<RAM_MemoryInfo> Profiler::GetRAMMemoyInfo() {
+Err<toolkit::profiler::RAM_MemoryInfo> toolkit::profiler::GetRAMMemoyInfo() {
     PROCESS_MEMORY_COUNTERS pmc;
     if (GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc))) {
         RAM_MemoryInfo ram = {};

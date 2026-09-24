@@ -9,10 +9,10 @@
 
 #pragma comment(lib, "DbgHelp.lib")
 
-FUNC<VOID(CrashContext)> crash_dumper_callback;
-MUTEX symbol_mutex;
+static FUNC<VOID(toolkit::CrashContext)> crash_dumper_callback;
+static MUTEX symbol_mutex;
 
-STRING ExceptionApi::DescribeException(DWORD code) {
+STRING toolkit::no_new::DescribeException(DWORD code) {
     switch (code) {
         case EXCEPTION_ACCESS_VIOLATION: return "Access violation";
         case EXCEPTION_STACK_OVERFLOW: return "Stack overflow";
@@ -31,8 +31,8 @@ STRING ExceptionApi::DescribeException(DWORD code) {
 }
 
 
-VECTOR<StackFrame> CaptureStackTrace(PCONTEXT context) {
-    VECTOR<StackFrame> frames;
+VECTOR<toolkit::StackFrame> CaptureStackTrace(PCONTEXT context) {
+    VECTOR<toolkit::StackFrame> frames;
 
     const HANDLE process = GetCurrentProcess();
     const HANDLE thread = GetCurrentThread();
@@ -79,7 +79,7 @@ VECTOR<StackFrame> CaptureStackTrace(PCONTEXT context) {
             break;
         }
 
-        StackFrame frame;
+        toolkit::StackFrame frame;
         frame.address = reinterpret_cast<POINTER>(stackFrame.AddrPC.Offset);
 
         alignas(SYMBOL_INFO) BYTE symbolBuffer[sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(CHAR)];
@@ -115,8 +115,8 @@ VECTOR<StackFrame> CaptureStackTrace(PCONTEXT context) {
     return frames;
 }
 
-ExceptionApi::StackTrace ExceptionApi::CaptureStackTraceCurrent() {
-    ExceptionApi::StackTrace result;
+toolkit::no_new::StackTrace toolkit::no_new::CaptureStackTraceCurrent() {
+    StackTrace result;
 
     CONTEXT context = {};
     RtlCaptureContext(&context);
@@ -262,11 +262,6 @@ ExceptionApi::StackTrace ExceptionApi::CaptureStackTraceCurrent() {
 
             frame.line_number = line.LineNumber;
         }
-
-        // =========================================================
-        // MODULE
-        // =========================================================
-
         IMAGEHLP_MODULE64 moduleInfo = {};
         moduleInfo.SizeOfStruct = sizeof(IMAGEHLP_MODULE64);
 
@@ -291,9 +286,9 @@ ExceptionApi::StackTrace ExceptionApi::CaptureStackTraceCurrent() {
     return result;
 }
 LONG WINAPI UnhandledExceptionHandler(PEXCEPTION_POINTERS ExceptionInfo) {
-    CrashContext ctx;
+    toolkit::CrashContext ctx;
     ctx.exception_address = ExceptionInfo->ExceptionRecord->ExceptionAddress;
-    ctx.exception_description = ExceptionApi::DescribeException(ExceptionInfo->ExceptionRecord->ExceptionCode);
+    ctx.exception_description = toolkit::no_new::DescribeException(ExceptionInfo->ExceptionRecord->ExceptionCode);
     ctx.stack_trace = CaptureStackTrace(ExceptionInfo->ContextRecord);
 
     if (crash_dumper_callback) {
@@ -303,10 +298,10 @@ LONG WINAPI UnhandledExceptionHandler(PEXCEPTION_POINTERS ExceptionInfo) {
     return EXCEPTION_CONTINUE_SEARCH;
 }
 
-void CrashDumper::SetCallback(const FUNC<VOID(CrashContext)> &callback) {
+void toolkit::scd::SetCallback(const FUNC<VOID(CrashContext)> &callback) {
     crash_dumper_callback = callback;
 }
 
-void CrashDumper::AttachHandler() {
+void toolkit::scd::AttachHandler() {
     AddVectoredExceptionHandler(1, UnhandledExceptionHandler);
 }

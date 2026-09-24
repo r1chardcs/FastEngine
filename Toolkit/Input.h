@@ -6,9 +6,7 @@
 #define FASTENGINE_INPUT_H
 
 #include <Platform.h>
-
-namespace Input
-{
+namespace toolkit::input {
     enum Action {
         MoveUp,
         MoveDown,
@@ -46,5 +44,4 @@ namespace Input
     BOOL MousePressed(UINT action);
     BOOL MouseReleased(UINT action);
 }
-
 #endif //FASTENGINE_INPUT_H

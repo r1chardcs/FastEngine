@@ -7,7 +7,7 @@
 
 #include <Platform.h>
 
-namespace Tui {
+namespace toolkit::tui {
     class ProgressBar {
         INT max;
         INT current;

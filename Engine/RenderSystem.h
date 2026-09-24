@@ -47,11 +47,11 @@ class RenderSystem {
     DOUBLE fps_accum_time = 0.0;
     INT fps_frame_count = 0;
 
-    RGBA backgroundColor = {.r = 0, .g = 0, .b = 0, .a = 1};
+    toolkit::RGBA backgroundColor = {.r = 0, .g = 0, .b = 0, .a = 1};
 public:
     RenderSystem(VIEW_PTR<App> app);
 
-    RGBA& BackgroundColor();
+    toolkit::RGBA& BackgroundColor();
     void UpdateCamera();
 
     void SetRenderUICallback(const CALLBACK<VOID(VIEW_PTR<RenderSystem>)> &callback);
@@ -62,10 +62,10 @@ public:
 
     static void Rotate(FLOAT angle, FLOAT x, FLOAT y, FLOAT z);
 
-    static void Rotate(const Quat& quat);
+    static void Rotate(const toolkit::Quat& quat);
 
     static void NewContext();
-    BOOL IsInView(Vec2f pos, Vec2f size) const;
+    BOOL IsInView(toolkit::Vec2f pos, toolkit::Vec2f size) const;
     static void StopContext();
 
     void StartWorld() const;
@@ -87,8 +87,8 @@ public:
 
     DOUBLE GetDeltaTime() const;
 
-    Vec2f GetScreenSize() const;
-    Vec2f CenterPositionScreen() const;
+    toolkit::Vec2f GetScreenSize() const;
+    toolkit::Vec2f CenterPositionScreen() const;
 
     DOUBLE GetFPS() const;
 };

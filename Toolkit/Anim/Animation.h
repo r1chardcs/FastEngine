@@ -7,7 +7,7 @@
 #include "Easy.h"
 #include "Tween.h"
 
-namespace Animation {
+namespace toolkit {
 
     inline TweenKey MakeKey(const void* owner, const char* property) {
         const LONG ptrHash = reinterpret_cast<unsigned long long>(owner);

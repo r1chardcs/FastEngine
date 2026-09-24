@@ -14,12 +14,12 @@ namespace {
     };
 
     std::mutex mutex_stats;
-    std::unordered_map<std::string, LagProfiler::ActionStats> stats;
+    std::unordered_map<std::string, toolkit::profiler::lag::ActionStats> stats;
 
     thread_local std::vector<StackEntry> stack;
 }
 
-void LagProfiler::Push(const char* action) {
+void toolkit::profiler::lag::Push(const char* action) {
     if (!action) return;
 
     stack.push_back({
@@ -28,9 +28,9 @@ void LagProfiler::Push(const char* action) {
     });
 }
 
-void LagProfiler::Pop() {
+void toolkit::profiler::lag::Pop() {
     if (stack.empty()) {
-        LOGWRN.Output("LagProfiler::Pop called without matching Push\n");
+        LOGWRN.Output("toolkit::profiler::lag::Pop called without matching Push\n");
         return;
     }
 
@@ -50,17 +50,17 @@ void LagProfiler::Pop() {
     if (elapsed > maxTime) maxTime = elapsed;
 }
 
-std::unordered_map<std::string, LagProfiler::ActionStats> LagProfiler::GetStats() {
+std::unordered_map<std::string, toolkit::profiler::lag::ActionStats> toolkit::profiler::lag::GetStats() {
     MUTEX_LOCK lock(mutex_stats);
     return stats;
 }
 
-void LagProfiler::Reset() {
+void toolkit::profiler::lag::Reset() {
     MUTEX_LOCK lock(mutex_stats);
     stats.clear();
 }
 
-void LagProfiler::PrintReport() {
+void toolkit::profiler::lag::PrintReport() {
     std::vector<std::pair<std::string, ActionStats>> sorted;
     {
         MUTEX_LOCK lock(mutex_stats);
@@ -71,7 +71,7 @@ void LagProfiler::PrintReport() {
         return a.second.totalTime > b.second.totalTime;
     });
 
-    LOGWRN.Output("=== LagProfiler report ===\n");
+    LOGWRN.Output("=== toolkit::profiler::lag report ===\n");
     for (const auto &[name, s] : sorted) {
         LOGWRN.Output(
             "%-30s calls=%-6llu total=%.4fs avg=%.4fs min=%.4fs max=%.4fs\n",

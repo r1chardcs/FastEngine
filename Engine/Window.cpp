@@ -9,6 +9,7 @@
 #include "Toolkit/Debug/Test.h"
 
 void Window::SetWindowSize(const INT _width, const INT _height) {
+    TEST_THIS(Window)
     this->width = _width;
     this->height = _height;
 
@@ -21,21 +22,24 @@ Window::Window(MOVE_PLEASE STRING title, const INT width, const INT height) : ti
     glfwInit();
     handle = glfwCreateWindow(width, height, this->title.c_str(), NULL, NULL);
     if (!handle) {
-        LOGERR.Output("Error create window '%s' (%d:%d)", this->title.c_str(), width, height);
+        toolkit::LOGERR.Output("Error create window '%s' (%d:%d)", this->title.c_str(), width, height);
     }
 }
 
 INT Window::GetKey(const INT key) const {
+    TEST_THIS(Window)
     TEST(!handle)
     return handle == nullptr? -1 : (glfwGetKey(static_cast<GLFWwindow *>(handle), key) != GLFW_RELEASE);
 }
 
 INT Window::GetMouseKey(const INT key) const {
+    TEST_THIS(Window)
     TEST(!handle);
     return glfwGetMouseButton(static_cast<GLFWwindow *>(handle), key) != GLFW_RELEASE;
 }
 
-Vec2f Window::GetMousePosition() const {
+toolkit::Vec2f Window::GetMousePosition() const {
+    TEST_THIS(Window)
     TEST(!handle);
     double x, y;
     glfwGetCursorPos(static_cast<GLFWwindow *>(handle), &x, &y);
@@ -43,6 +47,7 @@ Vec2f Window::GetMousePosition() const {
 }
 
 void Window::MakeContext()  {
+    TEST_THIS(Window)
     TEST(!handle);
     glfwMakeContextCurrent(static_cast<GLFWwindow *>(handle));
     glfwSetWindowUserPointer(static_cast<GLFWwindow *>(handle), this);
@@ -55,18 +60,21 @@ void Window::MakeContext()  {
 }
 
 BOOL Window::IsRun() const {
+    TEST_THIS(Window)
     TEST(!handle);
     return !glfwWindowShouldClose(
         static_cast<GLFWwindow *>(handle));
 }
 
 void Window::SwapBuffer() const {
+    TEST_THIS(Window)
     TEST(!handle);
     glfwSwapBuffers(static_cast<GLFWwindow *>(handle));
     glfwPollEvents();
 }
 
 void Window::SetResizeCallback(const CALLBACK<void(VIEW_PTR<Window>, INT, INT)> &callback) {
+    TEST_THIS(Window)
     this->resize_callback = callback;
 }
 
@@ -75,6 +83,7 @@ HANDLE Window::GetHandle() const {
 }
 
 Window::~Window() {
+    TEST_THIS(Window)
     if (handle) {
         glfwDestroyWindow(static_cast<GLFWwindow *>(handle));
     }
@@ -86,9 +95,11 @@ DOUBLE Window::GetTime() {
 }
 
 INT Window::GetWidth() const {
+    TEST_THIS(Window)
     return width;
 }
 
 INT Window::GetHeight() const {
+    TEST_THIS(Window)
     return height;
 }

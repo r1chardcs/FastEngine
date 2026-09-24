@@ -9,7 +9,7 @@
 
 #include <chrono>
 
-namespace LagProfiler {
+namespace toolkit::profiler::lag {
     struct ActionStats {
         LONG callCount = 0;
         DOUBLE totalTime = 0.0;  

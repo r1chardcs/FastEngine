@@ -10,7 +10,7 @@
 #include <ostream>
 #include <windows.h>
 
-STRING IO::InputString(const STRING &msg) {
+STRING toolkit::io::InputString(const STRING &msg) {
     if (!msg.empty())
         std::cout << msg;
 
@@ -19,7 +19,7 @@ STRING IO::InputString(const STRING &msg) {
     return input;
 }
 
-CHAR IO::InputChar(const STRING &msg) {
+CHAR toolkit::io::InputChar(const STRING &msg) {
     if (!msg.empty())
         std::cout << msg;
 
@@ -29,7 +29,7 @@ CHAR IO::InputChar(const STRING &msg) {
 }
 
 #undef MessageBox
-void IO::MsgBox(const STRING &title, const STRING &text, MessageBoxFlags_t style) {
+void toolkit::io::MsgBox(const STRING &title, const STRING &text, toolkit::MessageBoxFlags_t style) {
     ::MessageBoxA(
         nullptr,
         text.c_str(),
@@ -38,7 +38,7 @@ void IO::MsgBox(const STRING &title, const STRING &text, MessageBoxFlags_t style
     );
 }
 
-Err<STRING> IO::File::ReadFile(const STRING &path) {
+Err<STRING> toolkit::io::file::ReadFile(const STRING &path) {
     std::ifstream file(path, std::ios::binary);
     if (!file.is_open())
         return {.res = {}, .err = "failed to open file for reading" };
@@ -51,7 +51,7 @@ Err<STRING> IO::File::ReadFile(const STRING &path) {
     return { .res = ss.str(), .err = nullptr };
 }
 
-Err<VECTOR<BYTE>> IO::File::ReadFileBytes(const STRING &path) {
+Err<VECTOR<BYTE>> toolkit::io::file::ReadFileBytes(const STRING &path) {
     std::ifstream file(path, std::ios::binary | std::ios::ate);
     if (!file.is_open())
         return { .res = {}, .err = "failed to open file for reading" };
@@ -69,7 +69,7 @@ Err<VECTOR<BYTE>> IO::File::ReadFileBytes(const STRING &path) {
     return { .res = std::move(buffer), .err = nullptr };
 }
 
-Err<BOOL> IO::File::ExistFile(const STRING &path) {
+Err<BOOL> toolkit::io::file::ExistFile(const STRING &path) {
     try {
         if (!std::filesystem::exists(path))
             return { .res = false, .err = nullptr };
@@ -81,7 +81,7 @@ Err<BOOL> IO::File::ExistFile(const STRING &path) {
     }
 }
 
-Err<BOOL> IO::File::ExistDirectory(const STRING &path) {
+Err<BOOL> toolkit::io::file::ExistDirectory(const STRING &path) {
     try {
         if (!std::filesystem::exists(path))
             return { .res = false, .err = nullptr };
@@ -93,7 +93,7 @@ Err<BOOL> IO::File::ExistDirectory(const STRING &path) {
     }
 }
 
-Err<NOT> IO::File::WriteFile(const STRING &path, const STRING &content) {
+Err<NOT> toolkit::io::file::WriteFile(const STRING &path, const STRING &content) {
     std::ofstream file(path, std::ios::binary);
     if (!file.is_open()) {
         return {.res = NOT{}, .err = "Failed to open file for writing"};
@@ -116,7 +116,7 @@ Err<NOT> IO::File::WriteFile(const STRING &path, const STRING &content) {
 #undef CopyFile
 #undef CopyDir
 
-Err<NOT> IO::File::CreateDirectory(const STRING &path) {
+Err<NOT> toolkit::io::file::CreateDirectory(const STRING &path) {
     try {
         std::filesystem::create_directories(path);
         return {.res = {}, .err = nullptr };
@@ -125,7 +125,7 @@ Err<NOT> IO::File::CreateDirectory(const STRING &path) {
     }
 }
 
-Err<NOT> IO::File::CopyFile(const STRING &from, const STRING &to) {
+Err<NOT> toolkit::io::file::CopyFile(const STRING &from, const STRING &to) {
     try {
         if (const std::filesystem::path toPath(to); toPath.has_parent_path()) {
             std::error_code ec;
@@ -145,7 +145,7 @@ Err<NOT> IO::File::CopyFile(const STRING &from, const STRING &to) {
     }
 }
 
-Err<NOT> IO::File::CopyDir(const STRING &from, const STRING &to) {
+Err<NOT> toolkit::io::file::CopyDir(const STRING &from, const STRING &to) {
     try {
         std::filesystem::create_directories(to);
         std::filesystem::copy(

@@ -12,15 +12,15 @@
 class Transform;
 
 class HitboxBox2D : public Component {
-    Box2D box;
+    toolkit::Box2D box;
 
     VIEW_PTR<Transform> transform = nullptr;
 
     BOOL solid = true;
     BOOL noMove = false;
 
-    Vec2f size;
-    Vec2f position;
+    toolkit::Vec2f size;
+    toolkit::Vec2f position;
 
 public:
     explicit HitboxBox2D(const VIEW_PTR<GameObject> &self)
@@ -31,10 +31,10 @@ public:
 
     bool isDebug = false;
 
-    Vec2f& Size();
-    Vec2f& Position();
+    toolkit::Vec2f& Size();
+    toolkit::Vec2f& Position();
 
-    Box2D& Box();
+    toolkit::Box2D& Box();
 
     BOOL& IsSolid();
     BOOL& NoMove();
@@ -45,7 +45,7 @@ public:
 
     BOOL IsCollision(VIEW_PTR<GameObject> game_object) const;
     BOOL IsCollision(VIEW_PTR<HitboxBox2D> box2d) const;
-    BOOL IsCollision(VIEW_PTR<Box2D> box2d) const;
+    BOOL IsCollision(VIEW_PTR<toolkit::Box2D> box2d) const;
 
 public:
     static ClassID StaticClassID() {

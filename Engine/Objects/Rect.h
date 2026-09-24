@@ -9,14 +9,15 @@
 #include "../../Toolkit/Color.h"
 
 class Rect : public GameObject {
-    Brush color = {
+    toolkit::Brush color = {
         {1,1,1,1}
     };
 public:
     Rect();
 
-    void SetColor(const Brush& color_);
-    Brush GetColor();
+    void SetColor(const toolkit::Brush& color_);
+
+    toolkit::Brush GetColor();
 
     void DrawWorld() override;
 };

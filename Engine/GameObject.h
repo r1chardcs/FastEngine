@@ -53,7 +53,7 @@ public:
                       "TemplateComponent must derive from Component");
 
         if (auto existing = GetComponent<TemplateComponent>()) {
-            LOGWRN.Output("Component of this type already exists on GameObject at 0x%p, ID=%d\n", this, TemplateComponent::StaticClassID());
+            toolkit::LOGWRN.Output("Component of this type already exists on GameObject at 0x%p, ID=%d\n", this, TemplateComponent::StaticClassID());
             return existing;
         }
 

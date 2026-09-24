@@ -6,10 +6,10 @@
 #include "Logger.h"
 #include "../IO/IO.h"
 
-void Test::Fault(const char *test, const DebugObject &debug_object) {
+void toolkit::test::Fault(const char *test, const DebugObject &debug_object) {
     LOGERR.Output("Test Fault: '%s'\nFile: %s:%d\nFunction: '%s'\n", test, debug_object.file, debug_object.line, debug_object.method);
     const auto c
-        = IO::InputChar("Finish or Continue? ['Y' - Continue]");
+        = io::InputChar("Finish or Continue? ['Y' - Continue]");
 
     if (c == 'y' || c == 'Y') {
         return;

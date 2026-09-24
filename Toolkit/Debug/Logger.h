@@ -9,30 +9,31 @@
 
 #undef CALLBACK
 
-class Logger {
-    CALLBACK<VOID(VIEW_PTR<Logger>, STRING)> output_callback = nullptr;
-    STRING prefix;
-public:
-    Logger(const STRING&& prefix) : prefix(MOVE(prefix)) {}
-    Logger(const STRING& prefix) : prefix(prefix) {}
+namespace toolkit {
+    class Logger {
+        CALLBACK<VOID(VIEW_PTR<Logger>, STRING)> output_callback = nullptr;
+        STRING prefix;
+    public:
+        Logger(const STRING&& prefix) : prefix(MOVE(prefix)) {}
+        Logger(const STRING& prefix) : prefix(prefix) {}
 
-    void SetOutputCallback(const CALLBACK<void(VIEW_PTR<Logger>, STRING)> &callback);
+        void SetOutputCallback(const CALLBACK<void(VIEW_PTR<Logger>, STRING)> &callback);
 
-    Logger& Output(LITERAL format, ...);
-    STRING GetPrefix();
-};
+        Logger& Output(LITERAL format, ...);
+        STRING GetPrefix();
+    };
 
-namespace LoggerFactory {
-    Logger New(MOVE_PLEASE STRING prefix);
+    namespace LoggerFactory {
+        Logger New(MOVE_PLEASE STRING prefix);
 
-    Logger& Error();
-    Logger& Info();
-    Logger& Warn();
-};
+        Logger& Error();
+        Logger& Info();
+        Logger& Warn();
+    };
 
-INLINE Logger LOGERR = LoggerFactory::Error();
-INLINE Logger LOGINF = LoggerFactory::Info();
-INLINE Logger LOGWRN = LoggerFactory::Warn();
-
+    INLINE Logger LOGERR = LoggerFactory::Error();
+    INLINE Logger LOGINF = LoggerFactory::Info();
+    INLINE Logger LOGWRN = LoggerFactory::Warn();
+}
 
 #endif //FASTENGINE_LOGGER_H

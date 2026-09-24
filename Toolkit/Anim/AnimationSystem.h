@@ -19,7 +19,7 @@ public:
     void Update(FLOAT deltaTime);
 
     TweenHandle Add(GLOBAL_PTR<ITween> tween);
-    void Stop(TweenHandle handle);
+    void Stop(TweenHandle handle) const;
     void StopAll();
 };
 

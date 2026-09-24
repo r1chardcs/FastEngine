@@ -171,14 +171,14 @@ void Scene::Finish() {
     is_started = false;
 }
 
-RGBA Scene::GetBackgroundColor() {
+toolkit::RGBA Scene::GetBackgroundColor() {
     return {.r = 0, .g = 0, .b = 0, .a = 1};
 }
 
 
 void Scene::AddGameObject(const GLOBAL_PTR<GameObject>& game_object) {
     if (!game_object || !game_object->IsActive()) {
-        LOGWRN.Output("Add Invalid game object at 0x%p", game_object.get());
+        toolkit::LOGWRN.Output("Add Invalid game object at 0x%p", game_object.get());
         return;
     }
     game_object->Start();
@@ -191,7 +191,7 @@ void Scene::AddGameObject(const GLOBAL_PTR<GameObject>& game_object) {
 
 void Scene::DeleteGameObject(VIEW_PTR<GameObject> game_object) {
     if (!game_object) {
-        LOGWRN.Output("Delete Invalid game object at 0x%p", game_object);
+        toolkit::LOGWRN.Output("Delete Invalid game object at 0x%p", game_object);
         return;
     }
 

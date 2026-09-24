@@ -8,18 +8,26 @@
 
 #include "../IO/IO.h"
 
+/*
+ *  todo: полностью переписать Assets, перевести их в нормльный и легко использованный апи:
+ *  todo: 1. на данный момент он не нужен, 2. он нигде не используется.
+ */
 VECTOR<BYTE> AssetFile::GetBytes() {
-    return IO::File::ReadFileBytes(path).res;
+    DEPRECTED_API
+    // return IO::File::ReadFileBytes(path).res;
 }
 
 STRING AssetFile::GetString() const {
-    return IO::File::ReadFile(path).res;
+    DEPRECTED_API
+    // return IO::File::ReadFile(path).res;
 }
 
 Assets::Assets(STRING dir) : dir(MOVE(dir)) {
 }
 
 Err<AssetFile> Assets::GetFile(const STRING &path) {
+    DEPRECTED_API
+    /*
     STRING fullPath = CombinePath(dir, path);
 
     auto bytes = IO::File::ReadFileBytes(fullPath);
@@ -32,4 +40,5 @@ Err<AssetFile> Assets::GetFile(const STRING &path) {
     file.extension = std::filesystem::path(fullPath).extension().string();
 
     return { .res = std::move(file), .err = nullptr };
+    */
 }

@@ -52,7 +52,7 @@ Err<GLOBAL_PTR<Texture>> Render2D::GetTexture(LITERAL path)
     GLenum error = glGetError();
 
     if (error != GL_NO_ERROR) {
-        LOGERR.Output(
+        toolkit::LOGERR.Output(
             "glTexImage2D error: 0x%X\n",
             error
         );
@@ -168,18 +168,18 @@ void Render2D::RenderText(VIEW_PTR<Font> font, const char *text, float px, float
     glDisable(GL_TEXTURE_2D);
 }
 
-void Render2D::DrawTexture(VIEW_PTR<Texture> texture, const Vec2f &pos, const Vec2f &size, const Brush &color, RGBA tint, bool flipX) {
+void Render2D::DrawTexture(VIEW_PTR<Texture> texture, const toolkit::Vec2f &pos, const toolkit::Vec2f &size, const toolkit::Brush &color, toolkit::RGBA tint, bool flipX) {
     DrawTexture(texture, Recti{0, 0, texture->width, texture->height}, pos, size, color, tint, flipX);
 }
 
-void Render2D::DrawTexture(VIEW_PTR<Texture> texture, const Recti &srcRect, const Vec2f &pos, const Vec2f &size, const Brush &color, RGBA tint, bool flipX) {
+void Render2D::DrawTexture(VIEW_PTR<Texture> texture, const Recti &srcRect, const toolkit::Vec2f &pos, const toolkit::Vec2f &size, const toolkit::Brush &color, toolkit::RGBA tint, bool flipX) {
     if (texture->id == 0) {
-        LOGERR.Output("Invalid Draw texture in pos %f %f\n", pos.x, pos.y);
+        toolkit::LOGERR.Output("Invalid Draw texture in pos %f %f\n", pos.x, pos.y);
         return;
     }
 
     if (texture->width <= 0 || texture->height <= 0) {
-        LOGERR.Output("Invalid texture dimensions for atlas region draw\n");
+        toolkit::LOGERR.Output("Invalid texture dimensions for atlas region draw\n");
         return;
     }
 
@@ -194,7 +194,7 @@ void Render2D::DrawTexture(VIEW_PTR<Texture> texture, const Recti &srcRect, cons
         std::swap(u0, u1);
     }
 
-    auto applyTint = [&tint](const Color& c) -> RGBA {
+    auto applyTint = [&tint](const toolkit::Color& c) -> toolkit::RGBA {
         return {
             c.GetRed()   * tint.r,
             c.GetGreen() * tint.g,
@@ -203,10 +203,10 @@ void Render2D::DrawTexture(VIEW_PTR<Texture> texture, const Recti &srcRect, cons
         };
     };
 
-    const RGBA topLeft     = applyTint(color.At(0));
-    const RGBA topRight    = applyTint(color.At(1));
-    const RGBA bottomRight = applyTint(color.At(2));
-    const RGBA bottomLeft  = applyTint(color.At(3));
+    const toolkit::RGBA topLeft     = applyTint(color.At(0));
+    const toolkit::RGBA topRight    = applyTint(color.At(1));
+    const toolkit::RGBA bottomRight = applyTint(color.At(2));
+    const toolkit::RGBA bottomLeft  = applyTint(color.At(3));
 
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_BLEND);
@@ -215,7 +215,7 @@ void Render2D::DrawTexture(VIEW_PTR<Texture> texture, const Recti &srcRect, cons
     GLenum error = glGetError();
 
     if (error != GL_NO_ERROR) {
-        LOGERR.Output(
+        toolkit::LOGERR.Output(
             "glBindTexture error: 0x%X\n",
             error
         );
@@ -245,13 +245,13 @@ void Render2D::DrawTexture(VIEW_PTR<Texture> texture, const Recti &srcRect, cons
     glDisable(GL_TEXTURE_2D);
 }
 
-void Render2D::DrawCircle(const Vec2f &pos, const Vec2f &size, const Brush &color, bool fill) {
+void Render2D::DrawCircle(const toolkit::Vec2f &pos, const toolkit::Vec2f &size, const toolkit::Brush &color, bool fill) {
     constexpr INT SEGMENTS = 32;
 
     BufferBuilder bb(fill ? GL_TRIANGLE_FAN : GL_LINE_LOOP);
 
     if (fill) {
-        const Color center = color.At(0);
+        const toolkit::Color center = color.At(0);
         bb.Vertex(pos.x, pos.y, 0.0f,
                   center.GetRed(), center.GetGreen(), center.GetBlue(), center.GetAlpha());
     }
@@ -261,7 +261,7 @@ void Render2D::DrawCircle(const Vec2f &pos, const Vec2f &size, const Brush &colo
         const FLOAT x = pos.x + std::cos(angle) * size.x;
         const FLOAT y = pos.y + std::sin(angle) * size.y;
 
-        const Color c = color.At(i % SEGMENTS);
+        const toolkit::Color c = color.At(i % SEGMENTS);
 
         bb.Vertex(x, y, 0.0f, c.GetRed(), c.GetGreen(), c.GetBlue(), c.GetAlpha());
     }
@@ -269,13 +269,13 @@ void Render2D::DrawCircle(const Vec2f &pos, const Vec2f &size, const Brush &colo
     bb.Flush();
 }
 
-void Render2D::DrawBorder(const Vec2f &pos, const Vec2f &size, const Brush &color) {
+void Render2D::DrawBorder(const toolkit::Vec2f &pos, const toolkit::Vec2f &size, const toolkit::Brush &color) {
     BufferBuilder bb(GL_LINE_LOOP);
 
-    const Color topLeft = color.At(0);
-    const Color topRight = color.At(1);
-    const Color bottomRight = color.At(2);
-    const Color bottomLeft = color.At(3);
+    const toolkit::Color topLeft = color.At(0);
+    const toolkit::Color topRight = color.At(1);
+    const toolkit::Color bottomRight = color.At(2);
+    const toolkit::Color bottomLeft = color.At(3);
 
     bb.Vertex(pos.x, pos.y, 0.0f,
               topLeft.GetRed(), topLeft.GetGreen(), topLeft.GetBlue(), topLeft.GetAlpha())
@@ -288,13 +288,13 @@ void Render2D::DrawBorder(const Vec2f &pos, const Vec2f &size, const Brush &colo
             .Flush();
 }
 
-void Render2D::DrawBorder(const Box2D &box, const Brush &color) {
+void Render2D::DrawBorder(const toolkit::Box2D &box, const toolkit::Brush &color) {
     BufferBuilder bb(GL_LINE_LOOP);
 
-    const Color topLeft = color.At(0);
-    const Color topRight = color.At(1);
-    const Color bottomRight = color.At(2);
-    const Color bottomLeft = color.At(3);
+    const toolkit::Color topLeft = color.At(0);
+    const toolkit::Color topRight = color.At(1);
+    const toolkit::Color bottomRight = color.At(2);
+    const toolkit::Color bottomLeft = color.At(3);
 
     bb.Vertex(box.minX, box.minY, 0.0f,
               topLeft.GetRed(), topLeft.GetGreen(), topLeft.GetBlue(), topLeft.GetAlpha())
@@ -308,13 +308,13 @@ void Render2D::DrawBorder(const Box2D &box, const Brush &color) {
 
 }
 
-void Render2D::DrawRect(const Vec2f &pos, const Vec2f &size, const Brush &color) {
+void Render2D::DrawRect(const toolkit::Vec2f &pos, const toolkit::Vec2f &size, const toolkit::Brush &color) {
     BufferBuilder bb(GL_QUADS);
 
-    const Color topLeft = color.At(0);
-    const Color topRight = color.At(1);
-    const Color bottomRight = color.At(2);
-    const Color bottomLeft = color.At(3);
+    const toolkit::Color topLeft = color.At(0);
+    const toolkit::Color topRight = color.At(1);
+    const toolkit::Color bottomRight = color.At(2);
+    const toolkit::Color bottomLeft = color.At(3);
 
     bb.Vertex(pos.x, pos.y, 0.0f,
               topLeft.GetRed(), topLeft.GetGreen(), topLeft.GetBlue(), topLeft.GetAlpha())
@@ -327,18 +327,18 @@ void Render2D::DrawRect(const Vec2f &pos, const Vec2f &size, const Brush &color)
             .Flush();
 }
 
-void Render2D::DrawLine(FLOAT y, FLOAT minX, FLOAT maxX, const Brush &color) {
+void Render2D::DrawLine(FLOAT y, FLOAT minX, FLOAT maxX, const toolkit::Brush &color) {
     BufferBuilder bb(GL_LINES);
 
-    const Color start = color.At(0);
-    const Color end = color.At(1);
+    const toolkit::Color start = color.At(0);
+    const toolkit::Color end = color.At(1);
 
     bb.Vertex(minX, y, 0.0f, start.GetRed(), start.GetGreen(), start.GetBlue(), start.GetAlpha())
             .Vertex(maxX, y, 0.0f, end.GetRed(), end.GetGreen(), end.GetBlue(), end.GetAlpha())
             .Flush();
 }
 
-void Render2D::DrawTextureUI(const Texture& texture, Vec2f pos, Vec2f size, RGBA tint, FLOAT scale) {
+void Render2D::DrawTextureUI(const Texture& texture, toolkit::Vec2f pos, toolkit::Vec2f size, toolkit::RGBA tint, FLOAT scale) {
     if (texture.id == 0)
         return;
 
@@ -373,7 +373,7 @@ void Render2D::DrawTextureUI(const Texture& texture, Vec2f pos, Vec2f size, RGBA
 GLOBAL_PTR<Font> Font::Get(LITERAL path, INT size) {
     const auto [res, err] = Render2D::GetFont(path, size);
     if (err) {
-        LOGERR.Output("%s\n", err);
+        toolkit::LOGERR.Output("%s\n", err);
     }
     return res;
 }
@@ -384,7 +384,12 @@ Recti Recti::CalculateStepRect(INT atlasWidth, INT atlasHeight, INT frameSize, U
     const INT totalFrames = framesPerRow * framesPerCol;
 
     if (framesPerRow <= 0 || totalFrames <= 0) {
-        return Recti{0, 0, atlasWidth, atlasHeight};
+        return Recti{
+            .x = 0,
+            .y = 0,
+            .width = atlasWidth,
+            .height = atlasHeight
+        };
     }
 
     const UINT clampedStep = step % totalFrames;

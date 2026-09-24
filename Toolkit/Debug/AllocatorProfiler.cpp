@@ -1,4 +1,4 @@
-#include "MemoryProfiler.h"
+#include "AllocatorProfiler.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -20,12 +20,12 @@ namespace {
         std::size_t size;
 
         uint32_t frameCount;
-        void* frames[MemoryProfiler::MAX_FRAMES];
+        void* frames[toolkit::profiler::AllocatorProfiler::MAX_FRAMES];
     };
 
     alignas(64)
     AllocationEvent g_events[
-        MemoryProfiler::BUFFER_SIZE /
+        toolkit::profiler::AllocatorProfiler::BUFFER_SIZE /
         sizeof(AllocationEvent)
     ];
 
@@ -47,16 +47,16 @@ namespace {
         while (g_isEnabled) {
             WaitForSingleObject(g_flushEvent, 100);
 
-            MemoryProfiler::Flush();
+            toolkit::profiler::AllocatorProfiler::Flush();
         }
 
-        MemoryProfiler::Flush();
+        toolkit::profiler::AllocatorProfiler::Flush();
 
         return 0;
     }
 }
 
-void MemoryProfiler::Initialize() {
+void toolkit::profiler::AllocatorProfiler::Initialize() {
     if (g_flushEvent)
         return;
 
@@ -80,7 +80,7 @@ void MemoryProfiler::Initialize() {
     );
 }
 
-void MemoryProfiler::Shutdown() {
+void toolkit::profiler::AllocatorProfiler::Shutdown() {
     g_isEnabled = false;
 
     if (g_flushEvent)
@@ -104,19 +104,19 @@ void MemoryProfiler::Shutdown() {
     Flush();
 }
 
-void MemoryProfiler::SetEnabled(bool value) {
+void toolkit::profiler::AllocatorProfiler::SetEnabled(bool value) {
     g_isEnabled = value;
 
     if (value && !g_flushEvent)
         Initialize();
 }
 
-void MemoryProfiler::SetOutputAllocate(const char* path) {
+void toolkit::profiler::AllocatorProfiler::SetOutputAllocate(const char* path) {
     if (path)
         g_outputFile = path;
 }
 
-void MemoryProfiler::RecordAllocate(
+void toolkit::profiler::AllocatorProfiler::RecordAllocate(
     void* address,
     std::size_t size
 ) {
@@ -147,7 +147,7 @@ void MemoryProfiler::RecordAllocate(
     event.size = size;
 
     auto stacktrace =
-        ExceptionApi::CaptureStackTraceCurrent();
+        no_new::CaptureStackTraceCurrent();
 
     const std::size_t count =
         stacktrace.count < MAX_FRAMES
@@ -165,7 +165,7 @@ void MemoryProfiler::RecordAllocate(
     SetEvent(g_flushEvent);
 }
 
-void MemoryProfiler::RecordDeallocate(
+void toolkit::profiler::AllocatorProfiler::RecordDeallocate(
     void* address
 ) {
     if (!g_isEnabled || !address)
@@ -196,7 +196,7 @@ void MemoryProfiler::RecordDeallocate(
     event.frameCount = 0;
 }
 
-void MemoryProfiler::Flush() {
+void toolkit::profiler::AllocatorProfiler::Flush() {
     static bool initialized = false;
 
     FILE* file = nullptr;

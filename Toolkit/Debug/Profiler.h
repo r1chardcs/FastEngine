@@ -7,14 +7,14 @@
 
 #include <Platform.h>
 
-struct RAM_MemoryInfo {
-    unsigned long long workingSetSize;
-    unsigned long long pageFileUsage;
-    unsigned long long peakWorkingSize;
-    unsigned long long peakFileUsage;
-};
+namespace toolkit::profiler {
+    struct RAM_MemoryInfo {
+        unsigned long long workingSetSize;
+        unsigned long long pageFileUsage;
+        unsigned long long peakWorkingSize;
+        unsigned long long peakFileUsage;
+    };
 
-namespace Profiler {
     void Push(LITERAL format, ...);
     void Pop();
 
@@ -22,6 +22,6 @@ namespace Profiler {
     LITERAL GetProfiler();
 
     Err<RAM_MemoryInfo> GetRAMMemoyInfo();
-}
 
+}
 #endif //FASTENGINE_PROFILER_H

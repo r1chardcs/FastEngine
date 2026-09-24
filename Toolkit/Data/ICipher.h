@@ -7,11 +7,12 @@
 
 #include <Platform.h>
 
-class ICipher {
-public:
-    virtual ~ICipher() = default;
-    virtual void Encrypt(VECTOR<BYTE>& data) const = 0;
-    virtual void Decrypt(VECTOR<BYTE>& data) const = 0;
-};
-
+namespace toolkit {
+    class ICipher {
+    public:
+        virtual ~ICipher() = default;
+        virtual void Encrypt(VECTOR<BYTE>& data) const = 0;
+        virtual void Decrypt(VECTOR<BYTE>& data) const = 0;
+    };
+}
 #endif //FASTENGINE_ICIPHER_H

@@ -3,10 +3,12 @@
 
 #include "ICipher.h"
 
-class NoCipher : public ICipher {
-public:
-    void Encrypt(std::vector<unsigned char>& data) const override {}
-    void Decrypt(std::vector<unsigned char>& data) const override {}
-};
+namespace toolkit {
+    class NoCipher : public ICipher {
+    public:
+        void Encrypt(std::vector<unsigned char>& data) const override {}
+        void Decrypt(std::vector<unsigned char>& data) const override {}
+    };
+}
 
 #endif

@@ -5,7 +5,7 @@ add_library(Toolkit STATIC
         Anim/AnimationSystem.cpp
         Random.cpp
         Input.cpp
-        Debug/MemoryProfiler.cpp
+        Debug/AllocatorProfiler.cpp
         Debug/LagProfiler.cpp
         data/LocalStorage.cpp
         Anim/Easy.cpp

@@ -27,10 +27,10 @@ enum class Layout {
 class UIContext {
     VIEW_PTR<RenderSystem> render_system;
 
-    Vec2i GetLayoutPosition(
+    toolkit::Vec2i GetLayoutPosition(
         Layout layout,
-        Vec2i pos,
-        Vec2i size
+        toolkit::Vec2i pos,
+        toolkit::Vec2i size
     ) const;
 
 public:
@@ -38,51 +38,51 @@ public:
         : render_system(render_system) {
     }
 
-    Vec2i GetWindowSize() const;
+    toolkit::Vec2i GetWindowSize() const;
 
     void Text(
         Layout layout,
         VIEW_PTR<Font> font,
         LITERAL text,
-        Vec2i pos,
-        RGBA color,
+        toolkit::Vec2i pos,
+        toolkit::RGBA color,
         FLOAT scale
     ) const;
 
     void Rect(
         Layout layout,
-        Vec2i pos,
-        Vec2i size,
-        RGBA color
+        toolkit::Vec2i pos,
+        toolkit::Vec2i size,
+        toolkit::RGBA color
     ) const;
 
     void Border(
         Layout layout,
-        Vec2i pos,
-        Vec2i size,
-        RGBA color
+        toolkit::Vec2i pos,
+        toolkit::Vec2i size,
+        toolkit::RGBA color
     ) const;
 
     void Rect(
-        Vec2i pos,
-        Vec2i size,
-        RGBA color
+        toolkit::Vec2i pos,
+        toolkit::Vec2i size,
+        toolkit::RGBA color
     ) const;
 
     void Border(
-        Vec2i pos,
-        Vec2i size,
-        RGBA color
+        toolkit::Vec2i pos,
+        toolkit::Vec2i size,
+        toolkit::RGBA color
     ) const;
 
     static void Line(
-        Vec2i start,
-        Vec2i end,
-        RGBA color
+        toolkit::Vec2i start,
+        toolkit::Vec2i end,
+        toolkit::RGBA color
     );
 
-    void Image(Layout layout, VIEW_PTR<Texture> texture, Vec2i pos, Vec2i size,
-        RGBA tint = {.r = 1, .g = 1, .b = 1, .a = 1}, FLOAT scale = 1) const;
+    void Image(Layout layout, VIEW_PTR<Texture> texture, toolkit::Vec2i pos, toolkit::Vec2i size,
+        toolkit::RGBA tint = {.r = 1, .g = 1, .b = 1, .a = 1}, FLOAT scale = 1) const;
 };
 
 #endif //FASTENGINE_UICONTEXT_H

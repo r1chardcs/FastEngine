@@ -9,7 +9,9 @@
 #include "../Toolkit/Color.h"
 #include <stb_truetype.h>
 
-struct Box2D;
+namespace toolkit {
+    struct Box2D;
+}
 
 struct Texture {
     UIHANDLE id;
@@ -33,7 +35,7 @@ struct Recti {
 };
 
 struct TextMetrics {
-    Vec2f size;
+    toolkit::Vec2f size;
     float baselineOffset;
 };
 
@@ -45,15 +47,15 @@ namespace Render2D {
         float scale);
     TextMetrics MeasureText(VIEW_PTR<Font> font, const char *text, float scale);
 
-    void DrawCircle(const Vec2f &pos, const Vec2f &size, const Brush& color,
+    void DrawCircle(const toolkit::Vec2f &pos, const toolkit::Vec2f &size, const toolkit::Brush& color,
         bool fill = true);
-    void DrawTexture(VIEW_PTR<Texture> texture, const Vec2f &pos, const Vec2f &size, const Brush &color, RGBA tint = {0,0,0,0}, bool flipX = false);
-    void DrawTexture(VIEW_PTR<Texture> texture, const Recti &srcRect, const Vec2f &pos, const Vec2f &size, const Brush &color, RGBA tint = {0,0,0,0}, bool flipX = false);
-    void DrawBorder(const Vec2f &pos, const Vec2f &size, const Brush& color);
-    void DrawBorder(const Box2D &box, const Brush& color);
-    void DrawRect(const Vec2f &pos, const Vec2f &size, const Brush& color);
-    void DrawLine(FLOAT y, FLOAT minX, FLOAT maxX, const Brush &color);
-    void DrawTextureUI(const Texture& texture, Vec2f pos, Vec2f size, RGBA tint, FLOAT scale = 1);
+    void DrawTexture(VIEW_PTR<Texture> texture, const toolkit::Vec2f &pos, const toolkit::Vec2f &size, const toolkit::Brush &color, toolkit::RGBA tint = {0,0,0,0}, bool flipX = false);
+    void DrawTexture(VIEW_PTR<Texture> texture, const Recti &srcRect, const toolkit::Vec2f &pos, const toolkit::Vec2f &size, const toolkit::Brush &color, toolkit::RGBA tint = {0,0,0,0}, bool flipX = false);
+    void DrawBorder(const toolkit::Vec2f &pos, const toolkit::Vec2f &size, const toolkit::Brush& color);
+    void DrawBorder(const toolkit::Box2D &box, const toolkit::Brush& color);
+    void DrawRect(const toolkit::Vec2f &pos, const toolkit::Vec2f &size, const toolkit::Brush& color);
+    void DrawLine(FLOAT y, FLOAT minX, FLOAT maxX, const toolkit::Brush &color);
+    void DrawTextureUI(const Texture& texture, toolkit::Vec2f pos, toolkit::Vec2f size, toolkit::RGBA tint, FLOAT scale = 1);
 };
 
 

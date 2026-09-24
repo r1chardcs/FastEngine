@@ -8,7 +8,7 @@
 #include <Platform.h>
 #include <random>
 
-namespace Random {
+namespace toolkit::random {
     class LocalRandom {
         std::mt19937_64 engine;
     public:

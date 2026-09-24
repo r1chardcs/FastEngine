@@ -19,7 +19,7 @@ public:
 
     INT GetKey(INT key) const;
     INT GetMouseKey(INT key) const;
-    Vec2f GetMousePosition() const;
+    toolkit::Vec2f GetMousePosition() const;
 
     void MakeContext();
     BOOL IsRun() const;
@@ -30,7 +30,7 @@ public:
     HANDLE GetHandle() const;
     ~Window();
 
-    DOUBLE GetTime();
+    static DOUBLE GetTime();
     INT GetWidth() const;
     INT GetHeight() const;
 };

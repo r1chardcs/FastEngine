@@ -7,46 +7,49 @@
 #include <iomanip>
 #include <sstream>
 
-Tui::ProgressBar::ProgressBar(INT max, INT width, INT height): max(max), current(0), width(width), height(height),
+toolkit::tui::ProgressBar::ProgressBar(const INT max,
+                                       const INT width,
+                                       const INT height): max(max), current(0), width(width), height(height),
                                                                fillChar('#'), emptyChar('-'),
                                                                showPercentage(true), showCount(true) {
 }
 
-void Tui::ProgressBar::SetLabel(const STRING &text) {
+void toolkit::tui::ProgressBar::SetLabel(const STRING &text) {
     label = text;
 }
 
-void Tui::ProgressBar::SetChars(CHAR fill, CHAR empty) {
+void toolkit::tui::ProgressBar::SetChars(CHAR fill, CHAR empty) {
     fillChar = fill;
     emptyChar = empty;
 }
 
-void Tui::ProgressBar::SetShowPercentage(BOOL value) {
+void toolkit::tui::ProgressBar::SetShowPercentage(BOOL value) {
     showPercentage = value;
 }
 
-void Tui::ProgressBar::SetShowCount(BOOL value) {
+void toolkit::tui::ProgressBar::SetShowCount(BOOL value) {
     showCount = value;
 }
 
-void Tui::ProgressBar::SetProgress(INT value) {
+void toolkit::tui::ProgressBar::SetProgress(INT value) {
     current = value < 0 ? 0 : (value > max ? max : value);
     Render();
 }
 
-void Tui::ProgressBar::Advance(INT step) {
+void toolkit::tui::ProgressBar::Advance(INT step) {
     SetProgress(current + step);
 }
 
-INT Tui::ProgressBar::GetProgress() const {
+INT toolkit::tui::ProgressBar::GetProgress() const {
     return current;
 }
 
-BOOL Tui::ProgressBar::IsFinished() const {
+BOOL toolkit::tui::ProgressBar::IsFinished() const {
     return current >= max;
 }
 
-void Tui::ProgressBar::Render() const {
+// todo: переписать реализацию, на более эффективную
+void toolkit::tui::ProgressBar::Render() const {
     const FLOAT ratio = max > 0 ? static_cast<FLOAT>(current) / static_cast<FLOAT>(max) : 1.0f;
     const INT filled = static_cast<INT>(ratio * static_cast<FLOAT>(width));
 
@@ -77,7 +80,7 @@ void Tui::ProgressBar::Render() const {
     std::cout << line.str() << std::flush;
 }
 
-void Tui::ProgressBar::Finish() {
+void toolkit::tui::ProgressBar::Finish() {
     if (finished) return;
     SetProgress(max);
     std::cout << "\n";

@@ -11,11 +11,11 @@ Rect::Rect() {
     AddComponent<Transform>();
 }
 
-void Rect::SetColor(const Brush &color_) {
+void Rect::SetColor(const toolkit::Brush &color_) {
     this->color = color_;
 }
 
-Brush Rect::GetColor() {
+toolkit::Brush Rect::GetColor() {
     return color;
 }
 

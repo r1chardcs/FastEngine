@@ -68,7 +68,7 @@ RenderSystem::RenderSystem(VIEW_PTR<App> app): app(app) {
     camera = MakeSelfPtr<Camera>();
 }
 
-RGBA & RenderSystem::BackgroundColor() {
+toolkit::RGBA & RenderSystem::BackgroundColor() {
     return backgroundColor;
 }
 
@@ -115,7 +115,7 @@ void RenderSystem::Rotate(FLOAT angle, FLOAT x, FLOAT y, FLOAT z) {
     glRotatef(angle, x, y, z);
 }
 
-void RenderSystem::Rotate(const Quat& quat) {
+void RenderSystem::Rotate(const toolkit::Quat& quat) {
     FLOAT matrix[16];
     quat.ToMatrix4x4(matrix);
     glMultMatrixf(matrix);
@@ -126,7 +126,7 @@ void RenderSystem::NewContext() {
     glPushMatrix();
 }
 
-BOOL RenderSystem::IsInView(Vec2f pos, Vec2f size) const {
+BOOL RenderSystem::IsInView(toolkit::Vec2f pos, toolkit::Vec2f size) const {
     const FLOAT aspect = static_cast<FLOAT>(lastWidth) / static_cast<FLOAT>(lastHeight);
 
     const FLOAT camHeight = camera->GetHeight() / camera->GetScale();
@@ -206,7 +206,7 @@ void RenderSystem::LoadTexture(const LITERAL path) {
     app->ExecuteInRenderThread([this, key](auto) {
         auto [res, err] = Render2D::GetTexture(key.c_str());
         if (err) {
-            LOGWRN.Output("%s", err);
+            toolkit::LOGWRN.Output("%s", err);
         }
 
         MUTEX_LOCK lock(mutex_textures);
@@ -222,7 +222,7 @@ GLOBAL_PTR<Texture> RenderSystem::LoadTextureSync(const LITERAL path) {
     app->ExecuteInRenderThread([this, key, promise](auto) {
         auto [res, err] = Render2D::GetTexture(key.c_str());
         if (err) {
-            LOGWRN.Output("%s", err);
+            toolkit::LOGWRN.Output("%s", err);
         }
 
         {
@@ -240,7 +240,7 @@ GLOBAL_PTR<Texture> RenderSystem::GetTexture(const LITERAL path) const {
     MUTEX_LOCK lock(mutex_textures);
     const auto it = textures.find(path);
     if (it == textures.end()) {
-        LOGWRN.Output("Texture not loaded: %s", path);
+        toolkit::LOGWRN.Output("Texture not loaded: %s", path);
         return nullptr;
     }
     return it->second;
@@ -250,7 +250,7 @@ GLOBAL_PTR<Texture> RenderSystem::GetTexture(const LITERAL path) {
     MUTEX_LOCK lock(mutex_textures);
     const auto it = textures.find(path);
     if (it == textures.end()) {
-        LOGWRN.Output("Texture not loaded: %s", path);
+        toolkit::LOGWRN.Output("Texture not loaded: %s", path);
         return nullptr;
     }
     return it->second;
@@ -268,13 +268,13 @@ DOUBLE RenderSystem::GetDeltaTime() const {
     return deltaTime;
 }
 
-Vec2f RenderSystem::GetScreenSize() const {
+toolkit::Vec2f RenderSystem::GetScreenSize() const {
     return {
             static_cast<FLOAT>(app->GetWindow()->GetWidth()),
             static_cast<FLOAT>(app->GetWindow()->GetHeight())};
 }
 
-Vec2f RenderSystem::CenterPositionScreen() const {
+toolkit::Vec2f RenderSystem::CenterPositionScreen() const {
     const auto size = GetScreenSize();
     return {
         size.x / 2, size.y / 2

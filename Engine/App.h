@@ -51,7 +51,7 @@ protected:
     VIRTUAL void ProcessLogicQueue();
 
     SELF_PTR<Assets> assets;
-    SELF_PTR<LocalStorage> local_storage;
+    SELF_PTR<toolkit::LocalStorage> local_storage;
     void UpdateAppDebugObjectInfo();
 public:
     App(MOVE_PLEASE STRING app_name);
@@ -78,11 +78,11 @@ public:
 
     VIRTUAL void ExecuteInRenderThread(FUNC<VOID(VIEW_PTR<App>)> callback);
     VIRTUAL void ExecuteInLogicThread(FUNC<VOID(VIEW_PTR<App>)> callback);
-    VIRTUAL void GrabSelfCrash(const CrashContext& ctx);
+    VIRTUAL void GrabSelfCrash(const toolkit::CrashContext& ctx);
 
     INT GetKey(INT key) const;
     INT GetMouseKey(INT key) const;
-    Vec2f GetMousePos() const;
+    toolkit::Vec2f GetMousePos() const;
 
     DOUBLE GetDeltaTime() const;
 

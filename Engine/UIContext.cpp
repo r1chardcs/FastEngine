@@ -9,12 +9,12 @@
 #include "App.h"
 #include "BufferBuilder.h"
 
-Vec2i UIContext::GetLayoutPosition(
+toolkit::Vec2i UIContext::GetLayoutPosition(
     const Layout layout,
-    Vec2i pos,
-    const Vec2i size
+    toolkit::Vec2i pos,
+    const toolkit::Vec2i size
 ) const {
-    const Vec2i window = GetWindowSize();
+    const toolkit::Vec2i window = GetWindowSize();
 
     switch (layout) {
         case Layout::UP_LEFT:
@@ -40,7 +40,7 @@ Vec2i UIContext::GetLayoutPosition(
     return pos;
 }
 
-Vec2i UIContext::GetWindowSize() const {
+toolkit::Vec2i UIContext::GetWindowSize() const {
     const auto window = render_system->GetApp()->GetWindow();
 
     return {
@@ -53,8 +53,8 @@ void UIContext::Text(
     const Layout layout,
     const VIEW_PTR<Font> font,
     const char* text,
-    const Vec2i pos,
-    const RGBA color,
+    const toolkit::Vec2i pos,
+    const toolkit::RGBA color,
     const FLOAT scale
 ) const {
     if (!render_system || !text) {
@@ -62,12 +62,12 @@ void UIContext::Text(
     }
 
     const auto metrics = Render2D::MeasureText(font, text, scale);
-    const Vec2i size = {
+    const toolkit::Vec2i size = {
         static_cast<INT>(metrics.size.x),
         static_cast<INT>(metrics.size.y)
     };
 
-    Vec2i finalPos = GetLayoutPosition(layout, pos, size);
+    toolkit::Vec2i finalPos = GetLayoutPosition(layout, pos, size);
     finalPos.y += static_cast<INT>(metrics.baselineOffset);
 
     Render2D::RenderText(
@@ -80,52 +80,52 @@ void UIContext::Text(
 
 void UIContext::Rect(
     const Layout layout,
-    const Vec2i pos,
-    const Vec2i size,
-    const RGBA color
+    const toolkit::Vec2i pos,
+    const toolkit::Vec2i size,
+    const toolkit::RGBA color
 ) const {
-    const Vec2i finalPos = GetLayoutPosition(layout, pos, size);
+    const toolkit::Vec2i finalPos = GetLayoutPosition(layout, pos, size);
 
     Render2D::DrawRect(
         {static_cast<FLOAT>(finalPos.x), static_cast<FLOAT>(finalPos.y)},
-        {static_cast<FLOAT>(size.x), static_cast<FLOAT>(size.y)}, Brush(color));
+        {static_cast<FLOAT>(size.x), static_cast<FLOAT>(size.y)}, toolkit::Brush(color));
 }
 
 void UIContext::Border(
     const Layout layout,
-    const Vec2i pos,
-    const Vec2i size,
-    const RGBA color
+    const toolkit::Vec2i pos,
+    const toolkit::Vec2i size,
+    const toolkit::RGBA color
 ) const {
-    const Vec2i finalPos = GetLayoutPosition(layout, pos, size);
+    const toolkit::Vec2i finalPos = GetLayoutPosition(layout, pos, size);
 
     Render2D::DrawBorder(
         {static_cast<FLOAT>(finalPos.x), static_cast<FLOAT>(finalPos.y)},
         {static_cast<FLOAT>(size.x), static_cast<FLOAT>(size.y)},
-            Brush(color)
+            toolkit::Brush(color)
     );
 }
 
 void UIContext::Rect(
-    const Vec2i pos,
-    const Vec2i size,
-    const RGBA color
+    const toolkit::Vec2i pos,
+    const toolkit::Vec2i size,
+    const toolkit::RGBA color
 ) const {
     Rect(Layout::UP_LEFT, pos, size, color);
 }
 
 void UIContext::Border(
-    const Vec2i pos,
-    const Vec2i size,
-    const RGBA color
+    const toolkit::Vec2i pos,
+    const toolkit::Vec2i size,
+    const toolkit::RGBA color
 ) const {
     Border(Layout::UP_LEFT, pos, size, color);
 }
 
 void UIContext::Line(
-    const Vec2i start,
-    const Vec2i end,
-    const RGBA color
+    const toolkit::Vec2i start,
+    const toolkit::Vec2i end,
+    const toolkit::RGBA color
 ) {
     BufferBuilder bb(GL_LINES);
 
@@ -144,18 +144,18 @@ void UIContext::Line(
 void UIContext::Image(
     const Layout layout,
     const VIEW_PTR<Texture> texture,
-    const Vec2i pos,
-    const Vec2i size,
-    const RGBA tint,
+    const toolkit::Vec2i pos,
+    const toolkit::Vec2i size,
+    const toolkit::RGBA tint,
     const FLOAT scale
 ) const {
-    const Vec2i scaledSize = {
+    const toolkit::Vec2i scaledSize = {
         static_cast<INT>(static_cast<FLOAT>(size.x) * scale),
         static_cast<INT>(static_cast<FLOAT>(size.y) * scale)
     };
 
-    const Vec2i finalPos = GetLayoutPosition(layout, pos, scaledSize);
-    const Vec2f center = {
+    const toolkit::Vec2i finalPos = GetLayoutPosition(layout, pos, scaledSize);
+    const toolkit::Vec2f center = {
         static_cast<FLOAT>(finalPos.x) + static_cast<FLOAT>(scaledSize.x) / 2.0f,
         static_cast<FLOAT>(finalPos.y) + static_cast<FLOAT>(scaledSize.y) / 2.0f
     };

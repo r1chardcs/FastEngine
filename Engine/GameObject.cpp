@@ -20,7 +20,7 @@ STRING GameObject::GetLayer() {
 
 void GameObject::AddTag(STRING tag) {
     if (tag.empty()) {
-        LOGWRN.Output("Invalid tag: %s", tag.c_str());
+        toolkit::LOGWRN.Output("Invalid tag: %s", tag.c_str());
         return;
     }
     this->tags.emplace_back(MOVE(tag));
@@ -66,7 +66,7 @@ void GameObject::DrawUI() {
 
 VIEW_PTR<GameObject> GameObject::AddChild(const GLOBAL_PTR<GameObject> &child) {
     if (!child) {
-        LOGWRN.Output("AddChild called with null child\n");
+        toolkit::LOGWRN.Output("AddChild called with null child\n");
         return nullptr;
     }
 

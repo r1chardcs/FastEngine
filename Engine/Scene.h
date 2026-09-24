@@ -38,7 +38,7 @@ public:
     VIRTUAL void Render();
     VIRTUAL void Finish();
 
-    VIRTUAL RGBA GetBackgroundColor();
+    VIRTUAL toolkit::RGBA GetBackgroundColor();
 
     VIRTUAL void UI();
 

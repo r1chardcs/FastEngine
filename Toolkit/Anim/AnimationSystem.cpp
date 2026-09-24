@@ -51,7 +51,7 @@ void AnimationSystem::Update(FLOAT deltaTime) {
     }
 }
 
-void AnimationSystem::Stop(TweenHandle handle) {
+void AnimationSystem::Stop(TweenHandle handle) const {
     MUTEX_LOCK lock(mutex_tweens);
     for (auto& entry : tweens) {
         if (entry.first == handle) {
