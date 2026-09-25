@@ -12,9 +12,9 @@
 #include "../../Toolkit/Quat.h"
 
 class Transform : public Component {
-    Vec3f position;
-    Vec3f size;
-    Quat rotation;
+    toolkit::Vec3f position;
+    toolkit::Vec3f size;
+    toolkit::Quat rotation;
 public:
     Transform(const VIEW_PTR<GameObject> &self)
         : Component(self) {
@@ -22,10 +22,10 @@ public:
 
     void Render() override;
 
-    Quat& Rotation();
-    Vec3f& Position();
-    Vec3f HalfPos() const;
-    Vec3f& Size();
+    toolkit::Quat& Rotation();
+    toolkit::Vec3f& Position();
+    toolkit::Vec3f HalfPos() const;
+    toolkit::Vec3f& Size();
 
     public: static ClassID StaticClassID() {
         return 0x10;

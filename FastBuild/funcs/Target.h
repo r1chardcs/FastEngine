@@ -309,13 +309,13 @@ public:
 
                 void Action(VIEW_PTR<SysBuild> sys_build, VIEW_PTR<BuildTarget> build_target) override {
                     const auto from = GetExecutablePath() + "/core/libs/FastEngine.dll";
-                    TuiApplication& instance = *TuiApplication::GetInstance();
+                    auto& instance = *toolkit::TuiApplication::GetInstance();
                     const STRING cwd = instance.GetCWD();
 
                     const auto to = cwd + "/" + build_target->output_dir +"/FastEngine.dll";
 
-                    if (const auto [res, err] = IO::File::CopyFile(from, to); err) {
-                        LOGERR.Output(err).Output("\n");
+                    if (const auto [res, err] = toolkit::io::file::CopyFile(from, to); err) {
+                        toolkit::LOGERR.Output(err).Output("\n");
                     }
                 }
             };

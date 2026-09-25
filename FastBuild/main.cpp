@@ -11,7 +11,7 @@
 #include "Toolkit/IO/IO.h"
 
 namespace {
-    class App : public TuiApplication {
+    class App : public toolkit::TuiApplication {
     public:
         App(const RawBuff &raw_buff)
             : TuiApplication(raw_buff) {
@@ -25,7 +25,7 @@ namespace {
     public:
         STATUS Main(const ListArgument &arguments, const STRING &cwd) override {
             if (const auto newproject = arguments.HasFlag("-new")) {
-                IO::File::WriteFile("build.fb", R"(
+                toolkit::io::file::WriteFile("build.fb", R"(
 build("my-game-fastengine")
 
 target("app_game")
@@ -34,7 +34,7 @@ source += app.cpp
 type(fastengine)
 
 )");
-                IO::File::WriteFile("app.cpp", R"(
+                toolkit::io::file::WriteFile("app.cpp", R"(
 #include <Engine/App.h>
 
 class Game : public App {
@@ -56,17 +56,17 @@ int main() {
                 return Ok();
             }
             const auto file = arguments.Get("-file", "build.fb");
-            if (const auto [res, err] = IO::File::ExistFile(file); !res || err) {
+            if (const auto [res, err] = toolkit::io::file::ExistFile(file); !res || err) {
                 if (err) {
-                    LOGERR.Output("Error: %s\n", err);
+                    toolkit::LOGERR.Output("Error: %s\n", err);
                     return Err();
                 }
-                LOGERR.Output("File not found: %s\n", file.c_str());
+                toolkit::LOGERR.Output("File not found: %s\n", file.c_str());
                 return Err();
             }
-            const auto [res, err] = IO::File::ReadFile(file);
+            const auto [res, err] = toolkit::io::file::ReadFile(file);
             if (err) {
-                LOGERR.Output("Error: %s\n", err);
+                toolkit::LOGERR.Output("Error: %s\n", err);
                 return Err();
             }
             FastBuildLang lang(res);
@@ -97,7 +97,7 @@ int main() {
                 if (arguments.HasFlag("-cmake")) {
                     if (State::sys_build) {
                         const auto cmake = State::sys_build->MigrateToCmake();
-                        LOGINF.Output(cmake.c_str()).Output("\n");
+                        toolkit::LOGINF.Output(cmake.c_str()).Output("\n");
                         return Ok();
                     }
                 }
@@ -114,11 +114,11 @@ int main() {
 
 
 int main(const int c, char** r) {
-    LOGERR.SetOutputCallback([](VIEW_PTR<Logger> view_ptr, STRING basic_string) {});
-    LOGWRN.SetOutputCallback([](VIEW_PTR<Logger> view_ptr, STRING basic_string) {});
-    LOGINF.SetOutputCallback([](VIEW_PTR<Logger> view_ptr, STRING basic_string) {});
+    toolkit::LOGERR.SetOutputCallback([](VIEW_PTR<toolkit::Logger> view_ptr, STRING basic_string) {});
+    toolkit::LOGWRN.SetOutputCallback([](VIEW_PTR<toolkit::Logger> view_ptr, STRING basic_string) {});
+    toolkit::LOGINF.SetOutputCallback([](VIEW_PTR<toolkit::Logger> view_ptr, STRING basic_string) {});
 
-    CrashDumper::SetCallback([](const CrashContext &crash_context) {
+    toolkit::scd::SetCallback([](const toolkit::CrashContext &crash_context) {
         std::ostringstream ss;
         ss << std::hex << std::uppercase << reinterpret_cast<uintptr_t>(crash_context.exception_address);
         const STRING addressHex = ss.str();
@@ -155,14 +155,14 @@ int main(const int c, char** r) {
             message += "  <no stack trace captured>\n";
         }
 
-        IO::MsgBox(
+        toolkit::io::MsgBox(
             "Unhandled Exception",
             message,
-            static_cast<MessageBoxFlags_t>(MessageBoxStyle::IconError | MessageBoxStyle::Ok)
+            static_cast<toolkit::MessageBoxFlags_t>(toolkit::MessageBoxStyle::IconError | toolkit::MessageBoxStyle::Ok)
         );
     });
 
-    CrashDumper::AttachHandler();
+    toolkit::scd::AttachHandler();
 
     App app(App::RawBuff(r, c));
     return app.Run();

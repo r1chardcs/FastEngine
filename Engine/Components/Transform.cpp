@@ -12,15 +12,15 @@ void Transform::Render() {
 
 }
 
-Quat & Transform::Rotation() {
+toolkit::Quat & Transform::Rotation() {
     return rotation;
 }
 
-Vec3f & Transform::Position() {
+toolkit::Vec3f & Transform::Position() {
     return position;
 }
 
-Vec3f Transform::HalfPos() const {
+toolkit::Vec3f Transform::HalfPos() const {
     return {
         position.x - size.x * 0.5f,
         position.y - size.y * 0.5f,
@@ -28,6 +28,6 @@ Vec3f Transform::HalfPos() const {
     };
 }
 
-Vec3f & Transform::Size() {
+toolkit::Vec3f & Transform::Size() {
     return size;
 }

@@ -12,7 +12,7 @@ namespace toolkit::random {
     class LocalRandom {
         std::mt19937_64 engine;
     public:
-        explicit LocalRandom(const SIZE_T seed);
+        explicit LocalRandom(SIZE_T seed);
 
         INT RandInt(INT min, INT max);
         FLOAT RandFloat(FLOAT min, FLOAT max);

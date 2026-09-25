@@ -14,12 +14,12 @@ void Sprite::SetTexture(const NIL<GLOBAL_PTR<Texture>> &texture_) {
 void Sprite::Render() {
     const auto transform = self->GetComponent<Transform>();
     if (!transform) {
-        LOGWRN.Output("Sprite has no Transform component");
+        toolkit::LOGWRN.Output("Sprite has no Transform component");
         return;
     }
 
     if (not texture.has_value()) {
-        LOGWRN.Output("Texture is null");
+        toolkit::LOGWRN.Output("Texture is null");
         return;
     }
 
@@ -33,14 +33,14 @@ void Sprite::Render() {
             srcRect,
             transform->HalfPos().ToVec2(),
             transform->Size().ToVec2(),
-            Brush::Solid(255, 255, 255, 255),tint,
+            toolkit::Brush::Solid(255, 255, 255, 255),tint,
             flipX);
     } else {
         Render2D::DrawTexture(
             texture.value().get(),
             transform->HalfPos().ToVec2(),
             transform->Size().ToVec2(),
-            Brush::Solid(255, 255, 255, 255), tint,
+            toolkit::Brush::Solid(255, 255, 255, 255), tint,
             flipX);
     }
 
@@ -48,7 +48,7 @@ void Sprite::Render() {
     self->GetRenderSystem()->StopContext();
 }
 
-RGBA & Sprite::Tint() {
+toolkit::RGBA & Sprite::Tint() {
     return tint;
 }
 

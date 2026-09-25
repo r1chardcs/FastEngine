@@ -306,7 +306,7 @@ SysBuild::CompileResult SysBuild::RunCompile(const BuildTarget& target, const Co
     result.source = job.source;
 
     const STRING command = BuildCompileCommand(target, job);
-    LOGWRN.Output("Running: %s\n", command.c_str());
+    toolkit::LOGWRN.Output("Running: %s\n", command.c_str());
 
     const auto [res, err] = RunProcessCapture(command, result.log);
 
@@ -369,10 +369,10 @@ Err<NOT> SysBuild::Build(const STRING& target_name) {
     }
 
     if (jobs.empty()) {
-        LOGWRN.Output("Target '%s' is up to date, nothing to compile\n", target.name.c_str());
+        toolkit::LOGWRN.Output("Target '%s' is up to date, nothing to compile\n", target.name.c_str());
     } else {
-        LOGWRN.Output("Compiling %zu of %zu source(s) for target '%s'\n",
-                       jobs.size(), target.sources.size(), target.name.c_str());
+        toolkit::LOGWRN.Output("Compiling %zu of %zu source(s) for target '%s'\n",
+                               jobs.size(), target.sources.size(), target.name.c_str());
 
         std::mutex queueMutex;
         std::queue<SIZE_T> jobQueue;
@@ -388,7 +388,7 @@ Err<NOT> SysBuild::Build(const STRING& target_name) {
            по мере завершения каждого воркера, под тем же мьютексом,
            что защищает results (SetProgress не потокобезопасна сама
            по себе). */
-        Tui::ProgressBar progress_bar(static_cast<INT>(jobs.size()), 20);
+        toolkit::tui::ProgressBar progress_bar(static_cast<INT>(jobs.size()), 20);
         progress_bar.SetChars('\xDB', '-');
         progress_bar.SetLabel("Compiling " + target.name);
         progress_bar.Render();
@@ -430,7 +430,7 @@ Err<NOT> SysBuild::Build(const STRING& target_name) {
 
         for (const auto& result : results) {
             if (!result.log.empty()) {
-                LOGWRN.Output("%s:\n%s\n", result.source.c_str(), result.log.c_str());
+                toolkit::LOGWRN.Output("%s:\n%s\n", result.source.c_str(), result.log.c_str());
             }
         }
 
@@ -440,7 +440,7 @@ Err<NOT> SysBuild::Build(const STRING& target_name) {
         }
     }
 
-    LOGWRN.Output("Linking target '%s'...\n", target.name.c_str());
+    toolkit::LOGWRN.Output("Linking target '%s'...\n", target.name.c_str());
     const auto result = RunLink(target, allObjects);
     for (const auto &build_action : actions) {
         if (build_action->GetType() == BuildActionType::POST)

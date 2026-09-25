@@ -14,12 +14,12 @@ class Sprite : public Component {
     Recti srcRect = {};
     bool useSrcRect = false;
     BOOL flipX = false;
-    RGBA tint = {.r = 1,.g = 1,.b = 1,.a = 1};
+    toolkit::RGBA tint = {.r = 1,.g = 1,.b = 1,.a = 1};
 public:
     Sprite(const VIEW_PTR<GameObject> &self)
         : Component(self) {
     }
-    RGBA& Tint();
+    toolkit::RGBA& Tint();
 
     void SetFlipX(BOOL flip);
     BOOL GetFlipX() const;

@@ -24,12 +24,9 @@ void FastBuildLang::CollectDefFunc() {
         }
     };
 
-    /* Читает один аргумент начиная с текущей позиции i: либо строковый
-       литерал в кавычках, либо голый токен (идентификатор/число) до
-       разделителя. Возвращает true, если что-то было прочитано. */
     auto readArgument = [&](DefFunc& func, auto isTerminator) -> BOOL {
         if (i < len && sources[i] == '"') {
-            i++; // пропускаем открывающую "
+            i++;
             const SIZE_T strStart = i;
 
             while (i < len && sources[i] != '"') {
@@ -43,7 +40,7 @@ void FastBuildLang::CollectDefFunc() {
             func.arguments.push_back(sources.substr(strStart, i - strStart));
 
             if (i < len && sources[i] == '"') {
-                i++; // пропускаем закрывающую "
+                i++;
             }
             return true;
         }
@@ -73,9 +70,8 @@ void FastBuildLang::CollectDefFunc() {
 
             skipWhitespaceExceptNewline();
 
-            /* === Синтаксис 1: call(arg1, arg2, ...) === */
             if (i < len && sources[i] == '(') {
-                i++; // пропускаем '('
+                i++;
 
                 DefFunc func;
                 func.name = name;
@@ -107,19 +103,15 @@ void FastBuildLang::CollectDefFunc() {
                 continue;
             }
 
-            /* === Синтаксис 2: call += first_arg += second_arg === */
             if (i + 1 < len && sources[i] == '+' && sources[i + 1] == '=') {
                 DefFunc func;
                 func.name = name;
 
                 while (i + 1 < len && sources[i] == '+' && sources[i + 1] == '=') {
-                    i += 2; // пропускаем "+="
+                    i += 2;
                     skipWhitespaceExceptNewline();
 
                     readArgument(func, [&](SIZE_T pos) {
-                        /* Аргумент в этом синтаксисе читается до конца строки,
-                           до следующего "+=" или до пробела (последнее уже
-                           обрабатывается внутри readArgument для голых токенов). */
                         if (sources[pos] == '\n') return true;
                         if (pos + 1 < len && sources[pos] == '+' && sources[pos + 1] == '=') return true;
                         return false;
@@ -145,7 +137,7 @@ void FastBuildLang::Run() {
         const auto it = runtime_funcs.find(name);
 
         if (it == runtime_funcs.end()) {
-            LOGERR.Output("FastBuildLang: unknown function '%s'\n", name.c_str());
+            toolkit::LOGERR.Output("FastBuildLang: unknown function '%s'\n", name.c_str());
             continue;
         }
 

@@ -6,6 +6,7 @@
 #define FASTENGINE_INPUT_H
 
 #include <Platform.h>
+
 namespace toolkit::input {
     enum Action {
         MoveUp,
