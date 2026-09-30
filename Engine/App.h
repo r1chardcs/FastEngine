@@ -36,11 +36,6 @@ class App {
     QUEUE<FUNC<VOID(VIEW_PTR<App>)>> queue_logic;
     MUTEX mutex_render, mutex_logic;
 
-    COMMENT("Usage: Scene")
-    DEPRECTED_API
-    LIST<GLOBAL_PTR<GameObject>> game_objects;
-    MUTEX mutex_game_objects;
-
     static VIEW_PTR<App> instance;
     GLOBAL_PTR<Scene> current_scene,temp_current_scene;
     GLOBAL_PTR<Scene> scene_expectations;

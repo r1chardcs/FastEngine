@@ -7,6 +7,7 @@
 
 #include <Platform.h>
 #include <cmath>
+
 namespace toolkit {
     template <typename NumberType>
     struct Vec2 {

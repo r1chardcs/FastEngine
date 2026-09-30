@@ -12,40 +12,52 @@
 
 #include <GL/gl.h>
 
+#include "Debug/AllocatorProfiler.h"
+#include "Debug/LagProfiler.h"
+#include "Debug/Test.h"
+
 
 Camera::Camera(): x(0), y(0), height(10), scale(1) {}
 
 Camera::Camera(const FLOAT height, const FLOAT scale): x(0), y(0), height(height), scale(scale) {}
 
 FLOAT Camera::GetX() const {
+    TEST_THIS(Camera);
     return x;
 }
 
 FLOAT Camera::GetY() const {
+    TEST_THIS(Camera);
     return y;
 }
 
 FLOAT Camera::GetHeight() const {
+    TEST_THIS(Camera);
     return height;
 }
 
 FLOAT Camera::GetScale() const {
+    TEST_THIS(Camera);
     return scale;
 }
 
 void Camera::SetX(const FLOAT value) {
+    TEST_THIS(Camera);
     x = value;
 }
 
 void Camera::SetY(const FLOAT value) {
+    TEST_THIS(Camera);
     y = value;
 }
 
 void Camera::SetHeight(const FLOAT value) {
+    TEST_THIS(Camera);
     height = value;
 }
 
 void Camera::SetScale(const FLOAT value) {
+    TEST_THIS(Camera);
     scale = value;
 }
 
@@ -70,9 +82,6 @@ RenderSystem::RenderSystem(VIEW_PTR<App> app): app(app) {
 
 toolkit::RGBA & RenderSystem::BackgroundColor() {
     return backgroundColor;
-}
-
-void RenderSystem::UpdateCamera() {
 }
 
 void RenderSystem::SetRenderUICallback(const FUNC<void(VIEW_PTR<RenderSystem>)> &callback) {
@@ -100,18 +109,22 @@ void RenderSystem::OnUpdate() {
 
     StartWorld();
     {
+        toolkit::profiler::lag::Push("RenderSystem::StartWorld()");
         if (world_render_callback) world_render_callback(this);
+        toolkit::profiler::lag::Pop();
     }
     EndWorld();
 
     StartUI();
     {
+        toolkit::profiler::lag::Push("RenderSystem::StartUI()");
         if (ui_render_callback) ui_render_callback(this);
+        toolkit::profiler::lag::Pop();
     }
     EndUI();
 }
 
-void RenderSystem::Rotate(FLOAT angle, FLOAT x, FLOAT y, FLOAT z) {
+void RenderSystem::Rotate(const FLOAT angle, const FLOAT x, const FLOAT y, const FLOAT z) {
     glRotatef(angle, x, y, z);
 }
 

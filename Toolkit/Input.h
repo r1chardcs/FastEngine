@@ -8,17 +8,23 @@
 #include <Platform.h>
 
 namespace toolkit::input {
-    enum Action {
-        MoveUp,
-        MoveDown,
-        MoveLeft,
-        MoveRight,
-        Button1,
-        Button2,
-        Jump,
-        Quit,
-        Fullscreen,
-    };
+    BOOL
+    Down(UINT action);
+
+    BOOL
+    Pressed(UINT action);
+
+    BOOL
+    Released(UINT action);
+
+    BOOL
+    MouseDown(UINT action);
+
+    BOOL
+    MousePressed(UINT action);
+
+    BOOL
+    MouseReleased(UINT action);
 
     void InitializeInput();
 
@@ -31,18 +37,13 @@ namespace toolkit::input {
     INLINE HASH_MAP<UINT, BOOL> previous_mouse_keys;
 
     template <typename... Args>
-    void AddMapping(const UINT action, Args&&... args) {
+    void AddMapping(const UINT action,
+                          Args&&... args) {
         mappings[action] = LIST<INT>{static_cast<INT>(std::forward<Args>(args))...};
     }
 
     void UpdateKeys();
 
-    BOOL Down(UINT action);
-    BOOL Pressed(UINT action);
-    BOOL Released(UINT action);
-
-    BOOL MouseDown(UINT action);
-    BOOL MousePressed(UINT action);
-    BOOL MouseReleased(UINT action);
+    enum Action { MoveUp, MoveDown, MoveLeft, MoveRight, Button1, Button2, Jump, Quit, Fullscreen,};
 }
 #endif //FASTENGINE_INPUT_H

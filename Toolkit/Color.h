@@ -40,26 +40,24 @@ namespace toolkit {
         INT count = 0;
 
     public:
-        Brush(const RGBA &rgba) {
-            colors[0] = Color(rgba);
-            count = 1;
-        }
+        Brush(const RGBA &rgba);
 
         template <typename... T>
-        Brush(const Color &color, T... args) {
-            colors[0] = color;
-            count = 1;
-            (Put(args), ...);
-        }
+        Brush(const Color &color, T... args);
 
         void Put(const Color &color);
-
         Color At(INT index) const;
-
         RGBA GetRGBA();
 
         static Brush Solid(BYTE r, BYTE g, BYTE b, BYTE a = 255);
         static Brush Solid(const Color &color);
     };
+
+    template<typename ... T>
+    Brush::Brush(const Color &color, T... args) {
+        colors[0] = color;
+        count = 1;
+        (Put(args), ...);
+    }
 }
 #endif //FASTENGINE_COLOR_H

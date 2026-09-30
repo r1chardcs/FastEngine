@@ -173,21 +173,24 @@ LIST<VIEW_PTR<GameObject>> App::GetGameObjectByTags(const STRING &tag) const {
     return current_scene->GetGameObjectByTags(tag);
 }
 
-void App::Start() {
+/*                        */
+/*  VIRTUAL EVENT METHODS */
+/*                        */
 
-}
+void
+App::Start() {}
 
-void App::Update() {
-}
+void
+App::Update() {}
 
-void App::Finish() {
-}
+void
+App::Finish() {}
 
-void App::World(TypeEvent type) {
-}
+void
+App::World(TypeEvent) {}
 
-void App::UI(TypeEvent type) {
-}
+void
+App::UI(TypeEvent) {}
 
 void App::ExecuteInRenderThread(const FUNC<VOID(VIEW_PTR<App>)> callback) {
     MUTEX_LOCK lock(mutex_render);

@@ -4,6 +4,8 @@
 
 #include "Random.h"
 
+#include "Debug/Test.h"
+
 
 namespace toolkit::random {
     thread_local toolkit::random::LocalRandom g_localrandom{std::random_device{}()};
@@ -12,41 +14,48 @@ namespace toolkit::random {
         : engine(seed), seed(seed) {
     }
     INT LocalRandom::RandInt(INT min, INT max) {
+        TEST_THIS(LocalRandom);
         if (min > max) std::swap(min, max);
         std::uniform_int_distribution<INT> dist(min, max);
         return dist(engine);
     }
 
     FLOAT LocalRandom::RandFloat(FLOAT min, FLOAT max) {
+        TEST_THIS(LocalRandom);
         if (min > max) std::swap(min, max);
         std::uniform_real_distribution<FLOAT> dist(min, max);
         return dist(engine);
     }
 
     DOUBLE LocalRandom::RandDouble(DOUBLE min, DOUBLE max) {
+        TEST_THIS(LocalRandom);
         if (min > max) std::swap(min, max);
         std::uniform_real_distribution<DOUBLE> dist(min, max);
         return dist(engine);
     }
 
     LONG LocalRandom::RandLong(LONG min, LONG max) {
+        TEST_THIS(LocalRandom);
         if (min > max) std::swap(min, max);
         std::uniform_int_distribution<LONG> dist(min, max);
         return dist(engine);
     }
 
     LONGLONG LocalRandom::RandLongLong(LONGLONG min, LONGLONG max) {
+        TEST_THIS(LocalRandom);
         if (min > max) std::swap(min, max);
         std::uniform_int_distribution<LONGLONG> dist(min, max);
         return dist(engine);
     }
 
     BOOL LocalRandom::RandBool() {
+        TEST_THIS(LocalRandom);
         std::uniform_int_distribution<INT> dist(0, 1);
         return dist(engine) == 1;
     }
 
     SIZE_T LocalRandom::GetSeed() const {
+        TEST_THIS(LocalRandom);
         return seed;
     }
 

@@ -31,28 +31,10 @@ public:
 };
 
 class RenderSystem {
-    SELF_PTR<Camera> camera = nullptr;
-    VIEW_PTR<App> app = nullptr;
-    DOUBLE lastTime = 0, deltaTime = 0;
-    void UpdateDeltaTime();
-
-    CALLBACK<VOID(VIEW_PTR<RenderSystem>)> ui_render_callback;
-    CALLBACK<VOID(VIEW_PTR<RenderSystem>)> world_render_callback;
-
-    HASH_MAP<STRING, GLOBAL_PTR<Texture>> textures;
-    mutable MUTEX mutex_textures;
-    INT lastWidth = 1;
-    INT lastHeight = 1;
-    DOUBLE fps = 0.0;
-    DOUBLE fps_accum_time = 0.0;
-    INT fps_frame_count = 0;
-
-    toolkit::RGBA backgroundColor = {.r = 0, .g = 0, .b = 0, .a = 1};
 public:
     RenderSystem(VIEW_PTR<App> app);
 
     toolkit::RGBA& BackgroundColor();
-    void UpdateCamera();
 
     void SetRenderUICallback(const CALLBACK<VOID(VIEW_PTR<RenderSystem>)> &callback);
     void SetRenderWorldCallback(const CALLBACK<VOID(VIEW_PTR<RenderSystem>)> &callback);
@@ -76,21 +58,50 @@ public:
 
     void LoadTexture(LITERAL path);
 
-    GLOBAL_PTR<Texture> LoadTextureSync(LITERAL path);
+    GLOBAL_PTR<Texture>
+    LoadTextureSync(LITERAL path);
 
-    GLOBAL_PTR<Texture> GetTexture(LITERAL path) const;
+    GLOBAL_PTR<Texture>
+    GetTexture(LITERAL path) const;
 
-    GLOBAL_PTR<Texture> GetTexture(LITERAL path);
+    GLOBAL_PTR<Texture>
+    GetTexture(LITERAL path);
 
-    VIEW_PTR<Camera> GetCamera() const;
-    VIEW_PTR<App> GetApp() const;
+    VIEW_PTR<Camera>
+    GetCamera() const;
 
-    DOUBLE GetDeltaTime() const;
+    VIEW_PTR<App>
+    GetApp() const;
 
-    toolkit::Vec2f GetScreenSize() const;
-    toolkit::Vec2f CenterPositionScreen() const;
+    DOUBLE
+    GetDeltaTime() const;
 
-    DOUBLE GetFPS() const;
+    toolkit::Vec2f
+    GetScreenSize() const;
+
+    toolkit::Vec2f
+    CenterPositionScreen() const;
+
+    DOUBLE
+    GetFPS() const;
+private:
+    SELF_PTR<Camera> camera = nullptr;
+    VIEW_PTR<App> app = nullptr;
+    DOUBLE lastTime = 0, deltaTime = 0;
+    void UpdateDeltaTime();
+
+    CALLBACK<VOID(VIEW_PTR<RenderSystem>)> ui_render_callback;
+    CALLBACK<VOID(VIEW_PTR<RenderSystem>)> world_render_callback;
+
+    HASH_MAP<STRING, GLOBAL_PTR<Texture>> textures;
+    mutable MUTEX mutex_textures;
+    INT lastWidth = 1;
+    INT lastHeight = 1;
+    DOUBLE fps = 0.0;
+    DOUBLE fps_accum_time = 0.0;
+    INT fps_frame_count = 0;
+
+    toolkit::RGBA backgroundColor = {.r = 0, .g = 0, .b = 0, .a = 1};
 };
 
 #endif //FASTENGINE_RENDERENGINE_H

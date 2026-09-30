@@ -29,7 +29,7 @@ CHAR toolkit::io::InputChar(const STRING &msg) {
 }
 
 #undef MessageBox
-void toolkit::io::MsgBox(const STRING &title, const STRING &text, toolkit::MessageBoxFlags_t style) {
+void toolkit::io::MsgBox(const STRING &title, const STRING &text, const MessageBoxFlags_t style) {
     ::MessageBoxA(
         nullptr,
         text.c_str(),

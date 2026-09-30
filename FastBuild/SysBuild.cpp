@@ -352,8 +352,6 @@ Err<NOT> SysBuild::Build(const STRING& target_name) {
     fs::create_directories(target.obj_dir, ec);
     fs::create_directories(target.output_dir, ec);
 
-    /* Этап проверки (NeedsRecompile) быстрый — прогрессбар тут не нужен,
-       он вводил в заблуждение, добегая до 100% раньше реальной компиляции. */
     VECTOR<CompileJob> jobs;
     VECTOR<STRING> allObjects;
 
@@ -384,10 +382,6 @@ Err<NOT> SysBuild::Build(const STRING& target_name) {
         VECTOR<CompileResult> results(jobs.size());
         std::atomic<BOOL> hadError{false};
 
-        /* Прогрессбар теперь отражает реальную компиляцию — двигается
-           по мере завершения каждого воркера, под тем же мьютексом,
-           что защищает results (SetProgress не потокобезопасна сама
-           по себе). */
         toolkit::tui::ProgressBar progress_bar(static_cast<INT>(jobs.size()), 20);
         progress_bar.SetChars('\xDB', '-');
         progress_bar.SetLabel("Compiling " + target.name);
